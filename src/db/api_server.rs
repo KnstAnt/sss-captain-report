@@ -1,0 +1,264 @@
+//! Функции для работы с АПИ-сервером
+use crate::db::serde_parser::IFromJson;
+use crate::error::Error;
+use api_tools::client::api_query::*;
+use api_tools::client::api_request::*;
+
+use super::computed_frame::ComputedFrameDataArray;
+use super::criterion::DataRowArray;
+use super::criterion::DataShipArray;
+use super::itinerary::ItineraryData;
+use super::itinerary::ItineraryDataArray;
+use super::ship::ShipData;
+use super::ship::ShipDataArray;
+use super::stability_diagram::StabilityDiagramDataArray;
+use super::strength_limit::StrengthLimitDataArray;
+use super::strength_result::StrengthResultDataArray;
+use super::voyage::VoyageData;
+
+pub struct ApiServer {
+    database: String,
+    request: Option<ApiRequest>,
+}
+//
+impl ApiServer {
+    pub fn new(database: String) -> Self {
+        Self {
+            database,
+            request: None,
+        }
+    }
+    //
+    pub fn fetch(&mut self, sql: &str) -> Result<Vec<u8>, Error> {
+        let mut request = ApiRequest::new(
+            &api_tools::debug::dbg_id::DbgId("parent".to_owned()),
+            "0.0.0.0:8080",
+            "auth_token",
+            ApiQuery::new(
+                ApiQueryKind::Sql(ApiQuerySql::new(self.database.clone(), sql)),
+                false,
+            ),
+            true,
+            false,
+        );
+        request
+            .fetch(true)
+            .map_err(|e| Error::FromString(format!("ApiServer fetch error: {e}")))
+    }
+}
+
+/// Чтение данных из БД. Функция читает данные за несколько запросов,
+/// парсит их и проверяет данные на корректность.
+pub fn get_criterion_data(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<DataRowArray, Error> {
+    DataRowArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT criterion_id AS id, actual_value AS result, limit_value AS target FROM criterion_values WHERE ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| {
+                Error::FromString(format!("api_server get_criterion_data error: {e}"))
+            })?
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))
+}
+//
+pub fn get_parameters_data(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<DataRowArray, Error> {
+    DataRowArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT parameter_id as id, result FROM parameter_data WHERE ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_parameters_data error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_parameters_data error: {e}")))
+}
+//
+pub fn get_strength_result(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<Vec<(f64, f64, f64)>, Error> {
+    let bounds = ComputedFrameDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT index, start_x, end_x FROM computed_frame_space WHERE ship_id={} ORDER BY index;",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_strength_result bounds error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_strength_result bounds error: {e}")))?;
+    let strength_result = StrengthResultDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT value_shear_force as sf, value_bending_moment as bm FROM result_strength WHERE ship_id={} ORDER BY index;",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_strength_result strength_result error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_strength_result strength_result error: {e}")))?;
+    Ok(bounds
+        .data()
+        .iter()
+        .zip(strength_result.data().iter())
+        .map(|(x, (sf, bm))| (*x, *sf, *bm))
+        .collect())
+}
+// (frame_x, bm_min, bm_max, sf_min, sf_max)
+pub fn get_strength_limit(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+    area: &str,
+) -> Result<Vec<(f64, f64, f64, f64, f64)>, Error> {
+    Ok(StrengthLimitDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT frame_x, value, limit_type::TEXT, limit_area::TEXT, force_type::TEXT FROM strength_force_limit WHERE ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_strength_limit error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_strength_limit error: {e}")))?.data(area))
+}
+//
+pub fn get_lever_diagram(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<Vec<(f64, f64)>, Error> {
+    Ok(StabilityDiagramDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT angle, value_dso FROM stability_diagram WHERE ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_lever_diagram error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_lever_diagram error: {e}")))?
+    .data())
+}
+//
+pub fn get_ship(api_server: &mut ApiServer, ship_id: usize) -> Result<ShipData, Error> {
+    ShipDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT
+                    s.name as name, \
+                    s.call_sign as call_sign, \
+                    s.IMO as imo, \
+                    s.MMSI as mmsi, \
+                    tr.title_eng AS ship_type, \
+                    s.year_of_built as year_of_built, \
+                    s.place_of_built as place_of_built, \
+                    n.area::TEXT AS area, \
+                    s.classification_society, \
+                    s.registration_number, \
+                    s.port_of_registry, \
+                    s.flag_state, \
+                    s.ship_master, \
+                    s.ship_owner_code, \
+                    s.ship_builder_name, \
+                    s.yard_of_build, \
+                    s.place_of_built, \
+                    s.year_of_built, \
+                    s.ship_builder_hull_number, \
+                    s.limit_area::TEXT AS limit_area
+                FROM 
+                    ship
+                JOIN 
+                    ship_type AS t ON s.ship_type_id = t.id
+                JOIN             
+                    ship_type_rmrs AS tr ON t.type_rmrs = tr.id
+                JOIN
+                    navigation_area AS n ON s.navigation_area_id = n.id
+                WHERE ship_id={ship_id};"
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?
+    .data()
+    .ok_or(Error::FromString(format!(
+        "api_server get_ship error: no data!"
+    )))
+}
+//
+pub fn get_itinerary(api_server: &mut ApiServer, ship_id: usize) -> Result<ItineraryDataArray, Error> {
+    ItineraryDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT
+                    port_name, \
+                    port_code, \
+                    eta, \
+                    etd, \
+                    max_draught
+                FROM 
+                    waypoint
+                WHERE ship_id={ship_id};"
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_itinerary error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))
+}
+//
+/* TODO
+pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageData, Error> {
+    VoyageData::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT
+                    v.code as code,
+                    s.limit_area::TEXT as area,
+                    v.density as : Option<f64>,
+                    load_line: Option<String>,
+                    icing: Option<f64>,
+                    wetting: Option<f64>,
+                    v.description as description,
+
+                    s.name as name, \
+                    s.call_sign as call_sign, \
+                    s.IMO as imo, \
+                    s.MMSI as mmsi, \
+                    tr.title_eng AS ship_type, \
+                    s.year_of_built as year_of_built, \
+                    s.place_of_built as place_of_built, \
+                    n.area::TEXT AS area, \
+                    s.classification_society, \
+                    s.registration_number, \
+                    s.port_of_registry, \
+                    s.flag_state, \
+                    s.ship_master, \
+                    s.ship_owner_code, \
+                    s.ship_builder_name, \
+                    s.yard_of_build, \
+                    s.place_of_built, \
+                    s.year_of_built, \
+                    s.ship_builder_hull_number, \
+                    s.limit_area::TEXT AS limit_area
+                FROM 
+                    ship
+                JOIN 
+                    ship_type AS t ON s.ship_type_id = t.id
+                JOIN             
+                    ship_type_rmrs AS tr ON t.type_rmrs = tr.id
+                JOIN
+                    navigation_area AS n ON s.navigation_area_id = n.id
+                WHERE ship_id={ship_id};"
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))?
+    .data()
+    .ok_or(Error::FromString(format!(
+        "api_server get_general error: no data!"
+    )))
+
+
+    ship_parameters
+}
+    */
