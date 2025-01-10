@@ -5,6 +5,7 @@ use crate::error::Error;
 use super::Content;
 
 pub mod table;
+pub mod chart;
 pub mod template;
 
 //
@@ -21,7 +22,7 @@ impl Strength {
         }
     }
     //
-    pub fn new_named(
+    pub fn from(
         // x, sf, bm
         result: &[(f64, f64, f64)],
         // (frame_x, bm_min, bm_max, sf_min, sf_max)
@@ -42,12 +43,14 @@ impl Strength {
             .unzip();
         Self::new(
             Template::new(
-                "SF".to_owned(),
+                "SF",
+                "MN",
                 &sf_result,
                 &sf_limit,
             ),
             Template::new(
-                "BM".to_owned(),
+                "BM",
+                "MH*m",
                 &bm_result,
                 &bm_limit,
             ),
@@ -55,10 +58,10 @@ impl Strength {
     }
     //
     pub fn to_string(self) -> Result<String, Error> {
-        Ok("# Прочность\n".to_string() + 
-            "## Максимальные изгибающие моменты\n" + 
-            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))? + "\n" + 
-            "## Максимальные перерезывающие силы \n" + 
+        Ok("# Прочность\n\n".to_string() + 
+            "## Максимальные изгибающие моменты\n\n" + 
+            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))? + "\n\n" + 
+            "## Максимальные перерезывающие силы \n\n" + 
             &self.shear_force.to_string().map_err(|e| format!("Strength to_string shear_force error:{}", e))?
         )
     }

@@ -1,12 +1,16 @@
 //! Класс-коллекция таблиц. Проверяет данные и выполняет их запись
-use crate::content::stability::Stability;
-use crate::content::strength::Strength;
-use crate::content::Content;
+use crate::db::bulk_cargo::BulkCargoData;
+use crate::db::bulkhead::BulkheadData;
+use crate::db::cargo::CargoData;
+use crate::db::container::ContainerData;
+use crate::db::criterion::CriteriaData;
 use crate::db::itinerary::ItineraryData;
+use crate::db::parameters::ParameterData;
 use crate::db::ship::ShipData;
+use crate::db::tank::TankData;
 use crate::error::Error;
 use crate::formatter::title::Title;
-use crate::formatter::{Formatter, Page};
+//use crate::formatter::{Formatter, Page};
 use crate::ApiServer;
 use std::collections::HashMap;
 //
@@ -15,11 +19,18 @@ pub struct Report {
     api_server: ApiServer,
     ship: Option<ShipData>,
     itinerary: Vec<ItineraryData>,
+    ballast_tanks: Vec<TankData>,
+    stores_tanks: Vec<TankData>,
+    stores: Vec<CargoData>,
+    bulkheads: Vec<BulkheadData>, 
+    bulk_cargo: Vec<BulkCargoData>, 
+    container: Vec<ContainerData>, 
+    general_cargo: Vec<CargoData>,
     strength_result: Vec<(f64, f64, f64)>,          //x, SF, BM
-    strength_limit: Vec<(f64, f64, f64, f64, f64)>, // fr, bm_min, bm_max, sf_min, sf_max
-    lever_diagram: Vec<(f64, f64)>,          //angle, level
-    criteria: HashMap<i32, f64>,             // criterion_id, value
-    parameters: HashMap<i32, f64>,           // parameter_id, value
+    strength_limit: Vec<(f64, f64, f64, f64, f64)>, //fr, bm_min, bm_max, sf_min, sf_max
+    lever_diagram: Vec<(f64, f64)>,                 //angle, level
+    criteria: HashMap<i32, CriteriaData>,
+    parameters: HashMap<i32, ParameterData>, 
 }
 //
 impl Report {
@@ -30,6 +41,13 @@ impl Report {
             api_server,
             ship: None,
             itinerary: Vec::new(),
+            ballast_tanks: Vec::new(),
+            stores_tanks: Vec::new(),
+            stores: Vec::new(),
+            bulkheads: Vec::new(),
+            bulk_cargo: Vec::new(),
+            container: Vec::new(),
+            general_cargo: Vec::new(),
             strength_result: Vec::new(),
             strength_limit: Vec::new(),
             lever_diagram: Vec::new(),
@@ -52,6 +70,18 @@ impl Report {
             crate::db::api_server::get_criterion_data(&mut self.api_server, self.ship_id)?.data();
         self.parameters =
             crate::db::api_server::get_parameters_data(&mut self.api_server, self.ship_id)?.data();
+        self.ballast_tanks =
+            crate::db::api_server::get_ballast_tanks(&mut self.api_server, self.ship_id)?.data();
+        self.stores_tanks =
+            crate::db::api_server::get_stores_tanks(&mut self.api_server, self.ship_id)?.data(); 
+        self.stores =
+            crate::db::api_server::get_stores(&mut self.api_server, self.ship_id)?.data(); 
+        self.bulk_cargo = 
+            crate::db::api_server::get_bulk_cargo(&mut self.api_server, self.ship_id)?.data(); 
+        self.container = 
+            crate::db::api_server::get_container(&mut self.api_server, self.ship_id)?.data();    
+        self.general_cargo = 
+            crate::db::api_server::get_general_cargo(&mut self.api_server, self.ship_id)?.data();          
         self.strength_result =
             crate::db::api_server::get_strength_result(&mut self.api_server, self.ship_id)?;
         self.strength_limit =
@@ -63,6 +93,7 @@ impl Report {
     //
     pub fn write(self, path: &str) -> Result<(), Error> {
         println!("Parser write_to_file begin");
+/*
         let mut formatter = Formatter::new(Page::new(Title::new("Сухогрузное судно Sofia (IMO№ 555666333)\nРасчет прочности и остойчивости").print(), None));
         formatter.add_page(crate::content::general::General::new(
             crate::content::general::ship::Ship::from(self.ship.ok_or(Error::FromString("Formatter error: no ship data!".to_owned()))?)?,
@@ -83,6 +114,30 @@ impl Report {
             &self.parameters,
             &self.lever_diagram,
         )?.to_string().map_err(|e| format!("Parser write Stability error:{}", e))? + "\n"); 
+*/
+        let mut content = Title::new("Сухогрузное судно Sofia (IMO№ 555666333)\nРасчет прочности и остойчивости").print() + "\n";
+        content += &crate::content::general::General::new(
+            crate::content::general::ship::Ship::from(self.ship.ok_or(Error::FromString("Formatter error: no ship data!".to_owned()))?)?,
+            crate::content::general::itinerary::Itinerary::from(self.itinerary)?,
+        ).to_string()?;
+        content += "\n\n";
+        content += &crate::content::displacement::Displacement::new(
+            crate::content::parameters::Parameters::from(&[2,32,56,12,1,52], &self.parameters)?,
+            crate::content::displacement::tank::Tank::from(&self.ballast_tanks)?,
+            crate::content::displacement::tank::Tank::from(&self.stores_tanks)?,
+            crate::content::displacement::cargo::Cargo::from(&self.stores)?,
+            crate::content::displacement::bulkhead::Bulkhead::from(&self.bulkheads)?,
+            crate::content::displacement::bulk_cargo::BulkCargo::from(&self.bulk_cargo)?,
+            crate::content::displacement::container::Container::from(&self.container)?,
+            crate::content::displacement::cargo::Cargo::from(&self.general_cargo)?,          
+        ).to_string()?;
+        content += "\n\n";
+        content += &crate::content::draught::Draught::from(&self.parameters)?.to_string()?;
+        content += "\n\n";
+        content += &crate::content::strength::Strength::from(&self.strength_result, &self.strength_limit).to_string()?;
+        content += "\n\n";
+        content += &crate::content::stability::Stability::from(&self.criteria, &self.parameters, &self.lever_diagram)?.to_string()?;
+        content += "\n\n";
         std::fs::write(format!("{}", path), content).expect("Unable to write {path}");
         std::thread::sleep(std::time::Duration::from_secs(1));
         println!("Parser write_to_file end");

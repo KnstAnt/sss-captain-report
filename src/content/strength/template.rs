@@ -4,6 +4,7 @@ use crate::content::misc::{Curve, ICurve};
 //
 pub struct Template {
     short_name: String,
+    unit: String,
     result: Vec<(f64, f64)>, //x, value
     limit: Vec<(f64, f64, f64)>, //x, min, max
 }
@@ -11,12 +12,14 @@ pub struct Template {
 impl Template {
     //
     pub fn new( 
-        short_name: String,
+        short_name: &str,
+        unit: &str,
         result: &[(f64, f64)],
         limit: &[(f64, f64, f64)],
     ) -> Self {
         Self {
-            short_name,
+            short_name: short_name.to_owned(),
+            unit: unit.to_owned(),
             result: Vec::from(result),
             limit: Vec::from(limit),
         }
@@ -31,7 +34,8 @@ impl Content for Template {
         let result = Curve::new_linear(&self.result).map_err(|e| format!("Strength Template to_string result error:{}, src:{:?}", e, &self.result))?;
         let limit_min = Curve::new_linear(&limit_min).map_err(|e| format!("Strength Template to_string limit_min error:{}, src:{:?}", e, &limit_min))?; 
         let limit_max = Curve::new_linear(&limit_max).map_err(|e| format!("Strength Template to_string limit_max error:{}, src:{:?}", e, &limit_max))?; 
-        let mut values = Vec::new();
+        let mut chart_values = Vec::new();
+        let mut table_values = Vec::new();
         let compute_percent = |result: f64, limit: f64| -> Result<f64, Error> {
             if limit != 0. {
                 Ok(result*100./limit)
@@ -39,10 +43,11 @@ impl Content for Template {
                 Err(Error::FromString(format!("Strength template to_string compute_percent error: limit=0!")))
             }
         };
-        let compute_value = |x: f64| -> Result<(f64, f64), Error>  {
+        let mut compute_value = |x: f64| -> Result<(f64, f64), Error>  {
             let result = result.value(x)?;
             let limit_min = limit_min.value(x)?;
             let limit_max = limit_max.value(x)?;
+            chart_values.push((x, limit_min, result, limit_max));
             let percent = if result < 0. {
                 compute_percent(result, limit_min)?
             } else {
@@ -66,10 +71,13 @@ impl Content for Template {
         };
         let (limit_min_value, limit_max_value) = (limit_min.value(max_abs_x)?, limit_max.value(max_abs_x)?);
         let state_abs = max_abs_value >= limit_min_value && max_abs_value <= limit_max_value;
-        values.push((max_abs_x, limit_min_value, max_abs_value, limit_max_value, state_abs));
+        table_values.push((max_abs_x, limit_min_value, max_abs_value, limit_max_value, state_abs));
         let (limit_min_value, limit_max_value) = (limit_min.value(max_percent_x)?, limit_max.value(max_percent_x)?);
         let state_percent = max_percent_value <= 100.;
-        values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
-        super::table::Table::new(&self.short_name, &values).to_string()
+        table_values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
+        Ok(super::chart::Chart::new(&self.short_name, &self.unit, &chart_values).to_string()? 
+            + "\n\n" +
+            &super::table::Table::new(&self.short_name, &table_values).to_string()?
+        )
     } 
 }

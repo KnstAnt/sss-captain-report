@@ -4,16 +4,20 @@ use crate::error::Error;
 use api_tools::client::api_query::*;
 use api_tools::client::api_request::*;
 
+use super::bulk_cargo::BulkCargoDataArray;
+use super::cargo::CargoDataArray;
 use super::computed_frame::ComputedFrameDataArray;
-use super::criterion::DataRowArray;
-use super::criterion::DataShipArray;
+use super::container::ContainerDataArray;
+use super::criterion::CriteriaDataArray;
 use super::itinerary::ItineraryData;
 use super::itinerary::ItineraryDataArray;
+use super::parameters::ParameterDataArray;
 use super::ship::ShipData;
 use super::ship::ShipDataArray;
 use super::stability_diagram::StabilityDiagramDataArray;
 use super::strength_limit::StrengthLimitDataArray;
 use super::strength_result::StrengthResultDataArray;
+use super::tank::TankDataArray;
 use super::voyage::VoyageData;
 
 pub struct ApiServer {
@@ -52,12 +56,27 @@ impl ApiServer {
 pub fn get_criterion_data(
     api_server: &mut ApiServer,
     ship_id: usize,
-) -> Result<DataRowArray, Error> {
-    DataRowArray::parse(
+) -> Result<CriteriaDataArray, Error> {
+    CriteriaDataArray::parse(
         &api_server
             .fetch(&format!(
-                "SELECT criterion_id AS id, actual_value AS result, limit_value AS target FROM criterion_values WHERE ship_id={};",
-                ship_id
+                "SELECT 
+                    head.id AS id, \
+                    head.title_rus as name, \
+                    unit.symbol_rus as unit, \
+                    values.actual_value AS result, \
+                    values.limit_value AS target, \
+                    values.state as state
+                FROM 
+                    criterion as head
+                JOIN
+                    unit as unit on head.unit_id=unit.id
+                JOIN
+                    criterion_values AS values ON head.id=values.criterion_id
+                WHERE 
+                    ship_id={ship_id}
+                ORDER BY
+                    head.id;",
             ))
             .map_err(|e| {
                 Error::FromString(format!("api_server get_criterion_data error: {e}"))
@@ -69,16 +88,183 @@ pub fn get_criterion_data(
 pub fn get_parameters_data(
     api_server: &mut ApiServer,
     ship_id: usize,
-) -> Result<DataRowArray, Error> {
-    DataRowArray::parse(
+) -> Result<ParameterDataArray, Error> {
+    ParameterDataArray::parse(
         &api_server
             .fetch(&format!(
-                "SELECT parameter_id as id, result FROM parameter_data WHERE ship_id={};",
-                ship_id
+                "SELECT 
+                    head.id as id, \
+                    head.title_rus as name, \
+                    data.result as result, \
+                    unit.symbol_rus as unit
+                FROM 
+                    parameter_head as head
+                JOIN                
+                    parameter_data as data on data.parameter_id=head.id
+                JOIN
+                    unit as unit on head.unit_id=unit.id
+                WHERE 
+                    ship_id={ship_id}
+                ORDER BY
+                    head.id;",
             ))
             .map_err(|e| Error::FromString(format!("api_server get_parameters_data error: {e}")))?,
     )
     .map_err(|e| Error::FromString(format!("api_server get_parameters_data error: {e}")))
+}
+//
+pub fn get_ballast_tanks(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<TankDataArray, Error> {
+    TankDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    name_rus as name, \
+                    mass, \
+                    mass_shift_x as x_g, \
+                    mass_shift_y as y_g, \
+                    mass_shift_z as z_g, \
+                    m_f_s_x as f_sx 
+                FROM 
+                    compartment 
+                WHERE 
+                    category_id=2 AND ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_ballast_tanks error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_ballast_tanks error: {e}")))
+}
+//
+pub fn get_stores_tanks(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<TankDataArray, Error> {
+    TankDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    name_rus as name, \
+                    mass, \
+                    mass_shift_x as x_g, \
+                    mass_shift_y as y_g, \
+                    mass_shift_z as z_g, \
+                    m_f_s_x as f_sx 
+                FROM 
+                    compartment 
+                WHERE 
+                    category_id>=3 AND category_id<=8 AND ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_stores_tanks error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_stores_tanks error: {e}")))
+}
+//
+pub fn get_stores(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<CargoDataArray, Error> {
+    CargoDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    name_rus as name, \
+                    mass, \
+                    mass_shift_x as x_g, \
+                    mass_shift_y as y_g, \
+                    mass_shift_z as z_g
+                FROM 
+                    cargo 
+                WHERE 
+                    category_id=9 AND ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_stores error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_stores error: {e}")))
+}
+//
+pub fn get_bulk_cargo(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<BulkCargoDataArray, Error> {
+    BulkCargoDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    name_rus as name, \
+                    mass, \
+                    mass_shift_x as x_g, \
+                    mass_shift_y as y_g, \
+                    mass_shift_z as z_g, \
+                    grain_moment
+                FROM 
+                    hold_compartment 
+                WHERE 
+                    ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_bulk_cargo error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_bulk_cargo error: {e}")))
+}
+//
+pub fn get_container(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<ContainerDataArray, Error> {
+    ContainerDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    c.owner_code as owner_code, \
+                    c.serial_code as serial_code, \
+                    c.check_digit, \
+                    s.bay_number as bay_number, \
+                    s.row_number as row_number, \
+                    s.tier_number as tier_number, \
+                    c.gross_mass as mass, \
+                    c.mass_shift_x as x_g, \
+                    c.mass_shift_y as y_g, \
+                    c.mass_shift_z as z_g
+                FROM 
+                    container_cargo as c
+                JOIN 
+                    container_slot as s ON s.container_id = c.id
+                WHERE 
+                    c.ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_container error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_container error: {e}")))
+}
+//
+pub fn get_general_cargo(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<CargoDataArray, Error> {
+    CargoDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT 
+                    name_rus as name, \
+                    mass, \
+                    mass_shift_x as x_g, \
+                    mass_shift_y as y_g, \
+                    mass_shift_z as z_g
+                FROM 
+                    cargo 
+                WHERE 
+                    category_id=14 AND ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_general_cargo error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_general_cargo error: {e}")))
 }
 //
 pub fn get_strength_result(

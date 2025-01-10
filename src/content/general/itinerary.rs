@@ -28,9 +28,7 @@ impl Itinerary {
                 ]
             })
             .collect();
-        Ok(Self {
-            table: Table::new(&header, content),
-        })
+        Ok(Self::new(Table::new(&header, content)))
     }
 }
 //

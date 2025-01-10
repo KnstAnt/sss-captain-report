@@ -6,12 +6,18 @@ pub mod api_server;
 pub mod ship;
 pub mod voyage;
 pub mod itinerary;
-mod criterion;
+pub mod criterion;
+pub mod parameters;
 mod serde_parser;
 mod computed_frame;
 mod strength_result;
 mod strength_limit;
 mod stability_diagram;
+pub mod tank;
+pub mod cargo;
+pub mod bulkhead;
+pub mod bulk_cargo;
+pub mod container;
 
 /// Массив ключ + значение
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

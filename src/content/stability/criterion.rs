@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     content::{misc::Table, Content},
+    db::criterion::CriteriaData,
     error::Error,
 };
 
@@ -15,24 +16,32 @@ impl Criterion {
         Self { table }
     }
     //
-    pub fn from(
-        data: &HashMap<i32, (String, String, Option<String>, Option<String>, Option<String>)>,
-    ) -> Result<Self, Error> {
-        let header = vec!["№", "Наименование", "Размерность", "Значение", "Допустимое значение", "Статуc"];
+    pub fn from(data: &HashMap<i32, CriteriaData>) -> Result<Self, Error> {
+        let header = vec![
+            "№",
+            "Наименование",
+            "Размерность",
+            "Значение",
+            "Допустимое значение",
+            "Статуc",
+        ];
         let content = data
             .iter()
-            .map(|(i, (name, unit, result, target, state))| {
+            .map(|(_, v)| {
                 format!(
-                    "{i},{name},{unit},{},{},{}",
-                    result
+                    "{},{},{},{},{},{}",
+                    v.id,
+                    v.name,
+                    v.unit,
+                    v.result
                         .clone()
                         .map(|v| v.to_string())
                         .unwrap_or("-".to_owned()),
-                    target
+                    v.target
                         .clone()
                         .map(|v| v.to_string())
                         .unwrap_or("-".to_owned()),
-                    state
+                    v.state
                         .clone()
                         .map(|v| v.to_string())
                         .unwrap_or("-".to_owned()),
