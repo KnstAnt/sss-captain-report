@@ -9,7 +9,6 @@ use super::cargo::CargoDataArray;
 use super::computed_frame::ComputedFrameDataArray;
 use super::container::ContainerDataArray;
 use super::criterion::CriteriaDataArray;
-use super::itinerary::ItineraryData;
 use super::itinerary::ItineraryDataArray;
 use super::parameters::ParameterDataArray;
 use super::ship::ShipData;
@@ -172,7 +171,7 @@ pub fn get_stores(
         &api_server
             .fetch(&format!(
                 "SELECT 
-                    name_rus as name, \
+                    name as name, \
                     mass, \
                     mass_shift_x as x_g, \
                     mass_shift_y as y_g, \
@@ -224,17 +223,17 @@ pub fn get_container(
                     c.owner_code as owner_code, \
                     c.serial_code as serial_code, \
                     c.check_digit, \
-                    s.bay_number as bay_number, \
-                    s.row_number as row_number, \
-                    s.tier_number as tier_number, \
+                    cs.bay_number as bay_number, \
+                    cs.row_number as row_number, \
+                    cs.tier_number as tier_number, \
                     c.gross_mass as mass, \
-                    c.mass_shift_x as x_g, \
-                    c.mass_shift_y as y_g, \
-                    c.mass_shift_z as z_g
+                    (cs.bound_x1 + (cs.bound_x2 - cs.bound_x1) / 2) AS x_g, \
+                    (cs.bound_y1 + (cs.bound_y2 - cs.bound_y1) / 2) AS y_g, \
+                    (cs.bound_z1 + (cs.bound_z2 - cs.bound_z1) / 2) AS z_g
                 FROM 
-                    container_cargo as c
+                    container as c
                 JOIN 
-                    container_slot as s ON s.container_id = c.id
+                    container_slot as cs ON cs.container_id = c.id
                 WHERE 
                     c.ship_id={};",
                 ship_id
@@ -252,7 +251,7 @@ pub fn get_general_cargo(
         &api_server
             .fetch(&format!(
                 "SELECT 
-                    name_rus as name, \
+                    name as name, \
                     mass, \
                     mass_shift_x as x_g, \
                     mass_shift_y as y_g, \
@@ -342,7 +341,7 @@ pub fn get_ship(api_server: &mut ApiServer, ship_id: usize) -> Result<ShipData, 
                     tr.title_eng AS ship_type, \
                     s.year_of_built as year_of_built, \
                     s.place_of_built as place_of_built, \
-                    n.area::TEXT AS area, \
+                    n.area::TEXT AS navigation_area, \
                     s.classification_society, \
                     s.registration_number, \
                     s.port_of_registry, \
@@ -353,17 +352,16 @@ pub fn get_ship(api_server: &mut ApiServer, ship_id: usize) -> Result<ShipData, 
                     s.yard_of_build, \
                     s.place_of_built, \
                     s.year_of_built, \
-                    s.ship_builder_hull_number, \
-                    s.limit_area::TEXT AS limit_area
+                    s.ship_builder_hull_number
                 FROM 
-                    ship
+                    ship as s
                 JOIN 
                     ship_type AS t ON s.ship_type_id = t.id
                 JOIN             
                     ship_type_rmrs AS tr ON t.type_rmrs = tr.id
                 JOIN
                     navigation_area AS n ON s.navigation_area_id = n.id
-                WHERE ship_id={ship_id};"
+                WHERE s.id={ship_id};"
             ))
             .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?,
     )
@@ -393,7 +391,7 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
                 JOIN 
                     ship_water_area AS a ON v.water_area_id = a.id
                 JOIN
-                    load_line_type AS l ON v.navigation_area_id = l.id
+                    load_line_type AS l ON v.load_line_id = l.id
                 WHERE v.ship_id={ship_id};"
             ))
             .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
@@ -424,59 +422,3 @@ pub fn get_itinerary(api_server: &mut ApiServer, ship_id: usize) -> Result<Itine
     .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))
 }
 //
-/* TODO
-pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageData, Error> {
-    VoyageData::parse(
-        &api_server
-            .fetch(&format!(
-                "SELECT
-                    v.code as code,
-                    s.limit_area::TEXT as area,
-                    v.density as : Option<f64>,
-                    load_line: Option<String>,
-                    icing: Option<f64>,
-                    wetting: Option<f64>,
-                    v.description as description,
-
-                    s.name as name, \
-                    s.call_sign as call_sign, \
-                    s.IMO as imo, \
-                    s.MMSI as mmsi, \
-                    tr.title_eng AS ship_type, \
-                    s.year_of_built as year_of_built, \
-                    s.place_of_built as place_of_built, \
-                    n.area::TEXT AS area, \
-                    s.classification_society, \
-                    s.registration_number, \
-                    s.port_of_registry, \
-                    s.flag_state, \
-                    s.ship_master, \
-                    s.ship_owner_code, \
-                    s.ship_builder_name, \
-                    s.yard_of_build, \
-                    s.place_of_built, \
-                    s.year_of_built, \
-                    s.ship_builder_hull_number, \
-                    s.limit_area::TEXT AS limit_area
-                FROM 
-                    ship
-                JOIN 
-                    ship_type AS t ON s.ship_type_id = t.id
-                JOIN             
-                    ship_type_rmrs AS tr ON t.type_rmrs = tr.id
-                JOIN
-                    navigation_area AS n ON s.navigation_area_id = n.id
-                WHERE ship_id={ship_id};"
-            ))
-            .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))?,
-    )
-    .map_err(|e| Error::FromString(format!("api_server get_general error: {e}")))?
-    .data()
-    .ok_or(Error::FromString(format!(
-        "api_server get_general error: no data!"
-    )))
-
-
-    ship_parameters
-}
-    */

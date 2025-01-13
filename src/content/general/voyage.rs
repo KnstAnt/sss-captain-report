@@ -21,7 +21,7 @@ impl Voyage {
         content.push(push_str("Акватория", &data.area));
         content.push(push_value("Плотность забортной воды $[т/м^3]$", &data.density));
         content.push(push_str("Грузовая марка", &data.load_line)); 
-        content.push(push_value("Обледенение", &data.icing));
+        content.push(push_str("Обледенение", &data.icing));
 //        content.push(push_value("Намокание палубного лесного груза", &data.wetting)); 
         content.push(push_str("Описание рейса", &data.description));                
         let content = content.into_iter().map(|(v1, v2)| vec![v1.to_owned(), v2]).collect();

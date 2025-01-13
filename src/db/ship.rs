@@ -20,7 +20,6 @@ pub struct ShipData {
     pub place_of_build: Option<String>,
     pub year_of_build: Option<i32>, 
     pub ship_builder_hull_number: Option<String>,
-    pub limit_area: String,
 }
 //
 pub type ShipDataArray = DataArray<ShipData>;

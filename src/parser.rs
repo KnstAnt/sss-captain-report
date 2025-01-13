@@ -60,14 +60,14 @@ impl Report {
     }
     //
     pub fn get_from_db(&mut self) -> Result<(), Error> {
-        let ship = crate::db::api_server::get_ship(&mut self.api_server, self.ship_id)?;
-        let area = if ship.limit_area.contains("sea") {
-            "sea"
-        } else {
+        self.ship = Some(crate::db::api_server::get_ship(&mut self.api_server, self.ship_id)?);
+        let voyage = crate::db::api_server::get_voyage(&mut self.api_server, self.ship_id)?;
+        let area = if voyage.area.clone().unwrap_or("-".to_owned()).contains("harbor") {
             "harbor"
+        } else {
+            "sea"
         };
-        self.ship = Some(ship);
-        self.voyage = Some(crate::db::api_server::get_voyage(&mut self.api_server, self.ship_id)?);
+        self.voyage = Some(voyage);
         self.itinerary = crate::db::api_server::get_itinerary(&mut self.api_server, self.ship_id)?.data();
         self.criteria =
             crate::db::api_server::get_criterion_data(&mut self.api_server, self.ship_id)?.data();
