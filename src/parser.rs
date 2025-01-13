@@ -8,6 +8,7 @@ use crate::db::itinerary::ItineraryData;
 use crate::db::parameters::ParameterData;
 use crate::db::ship::ShipData;
 use crate::db::tank::TankData;
+use crate::db::voyage::VoyageData;
 use crate::error::Error;
 use crate::formatter::title::Title;
 //use crate::formatter::{Formatter, Page};
@@ -18,6 +19,7 @@ pub struct Report {
     ship_id: usize,
     api_server: ApiServer,
     ship: Option<ShipData>,
+    voyage: Option<VoyageData>, 
     itinerary: Vec<ItineraryData>,
     ballast_tanks: Vec<TankData>,
     stores_tanks: Vec<TankData>,
@@ -40,6 +42,7 @@ impl Report {
             ship_id,
             api_server,
             ship: None,
+            voyage: None,
             itinerary: Vec::new(),
             ballast_tanks: Vec::new(),
             stores_tanks: Vec::new(),
@@ -64,7 +67,7 @@ impl Report {
             "harbor"
         };
         self.ship = Some(ship);
-        //self.voyage = crate::db::api_server::get_voyage(&mut self.api_server, self.ship_id)?.data();
+        self.voyage = Some(crate::db::api_server::get_voyage(&mut self.api_server, self.ship_id)?);
         self.itinerary = crate::db::api_server::get_itinerary(&mut self.api_server, self.ship_id)?.data();
         self.criteria =
             crate::db::api_server::get_criterion_data(&mut self.api_server, self.ship_id)?.data();
@@ -118,6 +121,7 @@ impl Report {
         let mut content = Title::new("Сухогрузное судно Sofia (IMO№ 555666333)\nРасчет прочности и остойчивости").print() + "\n";
         content += &crate::content::general::General::new(
             crate::content::general::ship::Ship::from(self.ship.ok_or(Error::FromString("Formatter error: no ship data!".to_owned()))?)?,
+            crate::content::general::voyage::Voyage::from(self.voyage.ok_or(Error::FromString("Formatter error: no voyage data!".to_owned()))?)?,
             crate::content::general::itinerary::Itinerary::from(self.itinerary)?,
         ).to_string()?;
         content += "\n\n";

@@ -4,13 +4,13 @@ use super::DataArray;
 /// Структура для парсинга данных из таблицы ship
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VoyageData {
-    code: Option<String>,
-    area: Option<String>,
-    density: Option<f64>,
-    load_line: Option<String>,
-    icing: Option<f64>,
-    wetting: Option<f64>,
-    description: Option<String>,
+    pub code: Option<String>,
+    pub area: Option<String>,
+    pub density: Option<f64>,
+    pub load_line: Option<String>,
+    pub icing: Option<f64>,
+    pub wetting: Option<f64>,
+    pub description: Option<String>,
 }
 //
 pub type VoyageDataArray = DataArray<VoyageData>;

@@ -19,6 +19,7 @@ use super::strength_limit::StrengthLimitDataArray;
 use super::strength_result::StrengthResultDataArray;
 use super::tank::TankDataArray;
 use super::voyage::VoyageData;
+use super::voyage::VoyageDataArray;
 
 pub struct ApiServer {
     database: String,
@@ -370,6 +371,37 @@ pub fn get_ship(api_server: &mut ApiServer, ship_id: usize) -> Result<ShipData, 
     .data()
     .ok_or(Error::FromString(format!(
         "api_server get_ship error: no data!"
+    )))
+}
+//
+pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageData, Error> {
+    VoyageDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT
+                    v.code as code, \
+                    v.density as density, \
+                    v.wetting_timber as wetting, \
+                    i.icing_type as icing, \
+                    a.name AS area, \
+                    v.description AS description, \
+                    l.name as load_line 
+                FROM 
+                    voyage as v
+                JOIN 
+                    ship_icing AS i ON v.icing_type_id = i.id
+                JOIN 
+                    ship_water_area AS a ON v.water_area_id = a.id
+                JOIN
+                    load_line_type AS l ON v.navigation_area_id = l.id
+                WHERE v.ship_id={ship_id};"
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?
+    .data()
+    .ok_or(Error::FromString(format!(
+        "api_server get_voyage error: no data!"
     )))
 }
 //
