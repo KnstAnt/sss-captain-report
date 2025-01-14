@@ -1,5 +1,7 @@
 use crate::{
-    content::{misc::Table, Content}, db::tank::TankData, error::Error
+    content::{misc::Table, Content},
+    db::tank::TankData,
+    error::Error,
 };
 
 pub struct Tank {
@@ -13,23 +15,36 @@ impl Tank {
     }
     //
     pub fn from(data: &[TankData]) -> Result<Self, Error> {
-        let header = vec!["Наименование", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]", "$M_{f.sx}$ [тм]"];
+        let header = vec![
+            "Наименование",
+            "Масса",
+            "$x_g$ [м]",
+            "$y_g$ [м]",
+            "$z_g$ [м]",
+            "$M_{f.sx}$ [тм]",
+        ];
         let content = data
             .iter()
             .map(|v| {
-                vec!(
-                    v.name.clone().unwrap_or("-".to_string()), 
-                    v.mass.unwrap_or(0.).to_string(), 
-                    v.x_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
-                    v.y_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
-                    v.z_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
-                    v.f_sx.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()),
-                )
+                vec![
+                    v.name.clone().unwrap_or("-".to_string()),
+                    format!("{:.3}", v.mass.unwrap_or(0.)),
+                    v.x_g
+                        .map(|v| format!("{:.3}", v))
+                        .unwrap_or("-".to_string()),
+                    v.y_g
+                        .map(|v| format!("{:.3}", v))
+                        .unwrap_or("-".to_string()),
+                    v.z_g
+                        .map(|v| format!("{:.3}", v))
+                        .unwrap_or("-".to_string()),
+                    v.f_sx
+                        .map(|v| format!("{:.3}", v))
+                        .unwrap_or("-".to_string()),
+                ]
             })
             .collect::<Vec<Vec<String>>>();
-        Ok(Self {
-            table: Table::new(&header, content),
-        })
+        Ok(Self::new(Table::new(&header, content)))
     }
 }
 //

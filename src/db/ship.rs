@@ -14,7 +14,7 @@ pub struct ShipData {
     pub registration_number: Option<String>,
     pub port_of_registry: Option<String>,
     pub flag_state: Option<String>,
-    pub ship_master: Option<String>,
+    pub ship_owner: Option<String>,
     pub ship_owner_code: Option<String>,  
     pub yard_of_build: Option<String>,   
     pub place_of_build: Option<String>,

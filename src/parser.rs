@@ -79,6 +79,8 @@ impl Report {
             crate::db::api_server::get_stores_tanks(&mut self.api_server, self.ship_id)?.data(); 
         self.stores =
             crate::db::api_server::get_stores(&mut self.api_server, self.ship_id)?.data(); 
+        self.bulkheads = 
+            crate::db::api_server::get_bulkheads(&mut self.api_server, self.ship_id)?.data();
         self.bulk_cargo = 
             crate::db::api_server::get_bulk_cargo(&mut self.api_server, self.ship_id)?.data(); 
         self.container = 

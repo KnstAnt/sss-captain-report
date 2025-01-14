@@ -20,7 +20,7 @@ impl Bulkhead {
                 vec!(
                     v.name.clone().unwrap_or("-".to_string()), 
                     v.fr.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()),
-                    v.mass.unwrap_or(0.).to_string(),                     
+                    format!("{:.3}", v.mass.unwrap_or(0.)),                     
                     v.x_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
                     v.y_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
                     v.z_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 

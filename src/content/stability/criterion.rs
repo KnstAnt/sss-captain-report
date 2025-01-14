@@ -35,11 +35,11 @@ impl Criterion {
                     v.unit,
                     v.result
                         .clone()
-                        .map(|v| v.to_string())
+                        .map(|v| format!("{:.3}", v))
                         .unwrap_or("-".to_owned()),
                     v.target
                         .clone()
-                        .map(|v| v.to_string())
+                        .map(|v| format!("{:.3}", v))
                         .unwrap_or("-".to_owned()),
                     v.state
                         .clone()

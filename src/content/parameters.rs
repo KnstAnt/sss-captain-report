@@ -36,7 +36,7 @@ impl Parameters {
                                 .unwrap_or("-".to_owned()),
                             v.result
                                 .clone()
-                                .map(|v| v.to_string())
+                                .map(|v| format!("{:.3}", v))
                                 .unwrap_or("-".to_owned())
                         )
                     })
@@ -47,9 +47,7 @@ impl Parameters {
             .into_iter()
             .map(|v| v.split(',').map(|v| v.to_owned()).collect())
             .collect();
-        Ok(Self {
-            table: Table::new(&header, content),
-        })
+        Ok(Self::new(Table::new(&header, content)))
     }
 }
 //

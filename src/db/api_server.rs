@@ -5,6 +5,7 @@ use api_tools::client::api_query::*;
 use api_tools::client::api_request::*;
 
 use super::bulk_cargo::BulkCargoDataArray;
+use super::bulkhead::BulkheadDataArray;
 use super::cargo::CargoDataArray;
 use super::computed_frame::ComputedFrameDataArray;
 use super::container::ContainerDataArray;
@@ -22,15 +23,11 @@ use super::voyage::VoyageDataArray;
 
 pub struct ApiServer {
     database: String,
-    request: Option<ApiRequest>,
 }
 //
 impl ApiServer {
     pub fn new(database: String) -> Self {
-        Self {
-            database,
-            request: None,
-        }
+        Self { database }
     }
     //
     pub fn fetch(&mut self, sql: &str) -> Result<Vec<u8>, Error> {
@@ -78,9 +75,7 @@ pub fn get_criterion_data(
                 ORDER BY
                     head.id;",
             ))
-            .map_err(|e| {
-                Error::FromString(format!("api_server get_criterion_data error: {e}"))
-            })?
+            .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))?,
     )
     .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))
 }
@@ -163,10 +158,7 @@ pub fn get_stores_tanks(
     .map_err(|e| Error::FromString(format!("api_server get_stores_tanks error: {e}")))
 }
 //
-pub fn get_stores(
-    api_server: &mut ApiServer,
-    ship_id: usize,
-) -> Result<CargoDataArray, Error> {
+pub fn get_stores(api_server: &mut ApiServer, ship_id: usize) -> Result<CargoDataArray, Error> {
     CargoDataArray::parse(
         &api_server
             .fetch(&format!(
@@ -185,6 +177,35 @@ pub fn get_stores(
             .map_err(|e| Error::FromString(format!("api_server get_stores error: {e}")))?,
     )
     .map_err(|e| Error::FromString(format!("api_server get_stores error: {e}")))
+}
+//
+pub fn get_bulkheads(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<BulkheadDataArray, Error> {
+    BulkheadDataArray::parse(
+        &api_server
+            .fetch(&format!(
+
+    //            pub fr: Option<f64>,    
+
+                "SELECT 
+                    b.name_rus as name, \
+                    b.mass, \
+                    bp.mass_shift_x as x_g, \
+                    bp.mass_shift_y as y_g, \
+                    bp.mass_shift_z as z_g
+                FROM 
+                    bulkhead as b
+                JOIN 
+                    bulkhead_place as bp ON b.id = bp.bulkhead_id
+                WHERE 
+                    ship_id={};",
+                ship_id
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_bulkheads error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_bulkheads error: {e}")))
 }
 //
 pub fn get_bulk_cargo(
@@ -339,19 +360,17 @@ pub fn get_ship(api_server: &mut ApiServer, ship_id: usize) -> Result<ShipData, 
                     s.IMO as imo, \
                     s.MMSI as mmsi, \
                     tr.title_eng AS ship_type, \
-                    s.year_of_built as year_of_built, \
-                    s.place_of_built as place_of_built, \
+                    s.year_of_built as year_of_build, \
+                    s.place_of_built as place_of_build, \
+                    s.yard_of_build, \
                     n.area::TEXT AS navigation_area, \
                     s.classification_society, \
                     s.registration_number, \
                     s.port_of_registry, \
                     s.flag_state, \
-                    s.ship_master, \
+                    s.ship_owner, \
                     s.ship_owner_code, \
                     s.ship_builder_name, \
-                    s.yard_of_build, \
-                    s.place_of_built, \
-                    s.year_of_built, \
                     s.ship_builder_hull_number
                 FROM 
                     ship as s
@@ -403,7 +422,10 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
     )))
 }
 //
-pub fn get_itinerary(api_server: &mut ApiServer, ship_id: usize) -> Result<ItineraryDataArray, Error> {
+pub fn get_itinerary(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+) -> Result<ItineraryDataArray, Error> {
     ItineraryDataArray::parse(
         &api_server
             .fetch(&format!(
