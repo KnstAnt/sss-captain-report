@@ -7,7 +7,7 @@ use super::DataArray;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct BulkheadData {
     pub name: Option<String>,
-    pub fr: Option<f64>,    
+    pub position: Option<String>,    
     pub mass: Option<f64>,
     pub x_g: Option<f64>,
     pub y_g: Option<f64>,
@@ -18,9 +18,9 @@ impl std::fmt::Display for BulkheadData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "BulkheadData(name:{}, fr:{}, mass:{}, x_g:{}, y_g:{}, z_g:{})",
+            "BulkheadData(name:{}, position:{}, mass:{}, x_g:{}, y_g:{}, z_g:{})",
             self.name.clone().unwrap_or("-".to_string()), 
-            self.fr.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
+            self.position.clone().unwrap_or("-".to_string()), 
             self.mass.unwrap_or(0.),             
             self.x_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
             self.y_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 

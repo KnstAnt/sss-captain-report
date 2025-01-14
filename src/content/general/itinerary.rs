@@ -35,6 +35,6 @@ impl Itinerary {
 impl Content for Itinerary {
     //
     fn to_string(self) -> Result<String, crate::error::Error> {
-        Ok("# Рейс\n".to_string() + &self.table.to_string()?)
+        Ok("# Маршрут\n".to_string() + &self.table.to_string()?)
     }
 }

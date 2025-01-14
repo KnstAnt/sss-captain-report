@@ -13,14 +13,14 @@ impl Bulkhead {
     }
     //
     pub fn from(data: &[BulkheadData]) -> Result<Self, Error> {
-        let header = vec!["Наименование", "Fr.", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"];
+        let header = vec!["Наименование", "Положение.", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"];
         let content = data
             .iter()
             .map(|v| {
                 vec!(
                     v.name.clone().unwrap_or("-".to_string()), 
-                    v.fr.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()),
-                    format!("{:.3}", v.mass.unwrap_or(0.)),                     
+                    v.position.clone().unwrap_or("-".to_string()), 
+                    v.mass.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()),              
                     v.x_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
                     v.y_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 
                     v.z_g.map(|v| format!("{:.3}", v)).unwrap_or("-".to_string()), 

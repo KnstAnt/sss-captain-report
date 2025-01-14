@@ -41,10 +41,11 @@ impl Criterion {
                         .clone()
                         .map(|v| format!("{:.3}", v))
                         .unwrap_or("-".to_owned()),
-                    v.state
-                        .clone()
-                        .map(|v| v.to_string())
-                        .unwrap_or("-".to_owned()),
+                    match v.state {
+                        Some(true) => "+",
+                        Some(false) => "-",  
+                        None => " ",  
+                    }.to_owned()
                 )
             })
             .collect::<Vec<String>>();

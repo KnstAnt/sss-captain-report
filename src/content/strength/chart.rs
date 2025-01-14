@@ -1,5 +1,5 @@
 use crate::error::Error;
-use charts_rs::{BarChart, Box, SeriesCategory};
+use charts_rs::{BarChart, Box, LineChart, ScatterChart, SeriesCategory};
 //
 pub struct Chart {
     //    header: String,
@@ -30,7 +30,7 @@ impl Chart {
             .into_iter()
             .map(|(x, min, calc, max)| (x, (min, (calc, max))))
             .unzip();
-        let mut chart = BarChart::new(
+        let mut chart = LineChart::new(
             vec![
                 ("мин", min.into_iter().map(|v| v as f32).collect()).into(),
                 ("расчет", calc.into_iter().map(|v| v as f32).collect()).into(),
@@ -58,7 +58,6 @@ impl Chart {
         chart.y_axis_configs[0].axis_max = Some(10.);
         chart.y_axis_configs[0].axis_formatter =
             Some(format!("{}, {}", self.short_name, self.unit));
-
         Ok(format!("{}", chart.svg().unwrap()))
     }
 }

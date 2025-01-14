@@ -20,33 +20,26 @@ impl Parameters {
         let header = vec!["№", "Наименование", "Размерность", "Значение"];
         let content = numbers
             .iter()
-            .map(|i| {
+            .filter_map(|i| {
                 data.get(i)
+                    .filter(|v| v.result.is_some())
                     .map(|v| {
-                        format!(
-                            "{},{},{},{}",
-                            v.id,
+                        vec![
+                            v.id.to_string(),
                             v.name
                                 .clone()
-                                .map(|v| v.to_string())
                                 .unwrap_or("-".to_owned()),
                             v.unit
                                 .clone()
-                                .map(|v| v.to_string())
                                 .unwrap_or("-".to_owned()),
                             v.result
                                 .clone()
                                 .map(|v| format!("{:.3}", v))
                                 .unwrap_or("-".to_owned())
-                        )
+                        ]
                     })
-                    .unwrap_or(format!("{i},-,-,-"))
             })
-            .collect::<Vec<String>>();
-        let content: Vec<Vec<String>> = content
-            .into_iter()
-            .map(|v| v.split(',').map(|v| v.to_owned()).collect())
-            .collect();
+            .collect::<Vec<Vec<String>>>();
         Ok(Self::new(Table::new(&header, content)))
     }
 }

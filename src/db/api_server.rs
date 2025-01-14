@@ -186,11 +186,9 @@ pub fn get_bulkheads(
     BulkheadDataArray::parse(
         &api_server
             .fetch(&format!(
-
-    //            pub fr: Option<f64>,    
-
                 "SELECT 
                     b.name_rus as name, \
+                    bp.name_rus as position, \
                     b.mass, \
                     bp.mass_shift_x as x_g, \
                     bp.mass_shift_y as y_g, \
@@ -200,7 +198,7 @@ pub fn get_bulkheads(
                 JOIN 
                     bulkhead_place as bp ON b.id = bp.bulkhead_id
                 WHERE 
-                    ship_id={};",
+                    b.ship_id={};",
                 ship_id
             ))
             .map_err(|e| Error::FromString(format!("api_server get_bulkheads error: {e}")))?,
