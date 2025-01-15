@@ -71,7 +71,7 @@ pub fn get_criterion_data(
                 JOIN
                     criterion_values AS values ON head.id=values.criterion_id
                 WHERE 
-                    head.ship_id={ship_id} AND head.category_id = 1
+                    values.ship_id={ship_id} AND head.category_id = 1
                 ORDER BY
                     head.id;",
             ))
@@ -442,7 +442,7 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
                     i.icing_type as icing, \
                     a.name AS area, \
                     v.description AS description, \
-                    t.name as load_line
+                    t.name as load_line, \
                     v.load_line_id as load_line_id 
                 FROM 
                     voyage as v
@@ -454,7 +454,6 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
                     load_line_type AS t ON v.load_line_id = t.id
                 JOIN
                     load_line AS l ON v.load_line_id = l.id
-                    load_line
                 WHERE v.ship_id={ship_id};"
             ))
             .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,

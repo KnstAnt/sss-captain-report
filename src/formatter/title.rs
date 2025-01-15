@@ -48,7 +48,7 @@ impl Title {
 
 <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> 
 
-<RIGHT><B> _____________/_____________ </B> </FONT> </RIGHT>
+<B> <div align=\"right\">\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_/_____________ </div> </B> </FONT> 
 
 <BR> <BR>
 
