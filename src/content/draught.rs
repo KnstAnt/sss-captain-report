@@ -22,6 +22,6 @@ impl Draught {
     }
     //
     pub fn to_string(self) -> Result<String, Error> {
-        Ok("# Параметры посадки\n\n".to_string() + &self.table.to_string()?)
+        Ok("# Параметры посадки\n\nОсадки приведены по теоретической поверхности корпуса.\n\n".to_string() + &self.table.to_string()?)
     }
 }
