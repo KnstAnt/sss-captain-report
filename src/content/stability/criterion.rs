@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::{
     content::{misc::Table, Content},
     db::criterion::CriteriaData,
@@ -16,7 +14,7 @@ impl Criterion {
         Self { table }
     }
     //
-    pub fn from(data: &HashMap<i32, CriteriaData>) -> Result<Self, Error> {
+    pub fn from(data: &[(i32, CriteriaData)]) -> Result<Self, Error> {
         let header = vec![
             "№",
             "Наименование",
@@ -43,9 +41,10 @@ impl Criterion {
                         .unwrap_or("-".to_owned()),
                     match v.state {
                         Some(true) => "+",
-                        Some(false) => "-",  
-                        None => " ",  
-                    }.to_owned()
+                        Some(false) => "-",
+                        None => " ",
+                    }
+                    .to_owned()
                 )
             })
             .collect::<Vec<String>>();
@@ -53,9 +52,7 @@ impl Criterion {
             .into_iter()
             .map(|v| v.split(',').map(|v| v.to_owned()).collect())
             .collect();
-        Ok(Self {
-            table: Table::new(&header, content),
-        })
+        Ok(Self::new(Table::new(&header, content)))
     }
 }
 //

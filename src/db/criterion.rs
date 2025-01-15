@@ -28,7 +28,7 @@ pub type CriteriaDataArray = DataArray<CriteriaData>;
 //
 impl CriteriaDataArray {
     /// Преобразование данных в массив ключ + значение
-    pub fn data(self) -> HashMap<i32, CriteriaData> {
+    pub fn data(self) -> Vec<(i32, CriteriaData)> {
         self.data.into_iter().map(|v| (v.id, v)).collect()
     }
 }

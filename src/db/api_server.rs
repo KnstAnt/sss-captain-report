@@ -71,8 +71,50 @@ pub fn get_criterion_data(
                 JOIN
                     criterion_values AS values ON head.id=values.criterion_id
                 WHERE 
-                    ship_id={ship_id}
+                    head.ship_id={ship_id} AND head.category_id = 1
                 ORDER BY
+                    head.id;",
+            ))
+            .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))?,
+    )
+    .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))    
+}
+/// Чтение данных из БД. Функция читает данные за несколько запросов,
+/// парсит их и проверяет данные на корректность.
+pub fn get_criterion_load_line(
+    api_server: &mut ApiServer,
+    ship_id: usize,
+    load_line_id: i32
+) -> Result<CriteriaDataArray, Error> {
+    CriteriaDataArray::parse(
+        &api_server
+            .fetch(&format!(
+                "SELECT
+                    head.id AS id, \
+                    head.title_rus as name, \
+                    unit.symbol_rus as unit, \
+                    values.actual_value AS result, \
+                    values.limit_value AS target, \
+                    values.state as state
+                FROM
+                    criterion AS head
+                JOIN criterion_values AS values ON
+                    values.criterion_id = head.id
+                JOIN unit as unit on head.unit_id = unit.id
+                LEFT JOIN load_line_type_criterions AS lltc ON
+                    lltc.criterion_id = head.id
+                LEFT JOIN ship_available_load_line_types AS sallt ON
+                    sallt.load_line_type_id = lltc.load_line_type_id AND
+                    sallt.ship_id = values.ship_id
+                WHERE
+                    values.ship_id = {ship_id} AND
+                    lltc.load_line_type_id = {load_line_id} AND
+                    head.category_id = 2 AND
+                    (
+                        sallt.is_active = TRUE OR
+                        sallt.is_active IS NOT DISTINCT FROM NULL
+                    )
+                ORDER BY 
                     head.id;",
             ))
             .map_err(|e| Error::FromString(format!("api_server get_criterion_data error: {e}")))?,
@@ -400,7 +442,8 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
                     i.icing_type as icing, \
                     a.name AS area, \
                     v.description AS description, \
-                    l.name as load_line 
+                    t.name as load_line
+                    v.load_line_id as load_line_id 
                 FROM 
                     voyage as v
                 JOIN 
@@ -408,7 +451,10 @@ pub fn get_voyage(api_server: &mut ApiServer, ship_id: usize) -> Result<VoyageDa
                 JOIN 
                     ship_water_area AS a ON v.water_area_id = a.id
                 JOIN
-                    load_line_type AS l ON v.load_line_id = l.id
+                    load_line_type AS t ON v.load_line_id = t.id
+                JOIN
+                    load_line AS l ON v.load_line_id = l.id
+                    load_line
                 WHERE v.ship_id={ship_id};"
             ))
             .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,

@@ -8,6 +8,7 @@ pub struct VoyageData {
     pub area: Option<String>,
     pub density: Option<f64>,
     pub load_line: Option<String>,
+    pub load_line_id: Option<i32>,
     pub icing: Option<String>,
     pub wetting: Option<f64>,
     pub description: Option<String>,

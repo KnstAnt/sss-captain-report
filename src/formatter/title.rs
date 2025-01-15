@@ -44,7 +44,13 @@ impl Title {
 
 <CENTER><B> {} </B> </FONT> </CENTER>
 
-<BR> <BR> <BR> <BR> <BR><BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR>
+<CENTER><B> Расчет прочности и остойчивости </B> </FONT> </CENTER>
+
+<BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> <BR> 
+
+<RIGHT><B> _____________/_____________ </B> </FONT> </RIGHT>
+
+<BR> <BR>
 
 <P> <CENTER> Санкт-Петербург <BR> {} </CENTER>
 

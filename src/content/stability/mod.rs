@@ -28,7 +28,7 @@ impl Stability {
     }
     //
     pub fn from(
-        criteria: &HashMap<i32, CriteriaData>,  
+        criteria: &[(i32, CriteriaData)],  
         parameters: &HashMap<i32, ParameterData>,
         lever_diagram: &[(f64, f64)],
     ) -> Result<Self, Error> {
