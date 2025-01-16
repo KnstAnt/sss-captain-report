@@ -26,6 +26,11 @@ pub struct ApiAddress {
 pub struct Params {
     pub path: String,
     pub name: String,
+    pub language: Option<String>, // "ru" - russian (default) / "en" - english
+    #[serde(alias = "ship-id")]
+    pub ship_id: i32,
+    #[serde(alias = "project-id")]
+    pub project_id: Option<i32>,
 }
 //
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -60,6 +65,9 @@ pub fn get_args() -> Result<Message, Error> {
         params: Params {
             path: "bin/html".to_owned(),
             name: "report".to_owned(),
+            language: None, //"ru".to_owned(),
+            ship_id: 2,
+            project_id: None,
         },
     };
     log::info!("set default message:{:?}", message);

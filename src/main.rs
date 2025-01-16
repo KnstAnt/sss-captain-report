@@ -30,11 +30,14 @@ fn main() {
 fn execute() -> Result<(), Error> {
     let message = get_args()?;
     let mut report = Report::new(
-        2, 
+        message.params.language.clone(),    
         ApiServer::new(
             "sss-computing".to_owned(),
             message.address.host.to_owned(),
             message.address.port.to_string(),
+            message.params.ship_id, 
+            message.params.project_id,
+            message.params.language.clone(),      
         )
     );
     if let Err(error) = report.get_from_db() {

@@ -12,13 +12,12 @@ use crate::db::tank::TankData;
 use crate::db::voyage::VoyageData;
 use crate::error::Error;
 use crate::formatter::title::Title;
-//use crate::formatter::{Formatter, Page};
 use crate::ApiServer;
 use std::collections::HashMap;
 use std::path::PathBuf;
 //
 pub struct Report {
-    ship_id: usize,
+    language: Option<String>,
     api_server: ApiServer,
     imo: Option<i32>,
     ship: Option<ShipData>,
@@ -40,9 +39,9 @@ pub struct Report {
 //
 impl Report {
     //
-    pub fn new(ship_id: usize, api_server: ApiServer) -> Self {
+    pub fn new(language: Option<String>, api_server: ApiServer) -> Self {
         Self {
-            ship_id,
+            language,
             api_server,
             imo: None,
             ship: None,
@@ -64,10 +63,10 @@ impl Report {
     }
     //
     pub fn get_from_db(&mut self) -> Result<(), Error> {
-        let ship = crate::db::api_server::get_ship(&mut self.api_server, self.ship_id)?;
+        let ship = self.api_server.get_ship()?;
         self.imo = ship.imo.clone();
         self.ship = Some(ship);
-        let voyage = crate::db::api_server::get_voyage(&mut self.api_server, self.ship_id)?;
+        let voyage = self.api_server.get_voyage()?;
         let area = if voyage
             .area
             .clone()
@@ -83,66 +82,40 @@ impl Report {
         ))?;
         self.voyage = Some(voyage);
         self.itinerary =
-            crate::db::api_server::get_itinerary(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_itinerary()?.data();
         self.criteria =
-            crate::db::api_server::get_criterion_data(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_criterion_data()?.data();
         self.criteria.append(
-            &mut crate::db::api_server::get_criterion_load_line(
-                &mut self.api_server,
-                self.ship_id,
-                load_line_id,
-            )?
+            &mut self.api_server.get_criterion_load_line(load_line_id)?
             .data(),
         );
         self.criteria.sort_by(|a, b| a.0.cmp(&b.0) );
         self.parameters =
-            crate::db::api_server::get_parameters_data(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_parameters_data()?.data();
         self.ballast_tanks =
-            crate::db::api_server::get_ballast_tanks(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_ballast_tanks()?.data();
         self.stores_tanks =
-            crate::db::api_server::get_stores_tanks(&mut self.api_server, self.ship_id)?.data();
-        self.stores = crate::db::api_server::get_stores(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_stores_tanks()?.data();
+        self.stores = self.api_server.get_stores()?.data();
         self.bulkheads =
-            crate::db::api_server::get_bulkheads(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_bulkheads()?.data();
         self.bulk_cargo =
-            crate::db::api_server::get_bulk_cargo(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_bulk_cargo()?.data();
         self.container =
-            crate::db::api_server::get_container(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_container()?.data();
         self.general_cargo =
-            crate::db::api_server::get_general_cargo(&mut self.api_server, self.ship_id)?.data();
+            self.api_server.get_general_cargo()?.data();
         self.strength_result =
-            crate::db::api_server::get_strength_result(&mut self.api_server, self.ship_id)?;
+            self.api_server.get_strength_result()?;
         self.strength_limit =
-            crate::db::api_server::get_strength_limit(&mut self.api_server, self.ship_id, area)?;
+            self.api_server.get_strength_limit(area)?;
         self.lever_diagram =
-            crate::db::api_server::get_lever_diagram(&mut self.api_server, self.ship_id)?;
+            self.api_server.get_lever_diagram()?;
         Ok(())
     }
     //
     pub fn write(self, path: &str, name: &str) -> Result<(), Error> {
         println!("Parser write_to_file begin");
-        /*
-                let mut formatter = Formatter::new(Page::new(Title::new("Сухогрузное судно Sofia (IMO№ 555666333)\nРасчет прочности и остойчивости").print(), None));
-                formatter.add_page(crate::content::general::General::new(
-                    crate::content::general::ship::Ship::from(self.ship.ok_or(Error::FromString("Formatter error: no ship data!".to_owned()))?)?,
-                    crate::content::general::itinerary::Itinerary::from(self.itinerary)?,
-                ).to_string()?);
-                let mut content = crate::content::stability::displacement::Displacement::from_data(
-                    &self.parameters,
-                )?.to_string().map_err(|e| format!("Parser write Displacement error:{}", e))? + "\n";
-                content += &(crate::content::stability::draught::Draught::from(
-                    &self.parameters,
-                )?.to_string().map_err(|e| format!("Parser write Draught error:{}", e))? + "\n");
-                content += &(Strength::new_named(
-                        &self.strength_result,
-                        &self.strength_limit,
-                    ).to_string().map_err(|e| format!("Parser write Strength error:{}", e))? + "\n");
-                content += &(Stability::new_named(
-                    &self.criteria,
-                    &self.parameters,
-                    &self.lever_diagram,
-                )?.to_string().map_err(|e| format!("Parser write Stability error:{}", e))? + "\n");
-        */
         let imo = self
             .imo
             .ok_or(Error::FromString("Formatter error: no imo!".to_owned()))?;
