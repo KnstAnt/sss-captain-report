@@ -16,3 +16,18 @@ serde_json = "^1.0"
 chrono = "0.4.38"
 splines = "4.3.1"
 charts-rs = "0.3.19"
+
+#
+# Collections
+indexmap = "^2.7"
+#
+# Regex
+regex = "^1.11"
+#
+# Md
+markdown = "1.0.0-alpha.21"
+comrak = "^0.32"
+#
+# Images
+image = "^0.25"
+base64 = "^0.22"

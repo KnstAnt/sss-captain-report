@@ -1,4 +1,5 @@
 //! Класс-коллекция таблиц. Проверяет данные и выполняет их запись
+use crate::converter::comrak_convert::ComrakConvert;
 use crate::db::bulk_cargo::BulkCargoData;
 use crate::db::bulkhead::BulkheadData;
 use crate::db::cargo::CargoData;
@@ -14,6 +15,7 @@ use crate::formatter::title::Title;
 //use crate::formatter::{Formatter, Page};
 use crate::ApiServer;
 use std::collections::HashMap;
+use std::path::PathBuf;
 //
 pub struct Report {
     ship_id: usize,
@@ -117,7 +119,7 @@ impl Report {
         Ok(())
     }
     //
-    pub fn write(self, path: &str) -> Result<(), Error> {
+    pub fn write(self, path: &str, name: &str) -> Result<(), Error> {
         println!("Parser write_to_file begin");
         /*
                 let mut formatter = Formatter::new(Page::new(Title::new("Сухогрузное судно Sofia (IMO№ 555666333)\nРасчет прочности и остойчивости").print(), None));
@@ -185,8 +187,20 @@ impl Report {
         )?
         .to_string()?;
         content += "\n\n";
-        std::fs::write(format!("{}", path), content).expect("Unable to write {path}");
+
+        let src = ("bin/md".to_owned() + "/" + name + ".md").replace("//", "/");
+        std::fs::write(src.clone(), content).expect("Unable to write {path}");
         std::thread::sleep(std::time::Duration::from_secs(1));
+        println!("Parser write md ok");
+
+        let assets = PathBuf::from("bin/assets");
+        let output = (path.to_owned() + "/" + name).replace("//", "/");
+        let output = PathBuf::from(output);
+        let src = PathBuf::from(src);
+        let template = "template.html";
+        ComrakConvert::new(&src, &output, assets, template).convert();
+        println!("Parser write html ok");
+
         println!("Parser write_to_file end");
         Ok(())
     }
