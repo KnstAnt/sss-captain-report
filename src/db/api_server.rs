@@ -81,7 +81,7 @@ impl ApiServer {
         CriteriaDataArray::parse(
             &self
                 .fetch(&format!(
-                    "SELECT 
+                "SELECT 
                     head.id AS id, \
                     head.{} as name, \
                     unit.{} as unit, \
@@ -120,7 +120,7 @@ impl ApiServer {
         CriteriaDataArray::parse(
             &self
                 .fetch(&format!(
-                    "SELECT
+                "SELECT
                     head.id AS id, \
                     head.{} as name, \
                     unit.{} as unit, \
@@ -375,7 +375,7 @@ impl ApiServer {
         let strength_result = StrengthResultDataArray::parse(
             &self
                 .fetch(&format!(
-                    "SELECT 
+                "SELECT 
                     value_shear_force as sf, \
                     value_bending_moment as bm
                 FROM
@@ -442,7 +442,7 @@ impl ApiServer {
                 FROM 
                     stability_diagram 
                 WHERE 
-                    ship_id={} AND s.project_id IS NOT DISTINCT FROM {};",
+                    ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {
@@ -457,7 +457,7 @@ impl ApiServer {
         ShipDataArray::parse(
             &self
                 .fetch(&format!(
-                    "SELECT
+                "SELECT
                     s.name as name, \
                     s.call_sign as call_sign, \
                     s.IMO as imo, \
@@ -483,8 +483,8 @@ impl ApiServer {
                     ship_type_rmrs AS tr ON t.type_rmrs = tr.id
                 JOIN
                     navigation_area AS n ON s.navigation_area_id = n.id
-                WHERE s.id={} AND s.project_id IS NOT DISTINCT FROM {};",
-                    self.ship_id, self.project_id,
+                WHERE s.id={};",
+                    self.ship_id, 
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?,
         )

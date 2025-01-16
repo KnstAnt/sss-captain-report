@@ -65,7 +65,7 @@ pub fn get_args() -> Result<Message, Error> {
         params: Params {
             path: "bin/html".to_owned(),
             name: "report".to_owned(),
-            language: None, //"ru".to_owned(),
+            language: Some("en".to_owned()),
             ship_id: 2,
             project_id: None,
         },
