@@ -17,9 +17,22 @@ fn spawn_stdin_channel() -> Receiver<String> {
 }
 //
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Message {
+pub struct ApiAddress {
+    pub host: String,
+    pub port: i32,
+}
+//
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Params {
     pub path: String,
     pub name: String,
+}
+//
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Message {
+    #[serde(alias = "api-address")]
+    pub address: ApiAddress,
+    pub params: Params,
 }
 //
 pub fn get_args() -> Result<Message, Error> {
@@ -40,8 +53,15 @@ pub fn get_args() -> Result<Message, Error> {
     }
     log::error!("error read from stdin!");
     let message = Message {
-        path: "bin/html".to_owned(),
-        name: "report".to_owned(),
+        address: ApiAddress {
+            host: "0.0.0.0".to_owned(),
+            port: 8080,
+        },
+        params: Params {
+            path: "bin/html".to_owned(),
+            name: "report".to_owned(),
+        },
     };
+    log::info!("set default message:{:?}", message);
     Ok(message)
 }

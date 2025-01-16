@@ -29,16 +29,18 @@ fn main() {
 #[allow(unused)]
 fn execute() -> Result<(), Error> {
     let message = get_args()?;
-    log::info!(
-        "args path:{} name:{}",
-        message.path,
-        message.name
+    let mut report = Report::new(
+        2, 
+        ApiServer::new(
+            "sss-computing".to_owned(),
+            message.address.host.to_owned(),
+            message.address.port.to_string(),
+        )
     );
-    let mut report = Report::new(2, ApiServer::new("sss-computing".to_owned()));
     if let Err(error) = report.get_from_db() {
         return Err(Error::FromString(format!("Execute report.get_from_db error: {}", error)));
     }
-    if let Err(error) = report.write(&message.path, &message.name) {
+    if let Err(error) = report.write(&message.params.path, &message.params.name) {
         return Err(Error::FromString(format!("Execute report.write error: {}", error)));
     }
     Ok(())    

@@ -23,17 +23,23 @@ use super::voyage::VoyageDataArray;
 
 pub struct ApiServer {
     database: String,
+    host: String,
+    port: String,
 }
 //
 impl ApiServer {
-    pub fn new(database: String) -> Self {
-        Self { database }
+    pub fn new(database: String, host: String, port: String) -> Self {
+        Self {
+            database,
+            host,
+            port,
+        }
     }
     //
     pub fn fetch(&mut self, sql: &str) -> Result<Vec<u8>, Error> {
         let mut request = ApiRequest::new(
             &api_tools::debug::dbg_id::DbgId("parent".to_owned()),
-            "0.0.0.0:8080",
+            self.host.clone() + ":" + &self.port,
             "auth_token",
             ApiQuery::new(
                 ApiQueryKind::Sql(ApiQuerySql::new(self.database.clone(), sql)),
