@@ -27,9 +27,7 @@ impl Bulkhead {
                 )
             })
             .collect::<Vec<Vec<String>>>();
-        Ok(Self {
-            table: Table::new(&header, content),
-        })
+        Ok(Self::new(Table::new(&header, content)))
     }
 }
 //

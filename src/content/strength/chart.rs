@@ -1,5 +1,5 @@
 use crate::error::Error;
-use charts_rs::{BarChart, Box, LineChart, ScatterChart, SeriesCategory};
+use charts_rs::{Box, LineChart, SeriesCategory};
 //
 pub struct Chart {
     //    header: String,
