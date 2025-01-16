@@ -40,8 +40,8 @@ pub fn get_args() -> Result<Message, Error> {
     }
     log::error!("error read from stdin!");
     let message = Message {
-        path: "src/bin/html".to_owned(),
-        name: "report.html".to_owned(),
+        path: "bin/html".to_owned(),
+        name: "report".to_owned(),
     };
     Ok(message)
 }

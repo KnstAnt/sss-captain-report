@@ -189,7 +189,9 @@ impl Report {
         content += "\n\n";
 
         let src = ("bin/md".to_owned() + "/" + name + ".md").replace("//", "/");
-        std::fs::write(src.clone(), content).expect("Unable to write {path}");
+        if let Err(error) = std::fs::write(src.clone(), content) {
+            return Err(Error::FromString(format!("Parser write error: std::fs::write error: {error}, src:{src}")));
+        }
         std::thread::sleep(std::time::Duration::from_secs(1));
         println!("Parser write md ok");
 
@@ -197,7 +199,7 @@ impl Report {
         let output = (path.to_owned() + "/" + name).replace("//", "/");
         let output = PathBuf::from(output);
         let src = PathBuf::from(src);
-        let template = "template.html";
+        let template = PathBuf::from("bin/assets/template.html");
         ComrakConvert::new(&src, &output, assets, template).convert();
         println!("Parser write html ok");
 

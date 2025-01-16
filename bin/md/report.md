@@ -8,8 +8,6 @@
 
 <BODY>
 
-<P> <CENTER> <img src="sa_lab.png" width="200" height="120" alt="Эмблема"> </CENTER> </P>
-
 <P> <CENTER> BoardTrix </CENTER>
 
 <HR SIZE=4 WIDTH=100% NOSHADE ALIGN=CENTER>
@@ -204,6 +202,8 @@
 
 
 # Параметры посадки
+
+Осадки приведены по теоретической поверхности корпуса.
 
 |№|Наименование|Размерность|Значение|
 |---|---|---|---|
