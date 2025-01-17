@@ -40,7 +40,7 @@ impl LeverDiagram {
         }
        // Ok(super::chart::Chart::new("DSO", "m", &data).to_string()? + "\n\n" + &string)
 
-        let path = "../assets/dso_chart.svg";
+        let path = "./assets/dso_chart.svg";
         if let Err(error) = std::fs::write(path, super::chart::Chart::new("DSO", "m", &data).to_string()?) {
             log2::error!("Strength Template to_string std::fs::write error: {error}");
         }

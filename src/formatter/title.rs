@@ -26,6 +26,8 @@ impl Title {
 
 <BODY>
 
+<P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
+
 <P> <CENTER> BoardTrix </CENTER>
 
 <HR SIZE=4 WIDTH=100% NOSHADE ALIGN=CENTER>
@@ -70,7 +72,7 @@ impl Title {
 
 <BODY>
 
-<P> <CENTER> <img src=\"../assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
+<P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
 
 <P> <CENTER> BoardTrix </CENTER>
 
@@ -124,7 +126,7 @@ impl Title {
 
 <BODY>
 
-<P> <CENTER> <img src=\"../assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Emblem\"> </CENTER> </P>
+<P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Emblem\"> </CENTER> </P>
 
 <P> <CENTER> BoardTrix </CENTER>
 
@@ -170,7 +172,7 @@ impl Title {
 
 <BODY>
 
-<P> <CENTER> <img src=\"../assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
+<P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
 
 <P> <CENTER> BoardTrix </CENTER>
 
