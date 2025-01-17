@@ -75,6 +75,8 @@ impl Content for Template {
         let (limit_min_value, limit_max_value) = (limit_min.value(max_percent_x)?, limit_max.value(max_percent_x)?);
         let state_percent = max_percent_value <= 100.;
         table_values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
+
+        
         Ok(super::chart::Chart::new(&self.short_name, &self.unit, &chart_values).to_string()? 
             + "\n\n" +
             &super::table::Table::new(&self.short_name, &table_values).to_string()?

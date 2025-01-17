@@ -13,8 +13,15 @@ mod parser;
 mod converter;
 
 fn main() {
-    std::env::set_var("RUST_LOG", "info");
-    env_logger::init();
+    //std::env::set_var("RUST_LOG", "info");
+    //env_logger::init();
+    let _log2 = log2::open("log.txt")
+    .level(env_logger::Logger::from_default_env().filter().as_str())
+    .size(5 * 1024 * 1024)
+    .rotate(10)
+    .tee(false)
+    .module(true)
+    .start();
     info!("starting up");
     let reply = if let Err(error) = execute() {
         let str1 = r#"{"status":"failed","message":""#;

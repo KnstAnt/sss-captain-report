@@ -1,5 +1,5 @@
 use crate::error::Error;
-use charts_rs::{Box, LineChart, SeriesCategory};
+use charts_rs::{Box, LineChart, SeriesCategory}; 
 //
 pub struct Chart {
     //    header: String,
@@ -66,4 +66,5 @@ impl Chart {
         
         Ok(format!("{}", chart.svg().unwrap()))
     }
+
 }

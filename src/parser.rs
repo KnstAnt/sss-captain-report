@@ -210,6 +210,10 @@ impl Report {
         ComrakConvert::new(&src, &output, assets, template).convert();
         println!("Parser write html ok");
 
+        if let Err(error) = std::fs::remove_file(src) {
+            return Err(Error::FromString(format!("Parser write error: std::fs::remove_file: {error}")));
+        }
+
         println!("Parser write_to_file end");
         Ok(())
     }
