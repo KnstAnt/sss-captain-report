@@ -12,8 +12,12 @@ impl Container {
         Self { table }
     }
     //
-    pub fn from(data: &[ContainerData]) -> Result<Self, Error> {
-        let header = vec!["Наименование", "BBRRTT", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"];
+    pub fn from(language: &String, data: &[ContainerData]) -> Result<Self, Error> {
+        let header = if language.contains("en") { 
+            vec!["Name", "BBRRTT", "Weight", "$x_g$ [m]", "$y_g$ [m]", "$z_g$ [m]",]
+        } else {
+            vec!["Наименование", "BBRRTT", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"]
+        }.to_owned();
         let content = data
             .iter()
             .map(|v| {

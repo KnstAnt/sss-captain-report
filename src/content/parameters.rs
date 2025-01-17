@@ -16,8 +16,12 @@ impl Parameters {
         Self { table }
     }
     //
-    pub fn from(numbers: &[i32], data: &HashMap<i32, ParameterData>) -> Result<Self, Error> {
-        let header = vec!["№", "Наименование", "Размерность", "Значение"];
+    pub fn from(language: &String, numbers: &[i32], data: &HashMap<i32, ParameterData>) -> Result<Self, Error> {
+        let header = if language.contains("en") { 
+            vec!["№", "Name", "Dimension", "Value"]
+        } else {
+            vec!["№", "Наименование", "Размерность", "Значение"]
+        };
         let content = numbers
             .iter()
             .filter_map(|i| {

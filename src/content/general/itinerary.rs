@@ -5,17 +5,27 @@ use crate::{
 };
 
 pub struct Itinerary {
+    header: String,
     table: Table,
 }
 //
 impl Itinerary {
     //
-    pub fn new(table: Table) -> Self {
-        Self { table }
+    pub fn new(header: String, table: Table) -> Self {
+        Self { header, table }
     }
     //
-    pub fn from(data: Vec<ItineraryData>) -> Result<Self, Error> {
-        let header = vec!["Порт", "Код порта", "ETA", "ETD", "Макс. осадка [м]"];
+    pub fn from(language: &String, data: Vec<ItineraryData>) -> Result<Self, Error> {
+        if language.contains("en") {
+            Self::from_en(data)
+        } else {
+            Self::from_ru(data)
+        }
+    }
+    //
+    pub fn from_ru(data: Vec<ItineraryData>) -> Result<Self, Error> {
+        let header = "# Маршрут\n\n".to_owned();
+        let table_header = vec!["Порт", "Код порта", "ETA", "ETD", "Макс. осадка [м]"];
         let content = data
             .into_iter()
             .map(|v| {
@@ -28,13 +38,31 @@ impl Itinerary {
                 ]
             })
             .collect();
-        Ok(Self::new(Table::new(&header, content)))
+        Ok(Self::new(header, Table::new(&table_header, content)))
+    }
+    //
+    pub fn from_en(data: Vec<ItineraryData>) -> Result<Self, Error> {
+        let header = "# Маршрут\n\n".to_owned();
+        let table_header = vec!["Порт", "Код порта", "ETA", "ETD", "Макс. осадка [м]"];
+        let content = data
+            .into_iter()
+            .map(|v| {
+                vec![
+                    v.port_name.clone(),
+                    v.port_code.clone(),
+                    v.eta.clone(),
+                    v.etd.clone(),
+                    format!("{:.3}", v.max_draught),
+                ]
+            })
+            .collect();
+        Ok(Self::new(header, Table::new(&table_header, content)))
     }
 }
 //
 impl Content for Itinerary {
     //
     fn to_string(self) -> Result<String, crate::error::Error> {
-        Ok("# Маршрут\n".to_string() + &self.table.to_string()?)
+        Ok(self.header + &self.table.to_string()?)
     }
 }

@@ -17,7 +17,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 //
 pub struct Report {
-    language: Option<String>,
+    language: String,
     api_server: ApiServer,
     imo: Option<i32>,
     ship: Option<ShipData>,
@@ -41,7 +41,7 @@ impl Report {
     //
     pub fn new(language: Option<String>, api_server: ApiServer) -> Self {
         Self {
-            language,
+            language: language.unwrap_or("ru".to_owned()),
             api_server,
             imo: None,
             ship: None,
@@ -119,41 +119,75 @@ impl Report {
         let imo = self
             .imo
             .ok_or(Error::FromString("Formatter error: no imo!".to_owned()))?;
-        let mut content =
-            Title::new(&format!("Сухогрузное судно Sofia (IMO№ {imo})")).print() + "\n";
+        let mut content = if self.language.contains("ru") {
+            Title::new(&format!("Судно, предназначенное для перевозки сухих генеральных грузов София (IMO№ {imo})")).print_ru() + "\n"
+        } else {
+            Title::new(&format!("General dry cargo ship Sofia (IMO№ {imo})")).print_en() + "\n"
+        };
         content += &crate::content::general::General::new(
-            crate::content::general::ship::Ship::from(self.ship.ok_or(Error::FromString(
+            crate::content::general::ship::Ship::from(&self.language, self.ship.ok_or(Error::FromString(
                 "Formatter error: no ship data!".to_owned(),
             ))?)?,
-            crate::content::general::voyage::Voyage::from(self.voyage.ok_or(
+            crate::content::general::voyage::Voyage::from(&self.language, self.voyage.ok_or(
                 Error::FromString("Formatter error: no voyage data!".to_owned()),
             )?)?,
-            crate::content::general::itinerary::Itinerary::from(self.itinerary)?,
+            crate::content::general::itinerary::Itinerary::from(&self.language, self.itinerary)?,
         )
         .to_string()?;
         content += "\n\n";
         content += &crate::content::displacement::Displacement::new(
+            &self.language,
             crate::content::parameters::Parameters::from(
+                &self.language,
                 &[2, 32, 56, 12, 1, 52],
                 &self.parameters,
             )?,
-            crate::content::displacement::tank::Tank::from(&self.ballast_tanks)?,
-            crate::content::displacement::tank::Tank::from(&self.stores_tanks)?,
-            crate::content::displacement::cargo::Cargo::from(&self.stores)?,
-            crate::content::displacement::bulkhead::Bulkhead::from(&self.bulkheads)?,
-            crate::content::displacement::bulk_cargo::BulkCargo::from(&self.bulk_cargo)?,
-            crate::content::displacement::container::Container::from(&self.container)?,
-            crate::content::displacement::cargo::Cargo::from(&self.general_cargo)?,
+            crate::content::displacement::tank::Tank::from(
+                &self.language,
+                &self.ballast_tanks
+            )?,
+            crate::content::displacement::tank::Tank::from(
+                &self.language,
+                &self.stores_tanks
+            )?,
+            crate::content::displacement::cargo::Cargo::from(
+                &self.language,
+                &self.stores
+            )?,
+            crate::content::displacement::bulkhead::Bulkhead::from(
+                &self.language,
+                &self.bulkheads
+            )?,
+            crate::content::displacement::bulk_cargo::BulkCargo::from(
+                &self.language,
+                &self.bulk_cargo
+            )?,
+            crate::content::displacement::container::Container::from(
+                &self.language,
+                &self.container
+            )?,
+            crate::content::displacement::cargo::Cargo::from(
+                &self.language,
+                &self.general_cargo
+            )?,
         )
         .to_string()?;
         content += "\n\n";
-        content += &crate::content::draught::Draught::from(&self.parameters)?.to_string()?;
+        content += &crate::content::draught::Draught::from(
+            &self.language,
+            &self.parameters
+        )?.to_string()?;
         content += "\n\n";
         content +=
-            &crate::content::strength::Strength::from(&self.strength_result, &self.strength_limit)
+            &crate::content::strength::Strength::from(
+                &self.language,
+                &self.strength_result, 
+                &self.strength_limit
+            )
                 .to_string()?;
         content += "\n\n";
         content += &crate::content::stability::Stability::from(
+            &self.language,
             &self.criteria,
             &self.parameters,
             &self.lever_diagram,

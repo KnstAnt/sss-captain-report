@@ -14,15 +14,26 @@ impl Criterion {
         Self { table }
     }
     //
-    pub fn from(data: &[(i32, CriteriaData)]) -> Result<Self, Error> {
-        let header = vec![
+    pub fn from(language: &String, data: &[(i32, CriteriaData)]) -> Result<Self, Error> {
+        let header = if language.contains("en") {
+            vec![
             "№",
             "Наименование",
             "Размерность",
             "Значение",
             "Допустимое значение",
             "Статуc",
-        ];
+            ]
+        } else {
+            vec![
+            "№",
+            "Наименование",
+            "Размерность",
+            "Значение",
+            "Допустимое значение",
+            "Статуc",
+            ]
+        };  
         let content = data
             .iter()
             .map(|(_, v)| {

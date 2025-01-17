@@ -12,8 +12,12 @@ impl Bulkhead {
         Self { table }
     }
     //
-    pub fn from(data: &[BulkheadData]) -> Result<Self, Error> {
-        let header = vec!["Наименование", "Положение.", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"];
+    pub fn from(language: &String, data: &[BulkheadData]) -> Result<Self, Error> {
+        let header = if language.contains("en") { 
+            vec!["Name", "Position", "Weight", "$x_g$ [m]", "$y_g$ [m]", "$z_g$ [m]",]
+        } else {
+            vec!["Наименование", "Положение.", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"]
+        }.to_owned();
         let content = data
             .iter()
             .map(|v| {

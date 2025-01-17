@@ -15,7 +15,7 @@ pub struct General {
 }
 //
 impl General {
-    pub fn new(    
+    pub fn new(
         ship: Ship,
         voyage: Voyage,
         itinerary: Itinerary,
