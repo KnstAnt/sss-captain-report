@@ -42,8 +42,8 @@ impl Itinerary {
     }
     //
     pub fn from_en(data: Vec<ItineraryData>) -> Result<Self, Error> {
-        let header = "# Маршрут\n\n".to_owned();
-        let table_header = vec!["Порт", "Код порта", "ETA", "ETD", "Макс. осадка [м]"];
+        let header = "# Itinerary\n\n".to_owned();
+        let table_header = vec!["Port", "Port code", "ETA", "ETD", "Max. draft [m]"];
         let content = data
             .into_iter()
             .map(|v| {

@@ -50,7 +50,7 @@ impl Title {
 
 <BR> <BR>
 
-<P> <CENTER> Санкт-Петербург <BR> {} </CENTER>
+<P> <CENTER> {} </CENTER>
 
 </BODY>
 
