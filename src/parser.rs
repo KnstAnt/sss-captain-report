@@ -124,6 +124,7 @@ impl Report {
         } else {
             Title::new(&format!("General dry cargo ship Sofia (IMO№ {imo})")).print_en() 
         };
+        content += "\n\n";
         content += &crate::content::general::General::new(
             crate::content::general::ship::Ship::from(&self.language, self.ship.ok_or(Error::FromString(
                 "Formatter error: no ship data!".to_owned(),
@@ -134,7 +135,6 @@ impl Report {
             crate::content::general::itinerary::Itinerary::from(&self.language, self.itinerary)?,
         )
         .to_string()?;
-        content += "\n\n";
         content += &crate::content::displacement::Displacement::new(
             &self.language,
             crate::content::parameters::Parameters::from(
@@ -172,12 +172,10 @@ impl Report {
             )?,
         )
         .to_string()?;
-        content += "\n\n";
         content += &crate::content::draught::Draught::from(
             &self.language,
             &self.parameters
         )?.to_string()?;
-        content += "\n\n";
         content +=
             &crate::content::strength::Strength::from(
                 &self.language,
@@ -185,7 +183,7 @@ impl Report {
                 &self.strength_limit
             )
                 .to_string()?;
-        content += "\n\n";
+        content += "\n";
         content += &crate::content::stability::Stability::from(
             &self.language,
             &self.criteria,
@@ -193,7 +191,6 @@ impl Report {
             &self.lever_diagram,
         )?
         .to_string()?;
-        content += "\n\n";
 
         let src = ("bin/md".to_owned() + "/" + name + ".md").replace("//", "/");
         if let Err(error) = std::fs::write(src.clone(), content) {

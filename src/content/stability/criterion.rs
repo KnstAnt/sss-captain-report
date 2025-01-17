@@ -18,11 +18,11 @@ impl Criterion {
         let header = if language.contains("en") {
             vec![
             "№",
-            "Наименование",
-            "Размерность",
-            "Значение",
-            "Допустимое значение",
-            "Статуc",
+            "Name",
+            "Dimension",
+            "Value",
+            "Allow",
+            "Status",
             ]
         } else {
             vec![

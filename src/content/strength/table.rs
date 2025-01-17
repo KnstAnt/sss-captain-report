@@ -6,22 +6,33 @@ pub struct Table {
 //
 impl Table {
     // x, min,  calc, max, state
-    pub fn new(name: &str, values: &[(f64, f64, f64, f64, bool)]) -> Self {
+    pub fn new(language: &String, name: &str, values: &[(f64, f64, f64, f64, bool)]) -> Self {
+        let header = if language.contains("en") {
+            vec![
+                "X".to_owned(),
+                format!("${name}_{{min}}$"),
+                format!("${name}$"),
+                format!("${name}_{{max}}$"),
+                "Status".to_owned(),
+            ]
+        } else {
+            vec![
+                "X".to_owned(),
+                format!("${name}_{{min}}$"),
+                format!("${name}$"),
+                format!("${name}_{{max}}$"),
+                "Статус".to_owned(),
+            ]
+        };
         Self::new_header(
-            &vec![
-                "X",
-                &format!("${name}_{{min}}$"),
-                &format!("${name}$"),
-                &format!("${name}_{{max}}$"),
-                "Статус",
-            ],
+            header,
             values,
         )
     }
     //
-    pub fn new_header(header: &[&str], values: &[(f64, f64, f64, f64, bool)]) -> Self {
+    pub fn new_header(header: Vec<String>, values: &[(f64, f64, f64, f64, bool)]) -> Self {
         Self {
-            header: header.iter().map(|s| s.to_string()).collect(),
+            header,
             values: Vec::from(values),
         }
     }

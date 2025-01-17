@@ -28,8 +28,8 @@ impl General {
     }
     //
     pub fn to_string(self) -> Result<String, Error> {
-        Ok( self.ship.to_string()? + "\n\n" + 
-            &self.voyage.to_string()? + "\n" + 
+        Ok( self.ship.to_string()? + 
+            &self.voyage.to_string()? + 
             &self.itinerary.to_string()?
         )
     }

@@ -60,12 +60,14 @@ impl Strength {
         Self::new(
             language,
             Template::new(
+                language, 
                 "SF",
                 "MN",
                 &sf_result,
                 &sf_limit,
             ),
             Template::new(
+                language,
                 "BM",
                 "MH*m",
                 &bm_result,
@@ -77,7 +79,7 @@ impl Strength {
     pub fn to_string(self) -> Result<String, Error> {
         Ok( self.header_main + 
             &self.header_bm + 
-            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))? + "\n\n" + 
+            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))? + "\n" + 
             &self.header_sf + 
             &self.shear_force.to_string().map_err(|e| format!("Strength to_string shear_force error:{}", e))?
         )

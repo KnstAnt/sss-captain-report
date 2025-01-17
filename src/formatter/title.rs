@@ -16,15 +16,7 @@ impl Title {
         let local = chrono::Local::now();
         let year = local.year();
         format!(
-"<HTML>
-
-<HEAD>
-
-<TITLE>Титульный лист</TITLE>
-
-</HEAD>
-
-<BODY>
+"<!-- <title>Титульный лист</title> -->
 
 <P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Эмблема\"> </CENTER> </P>
 
@@ -52,15 +44,7 @@ impl Title {
 
 <BR> <BR>
 
-<P> <CENTER> {} </CENTER>
-
-</BODY>
-
-</HTML>
-
-<div style=\"page-break-after: always;\"></div>
-
-",
+<P> <CENTER> {} </CENTER>",
 /*
 "<HTML>
 
@@ -116,15 +100,7 @@ impl Title {
         let local = chrono::Local::now();
         let year = local.year();
         format!(
-"<HTML>
-
-<HEAD>
-
-<TITLE>Title page</TITLE>
-
-</HEAD>
-
-<BODY>
+"<!-- <title>Титульный лист</title> -->
 
 <P> <CENTER> <img src=\"./assets/sa_lab.png\" width=\"200\" height=\"120\" alt=\"Emblem\"> </CENTER> </P>
 
@@ -152,15 +128,7 @@ impl Title {
 
 <BR> <BR>
 
-<P> <CENTER> {} </CENTER>
-
-</BODY>
-
-</HTML>
-
-<div style=\"page-break-after: always;\"></div>
-
-",
+<P> <CENTER> {} </CENTER>",
 /*
 "<HTML>
 

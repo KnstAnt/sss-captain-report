@@ -54,24 +54,24 @@ impl Displacement {
     pub fn to_string(self) -> Result<String, Error> {
         if self.language.contains("en") {
             Ok("# Displacement\n\n".to_string() +
-                "## Total\n\n" + &self.summary.to_string()? + "\n\n" +
-                "## Ballast tanks\n\n" + &self.ballast_tank.to_string()? + "\n\n" +
-                "## Stores tanks\n\n" + &self.stores_tank.to_string()? + "\n\n" +
-                "## Stores\n\n" + &self.stores.to_string()? + "\n\n" + 
-                "## Bulkheads\n\n" + &self.bulkhead.to_string()? + "\n\n" + 
-                "## Bulk cargo\n\n" + &self.bulk_cargo.to_string()? + "\n\n" + 
-                "## Containers\n\n" + &self.container.to_string()? + "\n\n" + 
+                "## Total\n\n" + &self.summary.to_string()? + 
+                "## Ballast tanks\n\n" + &self.ballast_tank.to_string()? + 
+                "## Stores tanks\n\n" + &self.stores_tank.to_string()? + 
+                "## Stores\n\n" + &self.stores.to_string()? +  
+                "## Bulkheads\n\n" + &self.bulkhead.to_string()? +  
+                "## Bulk cargo\n\n" + &self.bulk_cargo.to_string()? +  
+                "## Containers\n\n" + &self.container.to_string()? +  
                 "## General cargo\n\n" + &self.general_cargo.to_string()?
             )
         } else {
             Ok("# Водоизмещение\n\n".to_string() +
-                "## Итого\n\n" + &self.summary.to_string()? + "\n\n" +
-                "## Балластные цистерны\n\n" + &self.ballast_tank.to_string()? + "\n\n" +
-                "## Цистерны запаса\n\n" + &self.stores_tank.to_string()? + "\n\n" +
-                "## Запасы\n\n" + &self.stores.to_string()? + "\n\n" + 
-                "## Зерновые переборки\n\n" + &self.bulkhead.to_string()? + "\n\n" + 
-                "## Навалочный груз\n\n" + &self.bulk_cargo.to_string()? + "\n\n" + 
-                "## Контейнеры\n\n" + &self.container.to_string()? + "\n\n" + 
+                "## Итого\n\n" + &self.summary.to_string()? + 
+                "## Балластные цистерны\n\n" + &self.ballast_tank.to_string()? + 
+                "## Цистерны запаса\n\n" + &self.stores_tank.to_string()? + 
+                "## Запасы\n\n" + &self.stores.to_string()? +  
+                "## Зерновые переборки\n\n" + &self.bulkhead.to_string()? +  
+                "## Навалочный груз\n\n" + &self.bulk_cargo.to_string()? +  
+                "## Контейнеры\n\n" + &self.container.to_string()? +  
                 "## Генеральный груз\n\n" + &self.general_cargo.to_string()?
             )
         }

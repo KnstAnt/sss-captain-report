@@ -3,6 +3,7 @@ use crate::content::Content;
 use crate::content::misc::{Curve, ICurve};
 //
 pub struct Template {
+    language: String, 
     short_name: String,
     unit: String,
     result: Vec<(f64, f64)>, //x, value
@@ -12,12 +13,14 @@ pub struct Template {
 impl Template {
     //
     pub fn new( 
+        language: &String, 
         short_name: &str,
         unit: &str,
         result: &[(f64, f64)],
         limit: &[(f64, f64, f64)],
     ) -> Self {
         Self {
+            language: language.to_owned(),
             short_name: short_name.to_owned(),
             unit: unit.to_owned(),
             result: Vec::from(result),
@@ -76,13 +79,12 @@ impl Content for Template {
         let state_percent = max_percent_value <= 100.;
         table_values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
 
-        let path = format!("./assets/{}_chart.svg", self.short_name.to_lowercase());
-        if let Err(error) = std::fs::write(path.clone(), super::chart::Chart::new(&self.short_name, &self.unit, &chart_values).to_string()?) {
+        if let Err(error) = std::fs::write(format!("bin/assets/{}_chart.svg", self.short_name.to_lowercase()), super::chart::Chart::new(&self.language, &self.short_name, &self.unit, &chart_values).to_string()?) {
             log2::error!("Strength Template to_string std::fs::write error: {error}");
         }
-        Ok( format!("![chart]({})", path)
+        Ok( format!("![chart](./assets/{}_chart.svg)", self.short_name.to_lowercase())
             + "\n\n" +
-            &super::table::Table::new(&self.short_name, &table_values).to_string()?
+            &super::table::Table::new(&self.language, &self.short_name, &table_values).to_string()?
         )
     } 
 }

@@ -2,6 +2,8 @@ use crate::content::misc::{Curve, ICurve};
 
 pub struct LeverDiagram {
     header: String,
+    short_name: String,
+    unit: String,
     // angle, dso
     data: Vec<(f64, f64)>,
 }
@@ -9,14 +11,15 @@ pub struct LeverDiagram {
 impl LeverDiagram {
     //
     pub fn new(language: &String, data: &[(f64, f64)]) -> Self {
-        let header = if language.contains("en") {
-            "| Heel | Lever |"
+        let (header, short_name, unit) = if language.contains("en") {
+            ("| Heel | Lever |", "DSO", "m")
         } else {
-            "| Крен | Плечо расчет |"
-        }
-        .to_owned();
+            ("| Крен | Плечо расчет |", "ДСО", "м")
+        }        ;
         Self {
-            header,
+            header: header.to_owned(),
+            short_name: short_name.to_owned(),
+            unit: unit.to_owned(),
             data: Vec::from(data),
         }
     }
@@ -38,13 +41,11 @@ impl LeverDiagram {
             data.push((key, value));
             string += &format!("|{}|{:.3}|\n", key, value);
         }
-       // Ok(super::chart::Chart::new("DSO", "m", &data).to_string()? + "\n\n" + &string)
 
-        let path = "./assets/dso_chart.svg";
-        if let Err(error) = std::fs::write(path, super::chart::Chart::new("DSO", "m", &data).to_string()?) {
+        if let Err(error) = std::fs::write("bin/assets/dso_chart.svg", super::chart::Chart::new(&self.short_name, &self.unit, &data).to_string()?) {
             log2::error!("Strength Template to_string std::fs::write error: {error}");
         }
-        Ok( format!("![chart]({})", path)
+        Ok( format!("![chart](./assets/dso_chart.svg)")
             + "\n\n" +
             &string
         )

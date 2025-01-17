@@ -2,7 +2,7 @@ use crate::error::Error;
 use charts_rs::{Box, LineChart, SeriesCategory}; 
 //
 pub struct Chart {
-    //    header: String,
+    header: (String, String, String),
     short_name: String,
     unit: String,
     values: Vec<(f64, f64, f64, f64)>, //x, min, calc, max
@@ -11,13 +11,18 @@ pub struct Chart {
 impl Chart {
     //
     pub fn new(
-        //       header: String,
+        language: &String,
         short_name: &str,
         unit: &str,
         values: &[(f64, f64, f64, f64)],
     ) -> Self {
+        let header = if language.contains("en") {
+            ("min".to_owned(), "calc".to_owned(), "max".to_owned())
+        } else {
+            ("мин".to_owned(), "расчет".to_owned(), "макс".to_owned())
+        };
         Self {
-            //           header,
+            header,
             short_name: short_name.to_owned(),
             unit: unit.to_owned(),
             values: Vec::from(values),
@@ -32,9 +37,9 @@ impl Chart {
             .unzip();
         let mut chart = LineChart::new(
             vec![
-                ("мин", min.iter().map(|v| *v as f32).collect()).into(),
-                ("расчет", calc.iter().map(|v| *v as f32).collect()).into(),
-                ("макс", max.iter().map(|v| *v as f32).collect()).into(),
+                (self.header.0.as_str(), min.iter().map(|v| *v as f32).collect()).into(),
+                (self.header.1.as_str(), calc.iter().map(|v| *v as f32).collect()).into(),
+                (self.header.2.as_str(), max.iter().map(|v| *v as f32).collect()).into(),
             ],
             x.iter().map(|v| format!("{:.3}", v)).collect(),
         );

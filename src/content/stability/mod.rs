@@ -58,18 +58,18 @@ impl Stability {
         if self.language.contains("en") {
             Ok("# Stability\n\n".to_string() + 
                 "## Criterions\n\n" + 
-                &self.criterion.to_string()? + "\n\n" + 
+                &self.criterion.to_string()? +  
                 "## Stability curve\n\n" +
-                &self.lever_diagram.to_string()? + "\n\n" + 
+                &self.lever_diagram.to_string()?  + "\n" +  
                 "## Stability\n\n" + 
                 &self.parameters.to_string()?
             )
         } else  {
             Ok("# Остойчивость\n\n".to_string() + 
                 "## Критерии\n\n" + 
-                &self.criterion.to_string()? + "\n\n" + 
+                &self.criterion.to_string()? +  
                 "## Диаграмма статической остойчивости\n\n" +
-                &self.lever_diagram.to_string()? + "\n\n" + 
+                &self.lever_diagram.to_string()?  + "\n" +  
                 "## Параметры остойчивости\n\n" + 
                 &self.parameters.to_string()?
             )
