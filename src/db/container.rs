@@ -6,7 +6,7 @@ use super::DataArray;
 /// Данные контейнеров
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ContainerData {
-    pub owner_code: i32,
+    pub owner_code: String,
     pub serial_code: i32,
     pub check_digit: i32,
     pub bay_number: i32,
@@ -25,7 +25,7 @@ impl ContainerData {
     }
     //
     pub fn bbrrtt(&self) -> String {
-        format!("{:2}{:2}{:2}", self.bay_number, self.row_number, self.tier_number)
+        format!("{:02}{:02}{:02}", self.bay_number, self.row_number, self.tier_number)
     }
 }
 //

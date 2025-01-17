@@ -205,7 +205,7 @@ impl ApiServer {
                 FROM 
                     compartment 
                 WHERE 
-                    category_id=2 AND ship_id={} AND project_id IS NOT DISTINCT FROM {}",
+                    category_id=2 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.language("name_rus", "name_engl"),
                     self.ship_id, 
                     self.project_id,
@@ -230,7 +230,7 @@ impl ApiServer {
                 FROM 
                     compartment 
                 WHERE 
-                    category_id>=3 AND category_id<=8 AND ship_id={} AND project_id IS NOT DISTINCT FROM {}",
+                    category_id>=3 AND category_id<=8 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                 self.language("name_rus", "name_engl"),
                 self.ship_id,
                 self.project_id,
@@ -253,7 +253,7 @@ impl ApiServer {
                 FROM 
                     cargo 
                 WHERE 
-                    category_id=9 AND ship_id={} AND project_id IS NOT DISTINCT FROM {}",
+                    category_id=9 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                 self.ship_id,
                 self.project_id,
                 ))
@@ -278,7 +278,7 @@ impl ApiServer {
                 JOIN 
                     bulkhead_place as bp ON b.id = bp.bulkhead_id
                 WHERE 
-                    b.ship_id={} AND b.project_id IS NOT DISTINCT FROM {}",
+                    b.ship_id={} AND b.project_id IS NOT DISTINCT FROM {};",
                     self.language("name_rus", "name_engl"),
                     self.language("name_rus", "name_engl"),
                     self.ship_id,
@@ -303,7 +303,7 @@ impl ApiServer {
                 FROM 
                     hold_compartment 
                 WHERE 
-                    ship_id={} AND project_id IS NOT DISTINCT FROM {}",
+                    ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.language("name_rus", "name_engl"),
                     self.ship_id, self.project_id,
                 ))
@@ -332,7 +332,7 @@ impl ApiServer {
                 JOIN 
                     container_slot as cs ON cs.container_id = c.id
                 WHERE 
-                    c.ship_id={} AND c.project_id IS NOT DISTINCT FROM {}",
+                    c.ship_id={} AND c.project_id IS NOT DISTINCT FROM {};",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_container error: {e}")))?,
@@ -353,7 +353,7 @@ impl ApiServer {
                 FROM 
                     cargo 
                 WHERE 
-                    category_id=14 AND ship_id={} AND project_id IS NOT DISTINCT FROM {}",
+                    category_id=14 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {

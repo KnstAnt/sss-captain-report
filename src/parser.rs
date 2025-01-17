@@ -119,13 +119,7 @@ impl Report {
         let imo = self
             .imo
             .ok_or(Error::FromString("Formatter error: no imo!".to_owned()))?;
-        let mut content = /*if self.language.contains("ru") {
-            Title::new(&format!("Судно, предназначенное для перевозки сухих генеральных грузов София (IMO№ {imo})")).print_ru() 
-        } else {
-            Title::new(&format!("General dry cargo ship Sofia (IMO№ {imo})")).print_en() 
-        };
-        content += "\n\n";
-        content +=*/ crate::content::general::General::new(
+        let mut content = crate::content::general::General::new(
             crate::content::general::ship::Ship::from(&self.language, self.ship.ok_or(Error::FromString(
                 "Formatter error: no ship data!".to_owned(),
             ))?)?,
@@ -211,10 +205,10 @@ impl Report {
         ComrakConvert::new(&src, &output, assets, template).convert();
         log2::info!("Parser write html ok");
 
-    /*    if let Err(error) = std::fs::remove_file(src) {
+        if let Err(error) = std::fs::remove_file(src) {
             return Err(Error::FromString(format!("Parser write error: std::fs::remove_file: {error}")));
         }
-*/
+
         log2::info!("Parser write_to_file end");
         Ok(())
     }
