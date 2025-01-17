@@ -42,7 +42,7 @@ impl Voyage {
         content.push(convert_str("Код рейса", &data.code));
         content.push(convert_str("Акватория", &data.area));
         content.push(convert_value(
-            "Плотность забортной воды $[т/м^3]$",
+            "Плотность забортной воды [т/м^3]",
             &data.density,
         ));
         content.push(convert_str("Грузовая марка", &data.load_line));
@@ -75,7 +75,7 @@ impl Voyage {
         content.push(convert_str("Voyage Code", &data.code));
         content.push(convert_str("Water area", &data.area));
         content.push(convert_value(
-            "Seawater density $[t/m^3]$",
+            "Seawater density [t/m^3]",
             &data.density,
         ));
         content.push(convert_str("Load Line", &data.load_line));

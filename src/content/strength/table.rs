@@ -10,17 +10,17 @@ impl Table {
         let header = if language.contains("en") {
             vec![
                 "X".to_owned(),
-                format!("${name}_{{min}}$"),
-                format!("${name}$"),
-                format!("${name}_{{max}}$"),
+                format!("{name}_min"),
+                format!("{name}"),
+                format!("{name}_max"),
                 "Status".to_owned(),
             ]
         } else {
             vec![
                 "X".to_owned(),
-                format!("${name}_{{min}}$"),
-                format!("${name}$"),
-                format!("${name}_{{max}}$"),
+                format!("{name}_мин"),
+                format!("{name}"),
+                format!("{name}_макс"),
                 "Статус".to_owned(),
             ]
         };

@@ -14,9 +14,9 @@ impl Cargo {
     //
     pub fn from(language: &String, data: &[CargoData]) -> Result<Self, Error> {
         let header = if language.contains("en") { 
-            vec!["Name", "Weight", "$x_g$ [m]", "$y_g$ [m]", "$z_g$ [m]",]
+            vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]",]
         } else {
-            vec!["Наименование", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]"]
+            vec!["Наименование", "Масса", "x_g [м]", "y_g [м]", "z_g [м]"]
         }.to_owned();
         let content = data
             .iter()

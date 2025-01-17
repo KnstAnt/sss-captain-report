@@ -14,9 +14,9 @@ impl BulkCargo {
     //
     pub fn from(language: &String, data: &[BulkCargoData]) -> Result<Self, Error> {
         let header = if language.contains("en") { 
-            vec!["Name", "Weight", "$x_g$ [m]", "$y_g$ [m]", "$z_g$ [m]", "Grain moment [tm]"]
+            vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]", "Grain moment [tm]"]
         } else {
-            vec!["Наименование", "Масса", "$x_g$ [м]", "$y_g$ [м]", "$z_g$ [м]", "Кренящий момент от смещения зерна [тм]"]
+            vec!["Наименование", "Масса", "x_g [м]", "y_g [м]", "z_g [м]", "Кренящий момент от смещения зерна [тм]"]
         }.to_owned();
         let content = data
             .iter()
