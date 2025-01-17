@@ -47,11 +47,11 @@ impl Chart {
         chart.series_list[0].label_show = false;
 
         dso.sort_by(|a, b| a.partial_cmp(b).unwrap()); 
-        let min = (dso.first().unwrap() - 1.).floor();
-        let max = (dso.last().unwrap() + 1.).ceil();
-
-        chart.y_axis_configs[0].axis_min = Some(min as f32);
-        chart.y_axis_configs[0].axis_max = Some(max as f32);
+        let minimum = (dso.first().unwrap() - 1.).floor();
+        let maximum = (dso.last().unwrap() + 1.).ceil();
+        let (minimum, maximum) = (minimum.min(-maximum), maximum.max(-minimum));
+        chart.y_axis_configs[0].axis_min = Some(minimum as f32);
+        chart.y_axis_configs[0].axis_max = Some(maximum as f32);
         chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}} {}", self.unit));
 
         Ok(format!("{}", chart.svg().unwrap()))

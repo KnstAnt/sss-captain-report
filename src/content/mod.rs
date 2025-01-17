@@ -2,7 +2,6 @@ use crate::error::Error;
 pub use parameters::Parameters;
 
 pub mod misc;
-pub mod chart;
 pub mod strength;
 pub mod stability;
 pub mod general;

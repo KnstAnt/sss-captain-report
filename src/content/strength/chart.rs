@@ -59,6 +59,7 @@ impl Chart {
         max.sort_by(|a, b| a.partial_cmp(b).unwrap()); 
         let minimum = (min.first().unwrap_or(&0.).min(*calc.first().unwrap_or(&0.)).min(*max.first().unwrap_or(&0.)) - 1.).floor();
         let maximum = (min.last().unwrap_or(&0.).max(*calc.last().unwrap_or(&0.)).max(*max.last().unwrap_or(&0.)) + 1.).ceil();
+        let (minimum, maximum) = (minimum.min(-maximum), maximum.max(-minimum));
         chart.y_axis_configs[0].axis_min = Some(minimum as f32);
         chart.y_axis_configs[0].axis_max = Some(maximum as f32);
         chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}} {}", self.unit));
