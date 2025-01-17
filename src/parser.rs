@@ -203,7 +203,11 @@ impl Report {
         let output = (path.to_owned() + "/" + name).replace("//", "/");
         let output = PathBuf::from(output);
         let src = PathBuf::from(src);
-        let template = PathBuf::from("bin/assets/template.html");
+        let template =  = if language.contains("en") { 
+            PathBuf::from("bin/assets/template_en.html")
+        } else {
+            PathBuf::from("bin/assets/template_ru.html")
+        };
         ComrakConvert::new(&src, &output, assets, template).convert();
         log2::info!("Parser write html ok");
 
