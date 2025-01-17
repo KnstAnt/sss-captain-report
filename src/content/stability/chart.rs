@@ -25,14 +25,14 @@ impl Chart {
     }
     //
     pub fn to_string(self) -> Result<String, Error> {
-        let (angle, dso): (Vec<i32>, Vec<f64>) = self
+        let (angle, mut dso): (Vec<i32>, Vec<f64>) = self
             .values
             .into_iter()
             .map(|(angle, dso)| (angle, dso))
             .unzip();
         let mut chart = BarChart::new(
             vec![
-                ("ДСО", dso.into_iter().map(|v| v as f32).collect()).into(),
+                ("ДСО", dso.iter().map(|v| *v as f32).collect()).into(),
             ],
             angle.iter().map(|a| format!("{a}")).collect(),
         );
@@ -46,10 +46,13 @@ impl Chart {
         chart.series_list[0].y_axis_index = 0;
         chart.series_list[0].label_show = false;
 
-        chart.y_axis_configs[0].axis_min = Some(-3.);
-        chart.y_axis_configs[0].axis_max = Some(3.);
-        chart.y_axis_configs[0].axis_formatter =
-            Some(format!("{}, {}", self.short_name, self.unit));
+        dso.sort_by(|a, b| a.partial_cmp(b).unwrap()); 
+        let min = (dso.first().unwrap() - 1.).floor();
+        let max = (dso.last().unwrap() + 1.).ceil();
+
+        chart.y_axis_configs[0].axis_min = Some(min as f32);
+        chart.y_axis_configs[0].axis_max = Some(max as f32);
+        chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}} {}", self.unit));
 
         Ok(format!("{}", chart.svg().unwrap()))
     }
