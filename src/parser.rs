@@ -119,13 +119,13 @@ impl Report {
         let imo = self
             .imo
             .ok_or(Error::FromString("Formatter error: no imo!".to_owned()))?;
-        let mut content = if self.language.contains("ru") {
+        let mut content = /*if self.language.contains("ru") {
             Title::new(&format!("Судно, предназначенное для перевозки сухих генеральных грузов София (IMO№ {imo})")).print_ru() 
         } else {
             Title::new(&format!("General dry cargo ship Sofia (IMO№ {imo})")).print_en() 
         };
         content += "\n\n";
-        content += &crate::content::general::General::new(
+        content +=*/ crate::content::general::General::new(
             crate::content::general::ship::Ship::from(&self.language, self.ship.ok_or(Error::FromString(
                 "Formatter error: no ship data!".to_owned(),
             ))?)?,
@@ -203,7 +203,7 @@ impl Report {
         let output = (path.to_owned() + "/" + name).replace("//", "/");
         let output = PathBuf::from(output);
         let src = PathBuf::from(src);
-        let template =  = if language.contains("en") { 
+        let template = if self.language.contains("en") { 
             PathBuf::from("bin/assets/template_en.html")
         } else {
             PathBuf::from("bin/assets/template_ru.html")
