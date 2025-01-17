@@ -76,8 +76,11 @@ impl Content for Template {
         let state_percent = max_percent_value <= 100.;
         table_values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
 
-        
-        Ok(super::chart::Chart::new(&self.short_name, &self.unit, &chart_values).to_string()? 
+        let path = format!("bin/assets/{}_chart.svg", self.short_name.to_lowercase());
+        if let Err(error) = std::fs::write(path.clone(), super::chart::Chart::new(&self.short_name, &self.unit, &chart_values).to_string()?) {
+            log2::error!("Strength Template to_string std::fs::write error: {error}");
+        }
+        Ok( format!("![alt text]({})", path)
             + "\n\n" +
             &super::table::Table::new(&self.short_name, &table_values).to_string()?
         )

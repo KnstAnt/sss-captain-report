@@ -115,7 +115,7 @@ impl Report {
     }
     //
     pub fn write(self, path: &str, name: &str) -> Result<(), Error> {
-        println!("Parser write_to_file begin");
+        log2::info!("Parser write_to_file begin");
         let imo = self
             .imo
             .ok_or(Error::FromString("Formatter error: no imo!".to_owned()))?;
@@ -200,7 +200,7 @@ impl Report {
             return Err(Error::FromString(format!("Parser write error: std::fs::write error: {error}, src:{src}")));
         }
         std::thread::sleep(std::time::Duration::from_secs(1));
-        println!("Parser write md ok");
+        log2::info!("Parser write md ok");
 
         let assets = PathBuf::from("bin/assets");
         let output = (path.to_owned() + "/" + name).replace("//", "/");
@@ -208,13 +208,13 @@ impl Report {
         let src = PathBuf::from(src);
         let template = PathBuf::from("bin/assets/template.html");
         ComrakConvert::new(&src, &output, assets, template).convert();
-        println!("Parser write html ok");
+        log2::info!("Parser write html ok");
 
         if let Err(error) = std::fs::remove_file(src) {
             return Err(Error::FromString(format!("Parser write error: std::fs::remove_file: {error}")));
         }
 
-        println!("Parser write_to_file end");
+        log2::info!("Parser write_to_file end");
         Ok(())
     }
 }
