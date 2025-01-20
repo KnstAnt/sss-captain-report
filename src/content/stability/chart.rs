@@ -49,7 +49,8 @@ impl Chart {
         let (minimum, maximum) = (minimum.min(-maximum), maximum.max(-minimum));
         chart.y_axis_configs[0].axis_min = Some(minimum as f32);
         chart.y_axis_configs[0].axis_max = Some(maximum as f32);
-        chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}} {}", self.unit));
+        chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}}"));//, self.unit));
+        chart.y_axis_configs[0].axis_width = Some(45.);
 
         Ok(format!("{}", chart.svg().unwrap()))
     }

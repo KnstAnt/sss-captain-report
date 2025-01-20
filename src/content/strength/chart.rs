@@ -41,7 +41,7 @@ impl Chart {
                 (self.header.1.as_str(), calc.iter().map(|v| *v as f32).collect()).into(),
                 (self.header.2.as_str(), max.iter().map(|v| *v as f32).collect()).into(),
             ],
-            x.iter().map(|v| format!("{:.3}", v)).collect(),
+            x.iter().map(|v| format!("{:.1}", v)).collect(),
         );
         //        chart.title_text = self.header;
         chart.legend_margin = Some(Box {
@@ -67,8 +67,12 @@ impl Chart {
         let (minimum, maximum) = (minimum.min(-maximum), maximum.max(-minimum));
         chart.y_axis_configs[0].axis_min = Some(minimum as f32);
         chart.y_axis_configs[0].axis_max = Some(maximum as f32);
-        chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}} {}", self.unit));
-        
+        chart.y_axis_configs[0].axis_formatter = Some(format!("{{c}}"));//, self.unit));
+        chart.y_axis_configs[0].axis_width = Some(45.);
+
+        chart.x_axis_name_rotate = 0.6;
+        chart.x_axis_height = 50.;
+
         Ok(format!("{}", chart.svg().unwrap()))
     }
 
