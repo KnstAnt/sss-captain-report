@@ -542,7 +542,8 @@ impl ApiServer {
                     max_draught
                 FROM 
                     waypoint
-                WHERE ship_id={} AND project_id IS NOT DISTINCT FROM {};",
+                WHERE ship_id={} AND project_id IS NOT DISTINCT FROM {}
+                ORDER BY eta ASC;",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_itinerary error: {e}")))?,
