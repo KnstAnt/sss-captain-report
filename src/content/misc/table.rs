@@ -12,7 +12,6 @@ impl Table {
         Self {
             header: header.iter().map(|s| s.to_string()).collect(),
             content,
-
         }
     }
     //
