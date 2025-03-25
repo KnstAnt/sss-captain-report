@@ -33,11 +33,33 @@ impl Content for Template {
     //
     fn to_string(self) -> Result<String, Error> {
         let (limit_min, limit_max): (Vec<(f64, f64)>, Vec<(f64, f64)>) = self.limit.into_iter().map(|(x, min, max)| ((x, min), (x, max))).unzip();
+
+        let x_min = self.result[0].0;
+        let x_max = self.result.last().unwrap_or(&(0., 0.)).0;
+        let y_min = limit_min.iter().fold(f64::MAX, |r, v| r.min(v.1)); 
+        let y_max = limit_min.iter().fold(f64::MIN, |r, v| r.max(v.1)); 
+
+        match super::chart::Chart::new(
+            &self.language, 
+            &self.short_name, 
+            &self.unit, 
+            x_min,
+            x_max,
+            y_min,
+            y_max,
+            &self.result, 
+            &limit_min, 
+            &limit_max
+        ).to_string() {
+            Ok(_) => (),
+            Err(error) => log2::error!("Strength Template chart to_string error: {error}"),
+        }
+
     //    let (fr_x, target) = self.target.into_iter().map(|(x, fr, v)| ((x, fr as f64), (fr, v))).unzip();
         let result = Curve::new_linear(&self.result).map_err(|e| format!("Strength Template to_string result error:{}, src:{:?}", e, &self.result))?;
         let limit_min = Curve::new_linear(&limit_min).map_err(|e| format!("Strength Template to_string limit_min error:{}, src:{:?}", e, &limit_min))?; 
         let limit_max = Curve::new_linear(&limit_max).map_err(|e| format!("Strength Template to_string limit_max error:{}, src:{:?}", e, &limit_max))?; 
-        let mut chart_values = Vec::new();
+    //    let mut chart_values = Vec::new();
         let mut table_values = Vec::new();
         let compute_percent = |result: f64, limit: f64| -> Result<f64, Error> {
             if limit != 0. {
@@ -46,11 +68,11 @@ impl Content for Template {
                 Err(Error::FromString(format!("Strength template to_string compute_percent error: limit=0!")))
             }
         };
-        let mut compute_value = |x: f64| -> Result<(f64, f64), Error>  {
+        let compute_value = |x: f64| -> Result<(f64, f64), Error>  {
             let result = result.value(x)?;
             let limit_min = limit_min.value(x)?;
             let limit_max = limit_max.value(x)?;
-            chart_values.push((x, limit_min, result, limit_max));
+        //    chart_values.push((x, limit_min, result, limit_max));
             let percent = if result < 0. {
                 compute_percent(result, limit_min)?
             } else {
@@ -79,9 +101,6 @@ impl Content for Template {
         let state_percent = max_percent_value <= 100.;
         table_values.push((max_percent_x, limit_min_value, max_percent_value, limit_max_value, state_percent)); 
 
-        if let Err(error) = std::fs::write(format!("bin/assets/{}_chart.svg", self.short_name.to_lowercase()), super::chart::Chart::new(&self.language, &self.short_name, &self.unit, &chart_values).to_string()?) {
-            log2::error!("Strength Template to_string std::fs::write error: {error}");
-        }
         Ok( format!("![chart](./assets/{}_chart.svg)", self.short_name.to_lowercase())
             + "\n\n" +
             &super::table::Table::new(&self.language, &self.short_name, &table_values).to_string()?

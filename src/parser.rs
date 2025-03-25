@@ -11,7 +11,6 @@ use crate::db::ship::ShipData;
 use crate::db::tank::TankData;
 use crate::db::voyage::VoyageData;
 use crate::error::Error;
-use crate::formatter::title::Title;
 use crate::ApiServer;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -32,7 +31,9 @@ pub struct Report {
     general_cargo: Vec<CargoData>,
     strength_result: Vec<(f64, f64, f64)>,          //x, SF, BM
     strength_limit: Vec<(f64, f64, f64, f64, f64)>, //fr, bm_min, bm_max, sf_min, sf_max
-    lever_diagram: Vec<(f64, f64)>,                 //angle, level
+    dso: Vec<(f64, f64)>,  
+    ddo: Vec<(f64, f64)>,  
+    h: Vec<(f64, f64)>, 
     criteria: Vec<(i32, CriteriaData)>,
     parameters: HashMap<i32, ParameterData>,
 }
@@ -56,7 +57,9 @@ impl Report {
             general_cargo: Vec::new(),
             strength_result: Vec::new(),
             strength_limit: Vec::new(),
-            lever_diagram: Vec::new(),
+            dso: Vec::new(),
+            ddo: Vec::new(),
+            h: Vec::new(),
             criteria: Vec::new(),
             parameters: HashMap::new(),
         }
@@ -109,8 +112,14 @@ impl Report {
             self.api_server.get_strength_result()?;
         self.strength_limit =
             self.api_server.get_strength_limit(area)?;
-        self.lever_diagram =
+        (self.dso, self.ddo) =
             self.api_server.get_lever_diagram()?;
+        if let (Some(theta0), Some(h)) = (self.parameters.get(&7), self.parameters.get(&18)) {
+            let theta0 = theta0.result.unwrap_or(0.);
+            let h = h.result.unwrap_or(0.);
+            self.h.push((theta0, 0.));
+            self.h.push((theta0 + 7.3, h));           
+        }
         Ok(())
     }
     //
@@ -182,7 +191,9 @@ impl Report {
             &self.language,
             &self.criteria,
             &self.parameters,
-            &self.lever_diagram,
+            &self.dso,
+            &self.ddo,
+            &self.h,
         )?
         .to_string()?;
 

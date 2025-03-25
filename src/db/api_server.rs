@@ -432,17 +432,19 @@ impl ApiServer {
         .data(area))
     }
     //
-    pub fn get_lever_diagram(&mut self) -> Result<Vec<(f64, f64)>, Error> {
+    pub fn get_lever_diagram(&mut self) -> Result<(Vec<(f64, f64)>, Vec<(f64, f64)>), Error> {
         Ok(StabilityDiagramDataArray::parse(
             &self
                 .fetch(&format!(
                 "SELECT 
                     angle, \
-                    value_dso
+                    value_dso, \
+                    value_ddo
                 FROM 
                     stability_diagram 
                 WHERE 
-                    ship_id={} AND project_id IS NOT DISTINCT FROM {};",
+                    ship_id={} AND project_id IS NOT DISTINCT FROM {} 
+                ORDER BY ;",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {

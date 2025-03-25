@@ -1,7 +1,6 @@
 use template::Template;
 
 use crate::error::Error;
-
 use super::Content;
 
 pub mod table;

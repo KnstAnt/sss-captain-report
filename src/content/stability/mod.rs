@@ -34,7 +34,9 @@ impl Stability {
         language: &String,
         criteria: &[(i32, CriteriaData)],  
         parameters: &HashMap<i32, ParameterData>,
-        lever_diagram: &[(f64, f64)],
+        dso: &[(f64, f64)],
+        ddo: &[(f64, f64)],
+        h: &[(f64, f64)],
     ) -> Result<Self, Error> {
         Ok(Self::new(
             language,
@@ -44,7 +46,9 @@ impl Stability {
             )?,
             LeverDiagram::new(
                 language,
-                lever_diagram,
+                dso,
+                ddo,
+                h,
             ),
             Parameters::from(
                 language,
