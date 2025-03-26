@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 use crate::error::Error;
-use charts_rs::THEME_DARK;
 use plotters::prelude::*;
 //
-pub struct Chart {
+pub struct ChartDSO {
     short_name: String,
     unit: String,
     dso: Vec<(f64, f64)>,
@@ -11,7 +10,7 @@ pub struct Chart {
     h: Vec<(f64, f64)>, 
 }
 //
-impl Chart {
+impl ChartDSO {
     //
     pub fn new(
         short_name: &str,
@@ -46,7 +45,7 @@ impl Chart {
         // After this point, we should be able to construct a chart context
         let mut chart = ChartBuilder::on(&root)
             // Set the caption of the chart
-        //    .caption("This is our first plot", ("sans-serif", 40).into_font())
+            .caption(self.short_name, ("sans-serif", 20).into_font())
             // Set the size of the label region
             .x_label_area_size(40)
             .y_label_area_size(60)
@@ -84,7 +83,7 @@ impl Chart {
         ))?;
         match root.present() {
             Ok(_) => Ok(()),
-            Err(e) => Err(Error::FromString(format!("stability chart root.present() error: {e}"))),
+            Err(e) => Err(Error::FromString(format!("stability chart_dso root.present() error: {e}"))),
         }   
     }
 }
@@ -95,7 +94,7 @@ mod tests {
 
     #[test]
     fn chart() {
-        let result = Chart::new(
+        let result = ChartDSO::new(
             &String::new(), 
             "name", 
             &[(0., 0.), (5.0, 1.), (15.0, 2.), (25.0, 2.5), (40.0, 2.), (60.0, 1.),],

@@ -6,7 +6,9 @@ use super::{Content, Parameters};
 
 pub mod lever_diagram;
 pub mod criterion;
-pub mod chart;
+pub mod chart_dso;
+pub mod chart_bulk;
+pub mod chart_k;
 
 pub struct Stability {
     language: String,
@@ -36,7 +38,6 @@ impl Stability {
         parameters: &HashMap<i32, ParameterData>,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
-        h: &[(f64, f64)],
     ) -> Result<Self, Error> {
         Ok(Self::new(
             language,
@@ -48,7 +49,7 @@ impl Stability {
                 language,
                 dso,
                 ddo,
-                h,
+                parameters.clone(),
             ),
             Parameters::from(
                 language,

@@ -33,7 +33,6 @@ pub struct Report {
     strength_limit: Vec<(f64, f64, f64, f64, f64)>, //fr, bm_min, bm_max, sf_min, sf_max
     dso: Vec<(f64, f64)>,  
     ddo: Vec<(f64, f64)>,  
-    h: Vec<(f64, f64)>, 
     criteria: Vec<(i32, CriteriaData)>,
     parameters: HashMap<i32, ParameterData>,
 }
@@ -59,7 +58,6 @@ impl Report {
             strength_limit: Vec::new(),
             dso: Vec::new(),
             ddo: Vec::new(),
-            h: Vec::new(),
             criteria: Vec::new(),
             parameters: HashMap::new(),
         }
@@ -114,12 +112,6 @@ impl Report {
             self.api_server.get_strength_limit(area)?;
         (self.dso, self.ddo) =
             self.api_server.get_lever_diagram()?;
-        if let (Some(theta0), Some(h)) = (self.parameters.get(&7), self.parameters.get(&18)) {
-            let theta0 = theta0.result.unwrap_or(0.);
-            let h = h.result.unwrap_or(0.);
-            self.h.push((theta0, 0.));
-            self.h.push((theta0 + 7.3, h));           
-        }
         Ok(())
     }
     //
@@ -193,7 +185,6 @@ impl Report {
             &self.parameters,
             &self.dso,
             &self.ddo,
-            &self.h,
         )?
         .to_string()?;
 
