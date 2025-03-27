@@ -71,7 +71,7 @@ impl LeverDiagram {
             let theta0 = theta0.result.unwrap_or(0.);
             let result = data.result.unwrap_or(0.);
             h.push((theta0, 0.));
-            h.push((theta0 + 7.3, result));
+            h.push((theta0 + 57.3, result));
         }
         match super::chart_dso::ChartDSO::new(self.language.clone(), &dso, &ddo, &h).to_string() {
             Ok(_) => (),

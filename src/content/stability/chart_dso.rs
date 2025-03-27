@@ -27,7 +27,7 @@ impl ChartDSO {
     //
     pub fn to_string(self) -> Result<(), Error> {
         let (header, legend_dso, legend_ddo, legend_h) = if self.language.contains("en") {
-            ("Initial, Static & Dynamic Stability", "SC", "DS", "h")
+            ("Initial, Static & Dynamic Stability", "SC", "DC", "h")
         } else {
             ("Начальная, статическая и динамическая остойчивость", "ДСО", "ДДО", "h")
         };
