@@ -84,7 +84,7 @@ impl ChartDSO {
             .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], RGBColor(150, 0, 0)));   
         chart
             .configure_series_labels()
-            .position(SeriesLabelPosition::UpperRight)
+            .position(SeriesLabelPosition::UpperLeft)
             .margin(20)
             .legend_area_size(5)
             .border_style(BLUE)
