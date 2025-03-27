@@ -6,7 +6,7 @@ use super::DataArray;
 pub struct CriteriaData {
     pub id: i32,
     pub name: String,
-    pub unit: String,
+    pub unit: Option<String>,
     pub result: Option<f64>,
     pub target: Option<f64>,
     pub state: Option<bool>,

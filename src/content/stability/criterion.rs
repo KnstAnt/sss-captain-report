@@ -41,7 +41,7 @@ impl Criterion {
                     "{},{},{},{},{},{}",
                     v.id,
                     v.name,
-                    v.unit,
+                    v.unit.clone().unwrap_or("-".to_owned()),
                     v.result
                         .clone()
                         .map(|v| format!("{:.3}", v))
