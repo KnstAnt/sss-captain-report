@@ -115,7 +115,7 @@ impl ChartWeather {
             &RGBColor(0, 0, 0),
             &|c, _, _| {
                 return EmptyElement::at(c)   
-                + Text::new(format!("θw1 = {:?}", c.0), (5, 10), ("sans-serif", 14).into_font());
+                + Text::new(format!("θw1 = {:.3}", c.0), (5, 10), ("sans-serif", 14).into_font());
             },
         ))?;
         // theta_w2 
@@ -155,7 +155,7 @@ impl ChartWeather {
             &|c, s, st| {
                 return EmptyElement::at(c)   
                 + Circle::new((0, 0),s,st.filled())
-                + Text::new(format!("{:?}", c), (10, 0), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
             },
         ))?;
         // надписи с площадью по центру заливки 

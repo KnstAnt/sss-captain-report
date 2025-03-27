@@ -96,7 +96,7 @@ impl ChartBulk {
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
-                + Text::new(format!("{:?}", c), (10, 0), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
             },
         ))?;
         // часть точек рисуется отдельно чтобы значение было выше
@@ -107,7 +107,7 @@ impl ChartBulk {
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("{:?}", c), (5, -15), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (5, -15), ("sans-serif", 14).into_font());
             },
         ))?;
         // отрисовка линии угла макс. разницы
@@ -124,7 +124,7 @@ impl ChartBulk {
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled()) 
-                + Text::new(format!("{:?}", c), (10, 0), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
             },
         ))?;
         // отрисовка вертикальной линии к первой точке пересечения ДСО и кривой кренящих плеч
@@ -141,7 +141,7 @@ impl ChartBulk {
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("θg = {:?}", c.0), (5, -15), ("sans-serif", 14).into_font());
+                + Text::new(format!("θg = {:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
             },
         ))?;
         // надпись с площадью по центру заливки

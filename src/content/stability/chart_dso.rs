@@ -110,7 +110,7 @@ impl ChartDSO {
             &|c, s, st| {
                 return EmptyElement::at(c)    // We want to construct a composed element on-the-fly
                 + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
-                + Text::new(format!("{:?}", c), (-20, -15), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (-20, -15), ("sans-serif", 14).into_font());
             },
         ))?;
         match root.present() {
