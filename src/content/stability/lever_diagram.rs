@@ -8,7 +8,6 @@ use crate::{
 pub struct LeverDiagram {
     header: String,
     language: String,
-    unit: String,
     dso: Vec<(f64, f64)>,
     ddo: Vec<(f64, f64)>,
     parameters: HashMap<i32, ParameterData>,
@@ -22,15 +21,14 @@ impl LeverDiagram {
         ddo: &[(f64, f64)],
         parameters: HashMap<i32, ParameterData>,
     ) -> Self {
-        let (header, unit) = if language.contains("en") {
-            ("| Heel | Lever |", "m")
+        let header = if language.contains("en") {
+            "| Heel | Lever |"
         } else {
-            ("| Крен | Плечо расчет |", "м")
+            "| Крен | Плечо расчет |"
         };
         Self {
             header: header.to_owned(),
             language: language.to_owned(),
-            unit: unit.to_owned(),
             dso: Vec::from(dso),
             ddo: Vec::from(ddo),
             parameters,
@@ -123,6 +121,7 @@ impl LeverDiagram {
                 };
             }
         }
+        dbg!("Weather begin data");
         let theta_0 = self.parameters.get(&7);
         let theta_w1 = (self.parameters.get(&38), self.parameters.get(&36));
         let theta_w2 = (self.parameters.get(&39), self.parameters.get(&37));
@@ -130,6 +129,7 @@ impl LeverDiagram {
         let point_b = (self.parameters.get(&104), self.parameters.get(&105));
         let area_a = self.parameters.get(&43);
         let area_b = self.parameters.get(&44);
+        
         if let (
             Some(theta_0),
             (Some(theta_w1_0), Some(theta_w1_1)),
@@ -140,6 +140,7 @@ impl LeverDiagram {
             Some(area_b),
         ) = (theta_0, theta_w1, theta_w2, point_a, point_b, area_a, area_b)
         {
+            dbg!("Weather begin if");
             if let (
                 Some(theta_0),
                 Some(theta_w1_0),
@@ -165,6 +166,8 @@ impl LeverDiagram {
                 area_a.result,
                 area_b.result,
             ) {
+                dbg!("Weather begin match");
+
                 match super::chart_k::ChartWeather::new(
                     self.language.clone(),
                     &dso,

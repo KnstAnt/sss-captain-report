@@ -41,6 +41,7 @@ impl ChartWeather {
     }
     //
     pub fn to_string(self) -> Result<(), Error> {
+        dbg!("Weather begin");
         let (header, legend_dso) = if self.language.contains("en") {
             ("Weather Criteria", "SC")
         } else {
@@ -194,6 +195,7 @@ impl ChartWeather {
         self.dso.iter().filter(|v| v.0 >= self.theta_w2.0 && v.0 <= self.point_b.0 ).for_each(|v| b.push(*v));
         b.push(self.point_b);
         chart.draw_series(AreaSeries::new(b, self.theta_w2.1, GREEN.mix(0.2))).unwrap();
+        dbg!("Weather end");
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("stability chart root.present() error: {e}"))),
