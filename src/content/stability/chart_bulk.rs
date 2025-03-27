@@ -85,36 +85,35 @@ impl ChartBulk {
         let curve_lever = [(0., self.a), (self.p1_dso.0, self.p1_dso.1), (self.b.0, self.b.1)];
         chart.draw_series(LineSeries::new(
             curve_lever.clone(),
-            &RGBColor(150, 150, 0),
+            &RGBColor(150, 0, 0),
         ))?;
         // отрисовка точек кривой плеч кренящего момента
-        let curve_lever = [(self.p1_dso.0, self.p1_dso.1), (self.b.0, self.b.1)];
         chart.draw_series(PointSeries::of_element(
-            curve_lever.clone(),
+            [curve_lever[1], curve_lever[2]],
             3,
-            &RGBColor(150, 150, 0),
+            &RGBColor(150, 0, 0),
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
-                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (5, -15), ("sans-serif", 14).into_font());
             },
         ))?;
-        // часть точек рисуется отдельно чтобы значение было выше
+        // первая точка на оси, отображается только значение по y
         chart.draw_series(PointSeries::of_element(
-            [(self.b.0, 0.), (0., self.a),],
+            [curve_lever[0]],
             3,
-            &RGBColor(150, 150, 0),
+            &RGBColor(150, 0, 0),
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (5, -15), ("sans-serif", 14).into_font());
+                + Text::new(format!("{:.3}", c.1), (5, -15), ("sans-serif", 14).into_font());
             },
         ))?;
         // отрисовка линии угла макс. разницы
         let curve_dif = [(self.b.0, self.p_40_dso)];
         chart.draw_series(LineSeries::new(
             curve_dif.clone(),
-            &RGBColor(150, 0, 0),
+            &RGBColor(150, 150, 0),
         ))?;
         // отрисовка точек угла макс. разницы
         chart.draw_series(PointSeries::of_element(
@@ -127,26 +126,43 @@ impl ChartBulk {
                 + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
             },
         ))?;
-        // отрисовка вертикальной линии к первой точке пересечения ДСО и кривой кренящих плеч
-        let curve_dif = [(self.p1_dso.0, 0.), (self.p1_dso.0, self.p1_dso.1)];
-        chart.draw_series(LineSeries::new(
+        chart.draw_series(PointSeries::of_element(
             curve_dif.clone(),
+            3,
             &RGBColor(150, 0, 0),
+            &|c, s, st| {
+                return EmptyElement::at(c)  
+                + Circle::new((0,0),s,st.filled()) 
+                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
+            },
+        ))?;
+        // отрисовка вертикальной линии к первой точке пересечения ДСО и кривой кренящих плеч
+        let curve_theta_g = [(self.p1_dso.0, 0.), (self.p1_dso.0, self.p1_dso.1)];
+        chart.draw_series(LineSeries::new(
+            curve_theta_g.clone(),
+            &RGBColor(150, 150, 0),
         ))?;
         // отрисовка точки на оси Х, надпись выше линии
         chart.draw_series(PointSeries::of_element(
-            [(self.p1_dso.0, 0.)],
+            [curve_theta_g[0]],
             3,
-            &RGBColor(150, 150, 0),
+            &RGBColor(150, 0, 0),
             &|c, s, st| {
                 return EmptyElement::at(c)  
                 + Circle::new((0,0),s,st.filled())
                 + Text::new(format!("θg = {:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
             },
         ))?;
+
         // надпись с площадью по центру заливки
-        let x_mid = self.p1_dso.0 + (self.b.0 - self.p1_dso.0)/2.;
-        let y_mid = self.b.1 + (self.dso.iter().fold(f64::MIN, |r, v| r.max(v.1) ) - self.b.1)/2.;
+        let delta_x = self.b.0 - self.p1_dso.0;
+        let y_max_area = self.dso.iter().filter(|v| v.0 <= self.b.0 ).fold(f64::MIN, |r, v| r.max(v.1) );
+        let y_max_dso = self.dso.iter().fold(f64::MIN, |r, v| r.max(v.1) );
+        let x_shift = (y_max_area/y_max_dso).min(1.5).max(1.);
+        let x_mid = self.p1_dso.0 + delta_x * x_shift / 2.;
+        let y_max = y_max_area.max(y_max_dso);
+        let delta_y = y_max - self.b.1;
+        let y_mid = self.b.1 + delta_y/2.;
         chart.draw_series(PointSeries::of_element(
             [(x_mid, y_mid)],
             3,
