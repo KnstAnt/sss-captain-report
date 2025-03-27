@@ -7,9 +7,7 @@ use crate::{
 
 pub struct LeverDiagram {
     header: String,
-    dso_name: String,
-    bulk_name: String, 
-    wheather_name: String,
+    language: String,
     unit: String,
     dso: Vec<(f64, f64)>,
     ddo: Vec<(f64, f64)>,
@@ -24,16 +22,14 @@ impl LeverDiagram {
         ddo: &[(f64, f64)],
         parameters: HashMap<i32, ParameterData>,
     ) -> Self {
-        let (header, dso_name, bulk_name, wheather_name, unit) = if language.contains("en") {
-            ("| Heel | Lever |", "DSO", "Bulk", "Wheather","m")
+        let (header, unit) = if language.contains("en") {
+            ("| Heel | Lever |", "m")
         } else {
-            ("| Крен | Плечо расчет |", "ДСО", "Зерно", "Погода", "м")
+            ("| Крен | Плечо расчет |", "м")
         };
         Self {
             header: header.to_owned(),
-            dso_name: dso_name.to_owned(),
-            bulk_name: bulk_name.to_owned(),
-            wheather_name: wheather_name.to_owned(),
+            language: language.to_owned(),
             unit: unit.to_owned(),
             dso: Vec::from(dso),
             ddo: Vec::from(ddo),
@@ -77,9 +73,7 @@ impl LeverDiagram {
             h.push((theta0, 0.));
             h.push((theta0 + 7.3, result));
         }
-        match super::chart_dso::ChartDSO::new(&self.dso_name, &self.unit, &dso, &ddo, &h)
-            .to_string()
-        {
+        match super::chart_dso::ChartDSO::new(self.language.clone(), &dso, &ddo, &h).to_string() {
             Ok(_) => (),
             Err(error) => log2::error!("LeverDiagram to_string ChartDSO error: {error}"),
         };
@@ -87,25 +81,40 @@ impl LeverDiagram {
         let p1_dso = (self.parameters.get(&101), self.parameters.get(&103));
         let b = (self.parameters.get(&49), self.parameters.get(&102));
         let p_40_dso = self.parameters.get(&100);
-        if let (Some(a), (Some(p1_dso_0), Some(p1_dso_1)), (Some(b_0), Some(b_1)), Some(p_40_dso)) =
-            (a, p1_dso, b, p_40_dso)
+        let bulk_area = self.parameters.get(&108);
+        if let (
+            Some(a), 
+            (Some(p1_dso_0), Some(p1_dso_1)),
+            (Some(b_0), Some(b_1)),
+            Some(p_40_dso),
+            Some(bulk_area)
+        ) = (a, p1_dso, b, p_40_dso, bulk_area)
         {
-            if let (Some(a), Some(p1_dso_0), Some(p1_dso_1), Some(b_0), Some(b_1), Some(p_40_dso)) = (
+            if let (
+                Some(a),
+                Some(p1_dso_0),
+                Some(p1_dso_1),
+                Some(b_0),
+                Some(b_1),
+                Some(p_40_dso),
+                Some(bulk_area),
+            ) = (
                 a.result,
                 p1_dso_0.result,
                 p1_dso_1.result,
                 b_0.result,
                 b_1.result,
                 p_40_dso.result,
+                bulk_area.result,
             ) {
                 match super::chart_bulk::ChartBulk::new(
-                    &self.bulk_name,
-                    &self.unit,
+                    self.language.clone(),
                     &dso,
                     a,
                     (p1_dso_0, p1_dso_1),
                     (b_0, b_1),
                     p_40_dso,
+                    bulk_area,
                 )
                 .to_string()
                 {
@@ -117,41 +126,71 @@ impl LeverDiagram {
         let theta_0 = self.parameters.get(&7);
         let theta_w1 = (self.parameters.get(&38), self.parameters.get(&36));
         let theta_w2 = (self.parameters.get(&39), self.parameters.get(&37));
-        let a = (self.parameters.get(&107), self.parameters.get(&106));
-        let b = (self.parameters.get(&104), self.parameters.get(&105));
-        if let (Some(theta_0), (Some(theta_w1_0), Some(theta_w1_1)), (Some(theta_w2_0), Some(theta_w2_1)), (Some(a_0), Some(a_1)), (Some(b_0), Some(b_1))) =
-            (theta_0, theta_w1, theta_w2, a, b)
+        let point_a = (self.parameters.get(&107), self.parameters.get(&106));
+        let point_b = (self.parameters.get(&104), self.parameters.get(&105));
+        let area_a = self.parameters.get(&43);
+        let area_b = self.parameters.get(&44);
+        if let (
+            Some(theta_0),
+            (Some(theta_w1_0), Some(theta_w1_1)),
+            (Some(theta_w2_0), Some(theta_w2_1)),
+            (Some(point_a_0), Some(point_a_1)),
+            (Some(point_b_0), Some(point_b_1)),
+            Some(area_a),
+            Some(area_b),
+        ) = (theta_0, theta_w1, theta_w2, point_a, point_b, area_a, area_b)
         {
-            if let (Some(theta_0), Some(theta_w1_0), Some(theta_w1_1), Some(theta_w2_0), Some(theta_w2_1), Some(a_0), Some(a_1), Some(b_0), Some(b_1)) = (
+            if let (
+                Some(theta_0),
+                Some(theta_w1_0),
+                Some(theta_w1_1),
+                Some(theta_w2_0),
+                Some(theta_w2_1),
+                Some(point_a_0),
+                Some(point_a_1),
+                Some(point_b_0),
+                Some(point_b_1),
+                Some(area_a),
+                Some(area_b),
+            ) = (
                 theta_0.result,
                 theta_w1_0.result,
                 theta_w1_1.result,
                 theta_w2_0.result,
                 theta_w2_1.result,
-                a_0.result,
-                a_1.result,
-                b_0.result,
-                b_1.result,
+                point_a_0.result,
+                point_a_1.result,
+                point_b_0.result,
+                point_b_1.result,
+                area_a.result,
+                area_b.result,
             ) {
                 match super::chart_k::ChartWeather::new(
-                    &self.wheather_name,
-                    &self.unit,
+                    self.language.clone(),
                     &dso,
-                    theta_0,      
-                    (theta_w1_0, theta_w1_1), 
-                    (theta_w2_0, theta_w2_1), 
-                    (a_0, a_1),
-                    (b_0, b_1), 
+                    theta_0,
+                    (theta_w1_0, theta_w1_1),
+                    (theta_w2_0, theta_w2_1),
+                    (point_a_0, point_a_1),
+                    (point_b_0, point_b_1),
+                    area_a,
+                    area_b,
                 )
                 .to_string()
                 {
                     Ok(_) => (),
-                    Err(error) => log2::error!("LeverDiagram to_string ChartWeather error: {error}"),
+                    Err(error) => {
+                        log2::error!("LeverDiagram to_string ChartWeather error: {error}")
+                    }
                 };
             }
         }
-        Ok(format!("![DSO](./assets/dso_chart.svg)") + "\n\n" +
-                    "![grain](./assets/bulk_chart.svg)" + "\n\n" +
-                    "![wheather](./assets/k_chart.svg)" + "\n\n" + &string)
+        Ok(format!("![DSO](./assets/dso_chart.svg)")
+            + "\n\n"
+            + "![grain](./assets/bulk_chart.svg)"
+            + "\n\n"
+            + "![wheather](./assets/k_chart.svg)"
+            + "\n\n"
+            + &string)
     }
 }

@@ -3,49 +3,57 @@ use crate::{content::misc::Curve, error::Error};
 use plotters::prelude::*;
 //
 pub struct ChartWeather {
-    short_name: String,
-    unit: String,
+    language: String,
     dso: Vec<(f64, f64)>,
     theta_0: f64,        // Статический угол крена судна
     theta_w1: (f64, f64), // wind_static, (angle, lever)
     theta_w2: (f64, f64), // wind_dynamic, (angle, lever)
-    a: (f64, f64),  // старт дуги a, (angle, lever)
-    b: (f64, f64),  // конец дуги b, (angle, lever) 
+    point_a: (f64, f64),  // старт дуги a, (angle, lever)
+    point_b: (f64, f64),  // конец дуги b, (angle, lever) 
+    area_a: f64,          // площадь а
+    area_b: f64,          // площадь b
 }
 //
 impl ChartWeather {
     //
     pub fn new(
-        short_name: &str,
-        unit: &str,
+        language: String,
         dso: &[(f64, f64)],
         theta_0: f64,      
         theta_w1: (f64, f64), 
         theta_w2: (f64, f64), 
-        a: (f64, f64),
-        b: (f64, f64), 
+        point_a: (f64, f64),
+        point_b: (f64, f64), 
+        area_a: f64,
+        area_b: f64,
     ) -> Self {
         Self {
-            short_name: short_name.to_owned(),
-            unit: unit.to_owned(),
+            language,
             dso: Vec::from(dso),
             theta_0,
             theta_w1,
             theta_w2,
-            a,
-            b,
+            point_a,
+            point_b,
+            area_a,
+            area_b,
         }
     }
     //
     pub fn to_string(self) -> Result<(), Error> {
+        let (header, legend_dso) = if self.language.contains("en") {
+            ("Weather Criteria", "SC")
+        } else {
+            ("Критерий погоды", "ДСО")
+        };
         let path = PathBuf::from(format!("bin/assets/k_chart.svg"));
         let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
         root.fill(&WHITE)?;
-        let x_min = self.a.0;
-        let x_max = 90f64;
-        let y_min = self.a.1;
+        let x_min = self.point_a.0;
+        let x_max = 60f64;
+        let y_min = self.point_a.1;
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
-        let y_max = (y_max + 1.).ceil();
+        let y_max = y_max.ceil();
         let root = root.margin(
             y_max, 
             y_min, 
@@ -53,7 +61,7 @@ impl ChartWeather {
             x_max,);
         let mut chart = ChartBuilder::on(&root)
             // Set the caption of the chart
-            .caption(self.short_name, ("sans-serif", 20).into_font())
+            .caption(header, ("sans-serif", 20).into_font())
             // Set the size of the label region
             .x_label_area_size(40)
             .y_label_area_size(60)
@@ -68,12 +76,23 @@ impl ChartWeather {
             .y_label_formatter(&|x| format!("{:.1}", x))
             .draw()?;
         chart.draw_series(LineSeries::new(
-            self.dso.clone(),//.iter().map(|(x, y)| (*x as f32, *y as f32)),
-            &RGBColor(0, 150, 0),
-        ))?;        
+                self.dso.clone(),//.iter().map(|(x, y)| (*x as f32, *y as f32)),
+                &RGBColor(0, 150, 0),
+            ))?
+            .label(legend_dso)
+            .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], RGBColor(0, 150, 0)));   
+        chart
+            .configure_series_labels()
+            .position(SeriesLabelPosition::UpperRight)
+            .margin(20)
+            .legend_area_size(5)
+            .border_style(BLUE)
+            .background_style(BLUE.mix(0.1))
+            .label_font(("Calibri", 20))
+            .draw()?; 
         // ось x
         chart.draw_series(LineSeries::new(
-            [(self.a.0, 0.), (x_max, 0.)],
+            [(self.point_a.0, 0.), (x_max, 0.)],
             &RGBColor(0, 0, 0),
         ))?;
         // theta_w1
@@ -81,16 +100,35 @@ impl ChartWeather {
             [(self.theta_w1.0, 0.), (self.theta_w1.0, self.theta_w1.1)],
             &RGBColor(150, 0, 0),
         ))?;
+        chart.draw_series(PointSeries::of_element(
+            [(self.theta_w1.0, 0.)],
+            3,
+            &RGBColor(200, 0, 0),
+            &|c, s, st| {
+                return EmptyElement::at(c)   
+                + Circle::new((0, 0),s,st.filled());
+            },
+        ))?;
+        chart.draw_series(PointSeries::of_element(
+            [(self.theta_w1.0, 0.)],
+            3,
+            &RGBColor(0, 0, 0),
+            &|c, _, _| {
+                return EmptyElement::at(c)   
+                + Text::new(format!("θw1 = {:?}", c.0), (5, 10), ("sans-serif", 14).into_font());
+            },
+        ))?;
         // theta_w2 
         chart.draw_series(LineSeries::new(
-            [(self.a.0, self.theta_w2.1), (self.b.0, self.theta_w2.1)],
+            [(self.point_a.0, self.theta_w2.1), (self.point_b.0, self.theta_w2.1)],
             &RGBColor(50, 50, 50),
         ))?;
         // min
         chart.draw_series(LineSeries::new(
-            [(self.b.0, 0.), (self.b.0, self.b.1)],
+            [(self.point_b.0, 0.), (self.point_b.0, self.point_b.1)],
             &RGBColor(150, 0, 0),
         ))?;
+        //theta_0
         chart.draw_series(PointSeries::of_element(
             [(self.theta_0, 0.)],
             3,
@@ -104,13 +142,14 @@ impl ChartWeather {
             [(self.theta_0, 0.)],
             3,
             &RGBColor(0, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at((c.0-0.1f64, -0.05f64))   
-                + Text::new(format!("θ0"), (10, 0), ("sans-serif", 14).into_font());
+            &|c, _, _| {
+                return EmptyElement::at(c)   
+                + Text::new(format!("θ0"), (5, 5), ("sans-serif", 14).into_font());
             },
         ))?;
+        // точки с легендой
         chart.draw_series(PointSeries::of_element(
-            [self.theta_w1, (self.b.0, self.theta_w2.1)],
+            [self.theta_w1, (self.point_b.0, self.theta_w2.1)],
             3,
             &RGBColor(200, 0, 0),
             &|c, s, st| {
@@ -119,33 +158,41 @@ impl ChartWeather {
                 + Text::new(format!("{:?}", c), (10, 0), ("sans-serif", 14).into_font());
             },
         ))?;
+        // надписи с площадью по центру заливки 
+        // area_a, отображаем площадь в левом верхнем углу
+        let x_mid = self.point_a.0 + (self.theta_w2.0 - self.point_a.0)/3.333;
+        let y_mid = self.point_a.1 + (self.theta_w2.1 - self.point_a.1)/1.5;
         chart.draw_series(PointSeries::of_element(
-            [(self.theta_w1.0, 0.)],
+            [(x_mid, y_mid)],
             3,
             &RGBColor(0, 0, 0),
             &|c, _, _| {
-                return EmptyElement::at((c.0-0.1f64, -0.2f64))   
-                + Text::new(format!("θ_w1 = {:?}", c.0), (10, 0), ("sans-serif", 14).into_font());
+                return EmptyElement::at(c)  
+                + Text::new(format!("a={:.3}", self.area_a), (0, -7), ("sans-serif", 14).into_font());
             },
         ))?;
-    /*    chart.draw_series(PointSeries::of_element(
-            [(self.b.0, 0.)],
+        // area_b
+        let x_mid = self.theta_w2.0 + (self.point_b.0 - self.theta_w2.0)/2.;
+        let y_mid = self.theta_w2.1 + (self.dso.iter().fold(f64::MIN, |r, v| r.max(v.1) ) - self.theta_w2.1)/2.33;
+        chart.draw_series(PointSeries::of_element(
+            [(x_mid, y_mid)],
             3,
             &RGBColor(0, 0, 0),
             &|c, _, _| {
-                return EmptyElement::at((c.0-0.1f64, -0.2f64))   
-                + Text::new(format!("theta_f_x_w2 = {:?}", c.0), (10, 0), ("sans-serif", 14).into_font());
+                return EmptyElement::at(c)  
+                + Text::new(format!("b={:.3}", self.area_a), (0, -7), ("sans-serif", 14).into_font());
             },
-        ))?;*/
+        ))?;
+        // заливка областей
         let mut a = Vec::new();
-        a.push(self.a);
-        self.dso.iter().filter(|v| v.0 >= self.a.0 && v.0 <= self.theta_w2.0 ).for_each(|v| a.push(*v));
+        a.push(self.point_a);
+        self.dso.iter().filter(|v| v.0 >= self.point_a.0 && v.0 <= self.theta_w2.0 ).for_each(|v| a.push(*v));
         a.push(self.theta_w2);
         chart.draw_series(AreaSeries::new(a, self.theta_w2.1, RED.mix(0.2))).unwrap();
         let mut b = Vec::new();
         b.push(self.theta_w2);
-        self.dso.iter().filter(|v| v.0 >= self.theta_w2.0 && v.0 <= self.b.0 ).for_each(|v| b.push(*v));
-        b.push(self.b);
+        self.dso.iter().filter(|v| v.0 >= self.theta_w2.0 && v.0 <= self.point_b.0 ).for_each(|v| b.push(*v));
+        b.push(self.point_b);
         chart.draw_series(AreaSeries::new(b, self.theta_w2.1, GREEN.mix(0.2))).unwrap();
         match root.present() {
             Ok(_) => Ok(()),
@@ -161,14 +208,15 @@ mod tests {
     #[test]
     fn chart() {
         let result = ChartWeather::new(
-            &String::new(), 
-            "name", 
+            "en".to_owned(),
             &[(-10., -0.8), (-5., -0.5), (0., 0.), (5.0, 1.), (15.0, 2.), (25.0, 2.5), (40.0, 2.), (60.0, 1.),],
             0.,
             (5., 1.),
             (10., 1.5),
             (-10., -0.8),
             (40., 2.),
+            4.,
+            5.,
         ).to_string();
         assert!(result.is_ok());
     }        
