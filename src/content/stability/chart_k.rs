@@ -50,22 +50,18 @@ impl ChartWeather {
         let path = PathBuf::from(format!("bin/assets/k_chart.svg"));
         let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
         root.fill(&WHITE)?;
-        let x_min = self.point_a.0;
+        let x_min = self.point_a.0.floor();
         let x_max = 60f64;
         let y_min = self.point_a.1;
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
         let y_max = y_max.ceil();
-        let root = root.margin(
-            y_max, 
-            y_min, 
-            x_min, 
-            x_max,);
         let mut chart = ChartBuilder::on(&root)
+            .margin(15)
             // Set the caption of the chart
             .caption(header, ("sans-serif", 20).into_font())
             // Set the size of the label region
-            .x_label_area_size(40)
-            .y_label_area_size(60)
+            .x_label_area_size(10)
+            .y_label_area_size(25)
             // Finally attach a coordinate on the drawing area and make a chart context
             .build_cartesian_2d(x_min..x_max, y_min..y_max)?;//.map_err(|e| e.into())?;
         chart
@@ -104,17 +100,22 @@ impl ChartWeather {
         // theta_w1
         chart.draw_series(LineSeries::new(
             [(self.theta_w1.0, 0.), (self.theta_w1.0, self.theta_w1.1)],
-            &RGBColor(150, 0, 0),
+            &RGBColor(150, 150, 0),
         ))?;
         // theta_w2 
         chart.draw_series(LineSeries::new(
             [(self.point_a.0, self.theta_w2.1), (self.point_b.0, self.theta_w2.1)],
-            &RGBColor(50, 50, 50),
+            &RGBColor(150, 0, 50),
         ))?;
         // min
         chart.draw_series(LineSeries::new(
             [(self.point_b.0, 0.), (self.point_b.0, self.point_b.1)],
-            &RGBColor(150, 0, 0),
+            &RGBColor(150, 150, 0),
+        ))?;
+        // a
+        chart.draw_series(LineSeries::new(
+            [self.point_a, (self.point_a.0, self.theta_w2.1)],
+            &RGBColor(150, 150, 0),
         ))?;
         // w0
         draw_point_with_text(&mut chart, &[(self.theta_0, 0.)], ShowPoint::X, "θ0=", (-60, 5))?;

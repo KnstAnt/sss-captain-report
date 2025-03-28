@@ -49,15 +49,11 @@ impl ChartBulk {
         let y_min = -0.1f64;//self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
         let y_max = y_max.ceil();
-        let root = root.margin(
-            y_max, 
-            y_min, 
-            x_min, 
-            x_max,);
         let mut chart = ChartBuilder::on(&root)
+            .margin(15)
             .caption(header, ("sans-serif", 20).into_font())
-            .x_label_area_size(40)
-            .y_label_area_size(60)
+            .x_label_area_size(10)
+            .y_label_area_size(25)
             .build_cartesian_2d(x_min..x_max, y_min..y_max)?;
         chart
             .configure_mesh()
@@ -91,7 +87,7 @@ impl ChartBulk {
             .border_style(BLUE)
             .background_style(BLUE.mix(0.1))
             .label_font(("Calibri", 20))
-            .draw()?;     
+            .draw()?; 
         // отрисовка линии кривой плеч кренящего момента
         let curve_lever = [(0., self.a), (self.p1_dso.0, self.p1_dso.1), (self.b.0, self.b.1)];
         chart.draw_series(LineSeries::new(

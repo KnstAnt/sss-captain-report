@@ -36,23 +36,19 @@ impl ChartDSO {
         let path = PathBuf::from(format!("bin/assets/dso_chart.svg"));
         let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
         root.fill(&WHITE)?;
-        let x_min = 0f64.min(self.h.first().unwrap_or(&(0., 0.)).0);
+        let x_min = 0f64.min(self.h.first().unwrap_or(&(0., 0.)).0).floor();
         let x_max = 60f64;
         let y_min = -0.1f64;//self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
         let y_max = y_max.ceil();
-        let root = root.margin(
-            y_max, 
-            y_min, 
-            x_min, 
-            x_max,);
         // After this point, we should be able to construct a chart context
         let mut chart = ChartBuilder::on(&root)
+            .margin(15)
             // Set the caption of the chart
             .caption(header, ("sans-serif", 20).into_font())
             // Set the size of the label region
-            .x_label_area_size(40)
-            .y_label_area_size(60)
+            .x_label_area_size(10)
+            .y_label_area_size(25)
             // Finally attach a coordinate on the drawing area and make a chart context
             .build_cartesian_2d(x_min..x_max, y_min..y_max)?;//.map_err(|e| e.into())?;
         chart
@@ -106,7 +102,7 @@ impl ChartDSO {
         // отрисовка первой точки h
         draw_point(&mut chart, &[self.h[0]], ShowPoint::X, (0, 5))?;
         // отрисовка последней точки h
-        draw_point(&mut chart, &[self.h.last().unwrap_or(&(0.,0.)).clone()], ShowPoint::All, (-50, -15))?;
+        draw_point(&mut chart, &[self.h.last().unwrap_or(&(0.,0.)).clone()], ShowPoint::All, (-80, -15))?;
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("stability chart_dso root.present() error: {e}"))),

@@ -66,7 +66,7 @@ impl LeverDiagram {
         }
         let mut h = Vec::new();
         if let (Some(theta0), Some(data)) = (self.parameters.get(&7), self.parameters.get(&18)) {
-            let theta0 = theta0.result.unwrap_or(0.);
+            let theta0 = theta0.result.unwrap_or(0.).abs();
             let result = data.result.unwrap_or(0.);
             h.push((theta0, 0.));
             h.push((theta0 + 57.3, result));
@@ -166,7 +166,7 @@ impl LeverDiagram {
                 match super::chart_k::ChartWeather::new(
                     self.language.clone(),
                     &self.dso,
-                    theta_0,
+                    theta_0.abs(),
                     (theta_w1_0, theta_w1_1),
                     (theta_w2_0, theta_w2_1),
                     (point_a_0, point_a_1),

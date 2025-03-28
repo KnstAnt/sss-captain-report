@@ -52,14 +52,10 @@ impl Chart {
         let path = PathBuf::from(format!("bin/assets/{}_chart.svg", self.short_name.to_lowercase()));
         let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
         root.fill(&WHITE)?;
-        let root = root.margin(
-            self.y_max, 
-            self.y_min, 
-            self.x_min, 
-            self.x_max,);
         let mut chart = ChartBuilder::on(&root)
-            .x_label_area_size(40)
-            .y_label_area_size(60)
+            .margin(15)
+            .x_label_area_size(10)
+            .y_label_area_size(30)
             .build_cartesian_2d(self.x_min..self.x_max, self.y_min..self.y_max)?;
         chart
             .configure_mesh()
@@ -67,28 +63,19 @@ impl Chart {
             .x_label_formatter(&|x| format!("{:.1}", x))
             .y_labels(10)                     
             .y_label_formatter(&|x| format!("{:.1}", x))
-            .draw()?;    
+            .draw()?;  
+        // ось x
+        chart.draw_series(LineSeries::new(
+            [(self.x_min, 0.), (self.x_max, 0.)],
+            &RGBColor(0, 0, 0),
+        ))?;  
         chart.draw_series(LineSeries::new(
             self.result.clone(),
-            &RED,
-        ))?;
-        if self.result.len() <= 30 {
-            chart.draw_series(PointSeries::of_element(
-                self.result.clone(),
-                3,
-                &RED,
-                &|c, s, st| {
-                    return EmptyElement::at(c)    
-                    + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2}", c.1), (5, 5), ("sans-serif", 10).into_font());
-                },
-            ))?;
-        }
-        chart.draw_series(LineSeries::new(
-            self.target_min.clone(),
-            &GREEN,
-        ))?;
-        if self.target_min.len() <= 30 {
+            &RGBColor(150, 0, 0),
+        ))?
+        .label(&self.short_name)
+        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 0, 0)));   
+     /*   if self.target_min.len() <= 30 {
             chart.draw_series(PointSeries::of_element(
                 self.target_min.clone(),
                 3,
@@ -96,15 +83,17 @@ impl Chart {
                 &|c, s, st| {
                     return EmptyElement::at(c)    
                     + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2}", c.1), (5, 5), ("sans-serif", 10).into_font());
+                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
                 },
             ))?;
-        }
+        }*/
         chart.draw_series(LineSeries::new(
             self.target_max.clone(),
-            &GREEN,
-        ))?;
-        if self.target_max.len() <= 30 {
+            &RGBColor(150, 150, 0),
+        ))?
+        .label(self.short_name.clone() + "_max")
+        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 150, 0))); 
+   /*     if self.target_max.len() <= 30 {
             chart.draw_series(PointSeries::of_element(
                 self.target_max,
                 3,
@@ -112,10 +101,37 @@ impl Chart {
                 &|c, s, st| {
                     return EmptyElement::at(c)   
                     + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2}", c.1), (5, 5), ("sans-serif", 10).into_font());
+                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
                 },
             ))?;
-        }
+        }*/
+        chart.draw_series(LineSeries::new(
+            self.target_min.clone(),
+            &RGBColor(0, 150, 0),
+        ))?
+        .label(self.short_name.clone() + "_min")
+        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(0, 150, 0))); 
+    /*    if self.result.len() <= 30 {
+            chart.draw_series(PointSeries::of_element(
+                self.result.clone(),
+                3,
+                &RED,
+                &|c, s, st| {
+                    return EmptyElement::at(c)    
+                    + Circle::new((0,0),s,st.filled()) 
+                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
+                },
+            ))?;
+        }*/
+        chart
+            .configure_series_labels()
+            .position(SeriesLabelPosition::UpperLeft)
+            .margin(20)
+            .legend_area_size(5)
+            .border_style(BLUE)
+            .background_style(BLUE.mix(0.1))
+            .label_font(("Calibri", 20))
+            .draw()?; 
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("strength chart root.present() error: {e}"))),
