@@ -71,7 +71,7 @@ impl LeverDiagram {
             h.push((theta0, 0.));
             h.push((theta0 + 57.3, result));
         }
-        match super::chart_dso::ChartDSO::new(self.language.clone(), &dso, &ddo, &h).to_string() {
+        match super::chart_dso::ChartDSO::new(self.language.clone(), &self.dso, &self.ddo, &h).to_string() {
             Ok(_) => (),
             Err(error) => log2::error!("LeverDiagram to_string ChartDSO error: {error}"),
         };
@@ -107,7 +107,7 @@ impl LeverDiagram {
             ) {
                 match super::chart_bulk::ChartBulk::new(
                     self.language.clone(),
-                    &dso,
+                    &self.dso,
                     a,
                     (p1_dso_0, p1_dso_1),
                     (b_0, b_1),
@@ -170,7 +170,7 @@ impl LeverDiagram {
 
                 match super::chart_k::ChartWeather::new(
                     self.language.clone(),
-                    &dso,
+                    &self.dso,
                     theta_0,
                     (theta_w1_0, theta_w1_1),
                     (theta_w2_0, theta_w2_1),
