@@ -38,7 +38,7 @@ impl ChartDSO {
         root.fill(&WHITE)?;
         let x_min = 0f64.min(self.h.first().unwrap_or(&(0., 0.)).0);
         let x_max = 60f64;
-        let y_min = self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
+        let y_min = -0.1f64;//self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
         let y_max = y_max.ceil();
         let root = root.margin(
@@ -63,6 +63,16 @@ impl ChartDSO {
             .x_label_formatter(&|x| format!("{:.1}", x))            
             .y_label_formatter(&|x| format!("{:.1}", x))
             .draw()?;
+        // ось x
+        chart.draw_series(LineSeries::new(
+            [(x_min, 0.), (x_max, 0.)],
+            &RGBColor(0, 0, 0),
+        ))?;
+        // ось y
+        chart.draw_series(LineSeries::new(
+            [(0., y_min), (0., y_max)],
+            &RGBColor(0, 0, 0),
+        ))?;
         // отрисовка линии ДСО
         chart.draw_series(LineSeries::new(
                 self.dso.clone(),//.iter().map(|(x, y)| (*x as f32, *y as f32)),
@@ -94,29 +104,9 @@ impl ChartDSO {
             .label_font(("Calibri", 20))
             .draw()?; 
         // отрисовка первой точки h
-        draw_point(&mut chart, &[self.h[0]], ShowPoint::X, (5, -15))?;
-/*      chart.draw_series(PointSeries::of_element(
-            [self.h[0]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("{:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
+        draw_point(&mut chart, &[self.h[0]], ShowPoint::X, (0, 5))?;
         // отрисовка последней точки h
-        draw_point(&mut chart, &[self.h.last().unwrap_or(&(0.,0.)).clone()], ShowPoint::All, (-20, -15))?;
- /*       chart.draw_series(PointSeries::of_element(
-            [self.h.last().unwrap_or(&(0.,0.)).clone()],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)    // We want to construct a composed element on-the-fly
-                + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
-                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (-20, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
+        draw_point(&mut chart, &[self.h.last().unwrap_or(&(0.,0.)).clone()], ShowPoint::All, (-50, -15))?;
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("stability chart_dso root.present() error: {e}"))),

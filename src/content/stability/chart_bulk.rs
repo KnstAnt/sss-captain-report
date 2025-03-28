@@ -46,7 +46,7 @@ impl ChartBulk {
         root.fill(&WHITE)?;
         let x_min = 0f64;
         let x_max = 60f64;
-        let y_min = self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
+        let y_min = -0.1f64;//self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
         let y_max = y_max.ceil();
         let root = root.margin(
@@ -66,6 +66,16 @@ impl ChartBulk {
             .x_label_formatter(&|x| format!("{:.1}", x))            
             .y_label_formatter(&|x| format!("{:.1}", x))
             .draw()?;
+        // ось x
+        chart.draw_series(LineSeries::new(
+            [(x_min, 0.), (x_max, 0.)],
+            &RGBColor(0, 0, 0),
+        ))?;
+        // ось y
+        chart.draw_series(LineSeries::new(
+            [(0., y_min), (0., y_max)],
+            &RGBColor(0, 0, 0),
+        ))?;
         // отрисовка линии кривой ДСО
         chart.draw_series(LineSeries::new(
                 self.dso.clone(),
@@ -102,63 +112,13 @@ impl ChartBulk {
         ))?;
         // отрисовка точек кривой плеч кренящего момента
         draw_point(&mut chart, &[curve_lever[1], curve_lever[2]], ShowPoint::All, (5, -15))?;
-    /*    chart.draw_series(PointSeries::of_element(
-            [curve_lever[1], curve_lever[2]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
-                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (5, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
         // первая точка на оси, отображается только значение по y
         draw_point(&mut chart, &[curve_lever[0]], ShowPoint::Y, (5, -15))?;
-   /*     chart.draw_series(PointSeries::of_element(
-            [curve_lever[0]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("{:.3}", c.1), (5, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
         // отрисовка точек угла макс. разницы
-        draw_point(&mut chart, &[curve_dif[0]], ShowPoint::All, (10, 0))?;
-     /*   chart.draw_series(PointSeries::of_element(
-            [curve_dif[0]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled()) 
-                + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
-        draw_point(&mut chart, &[curve_dif[1]], ShowPoint::X, (5, -15))?;
-    /*    chart.draw_series(PointSeries::of_element(
-            [curve_dif[1]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled()) 
-                + Text::new(format!("{:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
-        // отрисовка точки на оси Х, надпись выше линии
-        draw_point_with_text(&mut chart, &[curve_theta_g[0]], ShowPoint::X, "θg = ", (5, -15))?;
-       /* chart.draw_series(PointSeries::of_element(
-            [curve_theta_g[0]],
-            3,
-            &RGBColor(150, 0, 0),
-            &|c, s, st| {
-                return EmptyElement::at(c)  
-                + Circle::new((0,0),s,st.filled())
-                + Text::new(format!("θg = {:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
-            },
-        ))?;*/
+        draw_point(&mut chart, &[curve_dif[0]], ShowPoint::All, (5, 5))?;
+        draw_point(&mut chart, &[curve_dif[1]], ShowPoint::X, (0, 5))?;
+        // отрисовка точки на оси Х
+        draw_point_with_text(&mut chart, &[curve_theta_g[0]], ShowPoint::X, "θg=", (0, 5))?;
         // надпись с площадью по центру заливки
         let delta_x = self.b.0 - self.p1_dso.0;
         let y_max_area = self.dso.iter().filter(|v| v.0 <= self.b.0 ).fold(f64::MIN, |r, v| r.max(v.1) );

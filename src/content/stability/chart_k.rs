@@ -42,7 +42,6 @@ impl ChartWeather {
     }
     //
     pub fn to_string(self) -> Result<(), Error> {
-        dbg!("Weather begin");
         let (header, legend_dso) = if self.language.contains("en") {
             ("Weather Criteria", "SC")
         } else {
@@ -117,16 +116,15 @@ impl ChartWeather {
             [(self.point_b.0, 0.), (self.point_b.0, self.point_b.1)],
             &RGBColor(150, 0, 0),
         ))?;
-        //theta_0
-        draw_point_with_text(&mut chart, &[(self.theta_w1.0, 0.)], ShowPoint::X, "θw1 = ", (10, 5))?;
-        //theta_0
-        draw_point_with_text(&mut chart, &[(self.theta_0, 0.)], ShowPoint::X, "θ0 = ", (-25, 5))?;
+        // w0
+        draw_point_with_text(&mut chart, &[(self.theta_0, 0.)], ShowPoint::X, "θ0=", (-60, 5))?;
         // w1
-        draw_point(&mut chart, &[self.theta_w1], ShowPoint::All, (10, 5))?;
+        draw_point_with_text(&mut chart, &[(self.theta_w1.0, 0.)], ShowPoint::X, "θw1=", (0, 5))?;
+        draw_point(&mut chart, &[self.theta_w1], ShowPoint::All, (5, -5))?;
         // w2
-        draw_point(&mut chart, &[(self.point_b.0, 0.)], ShowPoint::X, (5, 5))?;
+        draw_point(&mut chart, &[(self.point_b.0, 0.)], ShowPoint::X, (0, 5))?;
         // угол начала области а 
-        draw_point(&mut chart, &[(self.point_a.0, 0.)], ShowPoint::X, (5, 5))?;
+        draw_point(&mut chart, &[(self.point_a.0, 0.)], ShowPoint::X, (5, -15))?;
         // надписи с площадью по центру заливки 
         // area_a, отображаем площадь в левом верхнем углу
         let x_mid = self.point_a.0 + (self.theta_w2.0 - self.point_a.0)/3.;
@@ -137,7 +135,7 @@ impl ChartWeather {
             &RGBColor(0, 0, 0),
             &|c, _, _| {
                 return EmptyElement::at(c)  
-                + Text::new(format!("a={:.3}", self.area_a), (0, -7), ("sans-serif", 14).into_font());
+                + Text::new(format!("a={:.3}", self.area_a), (0, 0), ("sans-serif", 14).into_font());
             },
         ))?;
         // area_b
@@ -167,7 +165,6 @@ impl ChartWeather {
         self.dso.iter().filter(|v| v.0 >= self.theta_w2.0 && v.0 <= self.point_b.0 ).for_each(|v| b.push(*v));
         b.push(self.point_b);
         chart.draw_series(AreaSeries::new(b, self.theta_w2.1, GREEN.mix(0.2))).unwrap();
-        dbg!("Weather end");
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("stability chart root.present() error: {e}"))),

@@ -121,15 +121,13 @@ impl LeverDiagram {
                 };
             }
         }
-        dbg!("Weather begin data");
         let theta_0 = self.parameters.get(&7);
         let theta_w1 = (self.parameters.get(&38), self.parameters.get(&36));
         let theta_w2 = (self.parameters.get(&39), self.parameters.get(&37));
         let point_a = (self.parameters.get(&107), self.parameters.get(&106));
         let point_b = (self.parameters.get(&104), self.parameters.get(&105));
         let area_a = self.parameters.get(&43);
-        let area_b = self.parameters.get(&44);
-        
+        let area_b = self.parameters.get(&44);   
         if let (
             Some(theta_0),
             (Some(theta_w1_0), Some(theta_w1_1)),
@@ -140,7 +138,6 @@ impl LeverDiagram {
             Some(area_b),
         ) = (theta_0, theta_w1, theta_w2, point_a, point_b, area_a, area_b)
         {
-            dbg!("Weather begin if");
             if let (
                 Some(theta_0),
                 Some(theta_w1_0),
@@ -166,8 +163,6 @@ impl LeverDiagram {
                 area_a.result,
                 area_b.result,
             ) {
-                dbg!("Weather begin match");
-
                 match super::chart_k::ChartWeather::new(
                     self.language.clone(),
                     &self.dso,
