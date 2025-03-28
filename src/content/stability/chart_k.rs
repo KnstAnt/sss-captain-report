@@ -1,6 +1,7 @@
 use std::path::PathBuf;
-use crate::{content::misc::Curve, error::Error};
+use crate::error::Error;
 use plotters::prelude::*;
+use super::chart::*;
 //
 pub struct ChartWeather {
     language: String,
@@ -93,7 +94,12 @@ impl ChartWeather {
             .draw()?; 
         // ось x
         chart.draw_series(LineSeries::new(
-            [(self.point_a.0, 0.), (x_max, 0.)],
+            [(x_min, 0.), (x_max, 0.)],
+            &RGBColor(0, 0, 0),
+        ))?;
+        // ось y
+        chart.draw_series(LineSeries::new(
+            [(0., y_min), (0., y_max)],
             &RGBColor(0, 0, 0),
         ))?;
         // theta_w1
@@ -101,7 +107,20 @@ impl ChartWeather {
             [(self.theta_w1.0, 0.), (self.theta_w1.0, self.theta_w1.1)],
             &RGBColor(150, 0, 0),
         ))?;
-        chart.draw_series(PointSeries::of_element(
+        // theta_w2 
+        chart.draw_series(LineSeries::new(
+            [(self.point_a.0, self.theta_w2.1), (self.point_b.0, self.theta_w2.1)],
+            &RGBColor(50, 50, 50),
+        ))?;
+        // min
+        chart.draw_series(LineSeries::new(
+            [(self.point_b.0, 0.), (self.point_b.0, self.point_b.1)],
+            &RGBColor(150, 0, 0),
+        ))?;
+
+        //theta_0
+        draw_point_with_text(&mut chart, &[(self.theta_w1.0, 0.)], ShowPoint::X, "θw1 = ", (10, 5))?;
+    /*    chart.draw_series(PointSeries::of_element(
             [(self.theta_w1.0, 0.)],
             3,
             &RGBColor(200, 0, 0),
@@ -118,19 +137,11 @@ impl ChartWeather {
                 return EmptyElement::at(c)   
                 + Text::new(format!("θw1 = {:.3}", c.0), (5, 10), ("sans-serif", 14).into_font());
             },
-        ))?;
-        // theta_w2 
-        chart.draw_series(LineSeries::new(
-            [(self.point_a.0, self.theta_w2.1), (self.point_b.0, self.theta_w2.1)],
-            &RGBColor(50, 50, 50),
-        ))?;
-        // min
-        chart.draw_series(LineSeries::new(
-            [(self.point_b.0, 0.), (self.point_b.0, self.point_b.1)],
-            &RGBColor(150, 0, 0),
-        ))?;
+        ))?;*/
+
         //theta_0
-        chart.draw_series(PointSeries::of_element(
+        draw_point_with_text(&mut chart, &[(self.theta_0, 0.)], ShowPoint::X, "θ0 = ", (-25, 5))?;
+   /*     chart.draw_series(PointSeries::of_element(
             [(self.theta_0, 0.)],
             3,
             &RGBColor(0, 0, 0),
@@ -147,9 +158,10 @@ impl ChartWeather {
                 return EmptyElement::at(c)   
                 + Text::new(format!("θ0"), (5, 5), ("sans-serif", 14).into_font());
             },
-        ))?;
-        // точки с легендой
-        chart.draw_series(PointSeries::of_element(
+        ))?;*/
+        // w1
+        draw_point(&mut chart, &[self.theta_w1], ShowPoint::All, (10, 5))?;
+    /*    chart.draw_series(PointSeries::of_element(
             [self.theta_w1, (self.point_b.0, self.theta_w2.1)],
             3,
             &RGBColor(200, 0, 0),
@@ -158,10 +170,14 @@ impl ChartWeather {
                 + Circle::new((0, 0),s,st.filled())
                 + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (10, 0), ("sans-serif", 14).into_font());
             },
-        ))?;
+        ))?;*/
+        // w2
+        draw_point(&mut chart, &[(self.point_b.0, 0.)], ShowPoint::X, (5, 5))?;
+        // угол начала области а 
+        draw_point(&mut chart, &[(self.point_a.0, 0.)], ShowPoint::X, (5, 5))?;
         // надписи с площадью по центру заливки 
         // area_a, отображаем площадь в левом верхнем углу
-        let x_mid = self.point_a.0 + (self.theta_w2.0 - self.point_a.0)/3.333;
+        let x_mid = self.point_a.0 + (self.theta_w2.0 - self.point_a.0)/3.;
         let y_mid = self.point_a.1 + (self.theta_w2.1 - self.point_a.1)/1.5;
         chart.draw_series(PointSeries::of_element(
             [(x_mid, y_mid)],
@@ -173,15 +189,24 @@ impl ChartWeather {
             },
         ))?;
         // area_b
-        let x_mid = self.theta_w2.0 + (self.point_b.0 - self.theta_w2.0)/2.;
-        let y_mid = self.theta_w2.1 + (self.dso.iter().fold(f64::MIN, |r, v| r.max(v.1) ) - self.theta_w2.1)/2.33;
+
+        let delta_x = self.point_b.0 - self.theta_w2.0;
+        let y_max_area = self.dso.iter().filter(|v| v.0 <= self.point_b.0 ).fold(f64::MIN, |r, v| r.max(v.1) );
+        let shift = (self.point_b.1*1.1/y_max_area).min(1.2).max(1.);
+        let x_mid = self.theta_w2.0 + (delta_x * shift) / 2.;
+        let delta_y = y_max_area - self.theta_w2.1;
+        let y_mid = self.theta_w2.1 + delta_y / (2. * shift);
+
+
+      //  let x_mid = self.theta_w2.0 + (self.point_b.0 - self.theta_w2.0)/3.;
+      //  let y_mid = self.theta_w2.1 + (self.dso.iter().fold(f64::MIN, |r, v| r.max(v.1) ) - self.theta_w2.1)/3.;
         chart.draw_series(PointSeries::of_element(
             [(x_mid, y_mid)],
             3,
             &RGBColor(0, 0, 0),
             &|c, _, _| {
                 return EmptyElement::at(c)  
-                + Text::new(format!("b={:.3}", self.area_a), (0, -7), ("sans-serif", 14).into_font());
+                + Text::new(format!("b={:.3}", self.area_a), (0, 0), ("sans-serif", 14).into_font());
             },
         ))?;
         // заливка областей

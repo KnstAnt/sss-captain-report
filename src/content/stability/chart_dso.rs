@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 use crate::error::Error;
 use plotters::prelude::*;
+
+use super::chart::*;
 //
 pub struct ChartDSO {
     language: String,
@@ -34,7 +36,7 @@ impl ChartDSO {
         let path = PathBuf::from(format!("bin/assets/dso_chart.svg"));
         let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
         root.fill(&WHITE)?;
-        let x_min = 0f64;
+        let x_min = 0f64.min(self.h.first().unwrap_or(&(0., 0.)).0);
         let x_max = 60f64;
         let y_min = self.dso.iter().fold(f64::MAX, |s, v| s.min(v.1));
         let y_max = self.dso.iter().fold(f64::MIN, |s, v| s.max(v.1));
@@ -92,7 +94,8 @@ impl ChartDSO {
             .label_font(("Calibri", 20))
             .draw()?; 
         // отрисовка первой точки h
-        chart.draw_series(PointSeries::of_element(
+        draw_point(&mut chart, &[self.h[0]], ShowPoint::X, (5, -15))?;
+/*      chart.draw_series(PointSeries::of_element(
             [self.h[0]],
             3,
             &RGBColor(150, 0, 0),
@@ -101,9 +104,10 @@ impl ChartDSO {
                 + Circle::new((0,0),s,st.filled())
                 + Text::new(format!("{:.3}", c.0), (5, -15), ("sans-serif", 14).into_font());
             },
-        ))?;
+        ))?;*/
         // отрисовка последней точки h
-        chart.draw_series(PointSeries::of_element(
+        draw_point(&mut chart, &[self.h.last().unwrap_or(&(0.,0.)).clone()], ShowPoint::All, (-20, -15))?;
+ /*       chart.draw_series(PointSeries::of_element(
             [self.h.last().unwrap_or(&(0.,0.)).clone()],
             3,
             &RGBColor(150, 0, 0),
@@ -112,7 +116,7 @@ impl ChartDSO {
                 + Circle::new((0,0),s,st.filled()) // At this point, the new pixel coordinate is established
                 + Text::new(format!("{:.3}:{:.3}", c.0, c.1), (-20, -15), ("sans-serif", 14).into_font());
             },
-        ))?;
+        ))?;*/
         match root.present() {
             Ok(_) => Ok(()),
             Err(e) => Err(Error::FromString(format!("stability chart_dso root.present() error: {e}"))),

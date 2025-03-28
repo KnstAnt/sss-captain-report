@@ -9,6 +9,7 @@ pub mod criterion;
 pub mod chart_dso;
 pub mod chart_bulk;
 pub mod chart_k;
+pub mod chart;
 
 pub struct Stability {
     language: String,
