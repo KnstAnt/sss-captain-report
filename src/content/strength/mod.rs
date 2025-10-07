@@ -20,12 +20,12 @@ impl Strength {
     pub fn new(language: &String, shear_force: Template, bending_moment: Template,) -> Self {
         let (header_main, header_sf, header_bm) = if language.contains("en") {
             ("# Strength\n\n".to_owned(),
-            "## Max bending moments\n\n".to_owned(),
-            "## Max shear forces\n\n".to_owned())
+            "## Max shear forces\n\n".to_owned(),
+            "## Max bending moments\n\n".to_owned(),)
         } else {
             ("# Прочность\n\n".to_owned(),
-            "## Максимальные изгибающие моменты\n\n".to_owned(),
-            "## Максимальные перерезывающие силы\n\n".to_owned())
+            "## Максимальные перерезывающие силы\n\n".to_owned(),
+            "## Максимальные изгибающие моменты\n\n".to_owned(),)
         };
         Self {
             header_main,
@@ -77,10 +77,10 @@ impl Strength {
     //
     pub fn to_string(self) -> Result<String, Error> {
         Ok( self.header_main + 
-            &self.header_bm + 
-            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))? + "\n" + 
             &self.header_sf + 
-            &self.shear_force.to_string().map_err(|e| format!("Strength to_string shear_force error:{}", e))?
+            &self.shear_force.to_string().map_err(|e| format!("Strength to_string shear_force error:{}", e))? + "\n" + 
+            &self.header_bm + 
+            &self.bending_moment.to_string().map_err(|e| format!("Strength to_string bending_moment error:{}", e))?
         )
     }
 }

@@ -75,54 +75,18 @@ impl Chart {
         ))?
         .label(&self.short_name)
         .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 0, 0)));   
-     /*   if self.target_min.len() <= 30 {
-            chart.draw_series(PointSeries::of_element(
-                self.target_min.clone(),
-                3,
-                &GREEN,
-                &|c, s, st| {
-                    return EmptyElement::at(c)    
-                    + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
-                },
-            ))?;
-        }*/
         chart.draw_series(LineSeries::new(
             self.target_max.clone(),
             &RGBColor(150, 150, 0),
         ))?
         .label(self.short_name.clone() + "_max")
         .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 150, 0))); 
-   /*     if self.target_max.len() <= 30 {
-            chart.draw_series(PointSeries::of_element(
-                self.target_max,
-                3,
-                &GREEN,
-                &|c, s, st| {
-                    return EmptyElement::at(c)   
-                    + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
-                },
-            ))?;
-        }*/
         chart.draw_series(LineSeries::new(
             self.target_min.clone(),
             &RGBColor(0, 150, 0),
         ))?
         .label(self.short_name.clone() + "_min")
         .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(0, 150, 0))); 
-    /*    if self.result.len() <= 30 {
-            chart.draw_series(PointSeries::of_element(
-                self.result.clone(),
-                3,
-                &RED,
-                &|c, s, st| {
-                    return EmptyElement::at(c)    
-                    + Circle::new((0,0),s,st.filled()) 
-                    + Text::new(format!("{:.2};{:.2}", c.0, c.1), (5, 5), ("sans-serif", 14).into_font());
-                },
-            ))?;
-        }*/
         chart
             .configure_series_labels()
             .position(SeriesLabelPosition::UpperLeft)
