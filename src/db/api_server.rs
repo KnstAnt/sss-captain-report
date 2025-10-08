@@ -51,7 +51,7 @@ impl ApiServer {
         }
     }
     //
-    fn language <'a> (&self, ru: &'a str, en: &'a str) -> &'a str {
+    fn language<'a>(&self, ru: &'a str, en: &'a str) -> &'a str {
         if self.language.contains("en") {
             en
         } else {
@@ -81,7 +81,7 @@ impl ApiServer {
         CriteriaDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     head.id AS id, \
                     head.{} as name, \
                     unit.{} as unit, \
@@ -102,7 +102,7 @@ impl ApiServer {
                     head.id;",
                     self.language("title_rus", "title_eng"),
                     self.language("symbol_rus", "symbol_eng"),
-                    self.ship_id, 
+                    self.ship_id,
                     self.project_id,
                 ))
                 .map_err(|e| {
@@ -113,14 +113,11 @@ impl ApiServer {
     }
     /// Чтение данных из БД. Функция читает данные за несколько запросов,
     /// парсит их и проверяет данные на корректность.
-    pub fn get_criterion_load_line(
-        &mut self,
-        load_line_id: i32,
-    ) -> Result<CriteriaDataArray, Error> {
+    pub fn get_criterion_load_line(&mut self) -> Result<CriteriaDataArray, Error> {
         CriteriaDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     head.id AS id, \
                     head.{} as name, \
                     unit.{} as unit, \
@@ -147,7 +144,7 @@ impl ApiServer {
                     head.id;",
                     self.language("title_rus", "title_eng"),
                     self.language("symbol_rus", "symbol_eng"),
-                    self.ship_id, 
+                    self.ship_id,
                     self.project_id,
                 ))
                 .map_err(|e| {
@@ -161,7 +158,7 @@ impl ApiServer {
         ParameterDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     head.id as id, \
                     head.{} as name, \
                     data.result as result, \
@@ -178,7 +175,7 @@ impl ApiServer {
                     head.id;",
                     self.language("title_rus", "title_eng"),
                     self.language("symbol_rus", "symbol_eng"),
-                    self.ship_id, 
+                    self.ship_id,
                     self.project_id,
                 ))
                 .map_err(|e| {
@@ -192,7 +189,7 @@ impl ApiServer {
         TankDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     {} as name, \
                     mass, \
                     mass_shift_x as x_g, \
@@ -204,7 +201,7 @@ impl ApiServer {
                 WHERE 
                     category_id=2 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.language("name_rus", "name_engl"),
-                    self.ship_id, 
+                    self.ship_id,
                     self.project_id,
                 ))
                 .map_err(|e| {
@@ -241,7 +238,7 @@ impl ApiServer {
         CargoDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     name as name, \
                     mass, \
                     mass_shift_x as x_g, \
@@ -251,8 +248,7 @@ impl ApiServer {
                     cargo 
                 WHERE 
                     category_id=9 AND ship_id={} AND project_id IS NOT DISTINCT FROM {};",
-                self.ship_id,
-                self.project_id,
+                    self.ship_id, self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_stores error: {e}")))?,
         )
@@ -263,7 +259,7 @@ impl ApiServer {
         BulkheadDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     b.{} as name, \
                     bp.{} as position, \
                     b.mass, \
@@ -290,7 +286,7 @@ impl ApiServer {
         BulkCargoDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     {} as name, \
                     mass, \
                     mass_shift_x as x_g, \
@@ -302,7 +298,8 @@ impl ApiServer {
                 WHERE 
                     ship_id={} AND project_id IS NOT DISTINCT FROM {};",
                     self.language("name_rus", "name_engl"),
-                    self.ship_id, self.project_id,
+                    self.ship_id,
+                    self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_bulk_cargo error: {e}")))?,
         )
@@ -313,7 +310,7 @@ impl ApiServer {
         ContainerDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     c.owner_code as owner_code, \
                     c.serial_code as serial_code, \
                     c.check_digit, \
@@ -341,7 +338,7 @@ impl ApiServer {
         CargoDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     name as name, \
                     mass, \
                     mass_shift_x as x_g, \
@@ -372,7 +369,7 @@ impl ApiServer {
         let strength_result = StrengthResultDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     value_shear_force as sf, \
                     value_bending_moment as bm
                 FROM
@@ -409,7 +406,7 @@ impl ApiServer {
         Ok(StrengthLimitDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     frame_x, \
                     value, \
                     limit_type::TEXT, \
@@ -433,7 +430,7 @@ impl ApiServer {
         Ok(StabilityDiagramDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     angle, \
                     value_dso, \
                     value_ddo
@@ -456,7 +453,7 @@ impl ApiServer {
         ShipDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     s.name as name, \
                     s.call_sign as call_sign, \
                     s.IMO as imo, \
@@ -483,7 +480,7 @@ impl ApiServer {
                 JOIN
                     navigation_area AS n ON s.navigation_area_id = n.id
                 WHERE s.id={};",
-                    self.ship_id, 
+                    self.ship_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?,
         )
@@ -498,27 +495,36 @@ impl ApiServer {
         VoyageDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     v.code as code, \
                     v.density as density, \
                     v.wetting_timber as wetting, \
                     i.icing_type as icing, \
                     a.name AS area, \
                     v.description AS description, \
-                    t.name as load_line, \
-                    v.load_line_id as load_line_id 
+                    ll.{} as load_line 
                 FROM 
                     voyage as v
                 JOIN 
                     ship_icing AS i ON v.icing_type_id = i.id
                 JOIN 
                     ship_water_area AS a ON v.water_area_id = a.id
+                JOIN ship_available_load_line_types AS sallt ON
+                    sallt.ship_id = v.ship_id AND
+                    sallt.project_id IS NOT DISTINCT FROM v.project_id
                 JOIN
-                    load_line_type AS t ON v.load_line_id = t.id
-                JOIN
-                    load_line AS l ON v.load_line_id = l.id
-                WHERE v.ship_id={} AND v.project_id IS NOT DISTINCT FROM {};",
-                    self.ship_id, self.project_id,
+                    load_line_type_criterions AS lltc ON 
+                    sallt.load_line_id = lltc.load_line_type_id
+                JOIN criterion AS c ON
+                    lltc.criterion_id = c.id
+                WHERE 
+                    sallt.is_active IS TRUE AND
+                    v.ship_id={} AND 
+                    v.project_id IS NOT DISTINCT FROM {}
+                LIMIT 1;",
+                    self.language("name_rus", "name_engl"),
+                    self.ship_id, 
+                    self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
         )
@@ -533,7 +539,7 @@ impl ApiServer {
         ItineraryDataArray::parse(
             &self
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     port_name, \
                     port_code, \
                     eta, \

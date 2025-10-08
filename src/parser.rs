@@ -78,16 +78,13 @@ impl Report {
         } else {
             "sea"
         };
-        let load_line_id = voyage.load_line_id.ok_or(Error::FromString(
-            "Formatter get_from_db error: no load_line_id!".to_owned(),
-        ))?;
         self.voyage = Some(voyage);
         self.itinerary =
             self.api_server.get_itinerary()?.data();
         self.criteria =
             self.api_server.get_criterion_data()?.data();
         self.criteria.append(
-            &mut self.api_server.get_criterion_load_line(load_line_id)?
+            &mut self.api_server.get_criterion_load_line()?
             .data(),
         );
         self.criteria.sort_by(|a, b| a.0.cmp(&b.0) );
