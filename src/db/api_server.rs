@@ -131,21 +131,19 @@ impl ApiServer {
                     criterion AS head
                 JOIN criterion_values AS values ON
                     values.criterion_id = head.id
-                JOIN unit as unit on head.unit_id = unit.id
+                LEFT JOIN unit as unit on head.unit_id = unit.id
                 LEFT JOIN load_line_type_criterions AS lltc ON
                     lltc.criterion_id = head.id
                 LEFT JOIN ship_available_load_line_types AS sallt ON
                     sallt.load_line_type_id = lltc.load_line_type_id AND
-                    sallt.ship_id = values.ship_id
+                    sallt.ship_id = values.ship_id AND
+                    sallt.project_id IS NOT DISTINCT FROM values.project_id
                 WHERE
                     values.ship_id = {} AND
                     values.project_id IS NOT DISTINCT FROM {} AND
                     lltc.load_line_type_id = {load_line_id} AND
                     head.category_id = 2 AND
-                    (
-                        sallt.is_active = TRUE OR
-                        sallt.is_active IS NOT DISTINCT FROM NULL
-                    )
+                    sallt.is_active IS TRUE
                 ORDER BY 
                     head.id;",
                     self.language("title_rus", "title_eng"),
