@@ -502,7 +502,7 @@ impl ApiServer {
                     i.icing_type as icing, \
                     a.name AS area, \
                     v.description AS description, \
-                    ll.{} as load_line 
+                    с.{} as load_line 
                 FROM 
                     voyage as v
                 JOIN 
@@ -514,7 +514,7 @@ impl ApiServer {
                     sallt.project_id IS NOT DISTINCT FROM v.project_id
                 JOIN
                     load_line_type_criterions AS lltc ON 
-                    sallt.load_line_id = lltc.load_line_type_id
+                    sallt.load_line_type_id = lltc.load_line_type_id
                 JOIN criterion AS c ON
                     lltc.criterion_id = c.id
                 WHERE 
@@ -522,7 +522,7 @@ impl ApiServer {
                     v.ship_id={} AND 
                     v.project_id IS NOT DISTINCT FROM {}
                 LIMIT 1;",
-                    self.language("name_rus", "name_engl"),
+                    self.language("title_rus", "title_eng"),
                     self.ship_id, 
                     self.project_id,
                 ))
