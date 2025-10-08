@@ -502,7 +502,7 @@ impl ApiServer {
                     i.icing_type as icing, \
                     a.name AS area, \
                     v.description AS description, \
-                    с.{} as load_line 
+                    c.{} as load_line 
                 FROM 
                     voyage as v
                 JOIN 
