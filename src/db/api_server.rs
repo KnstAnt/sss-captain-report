@@ -141,7 +141,6 @@ impl ApiServer {
                 WHERE
                     values.ship_id = {} AND
                     values.project_id IS NOT DISTINCT FROM {} AND
-                    lltc.load_line_type_id = {load_line_id} AND
                     head.category_id = 2 AND
                     sallt.is_active IS TRUE
                 ORDER BY 
