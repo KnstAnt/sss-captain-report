@@ -377,7 +377,7 @@ impl ApiServer {
                     WHERE 
                         ship_id={} AND
                         project_id IS NOT DISTINCT FROM {}
-                    ORDER BY index;",
+                    ORDER BY x;",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {
