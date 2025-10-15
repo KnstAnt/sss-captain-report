@@ -15,7 +15,6 @@ use super::parameters::ParameterDataArray;
 use super::ship::ShipData;
 use super::ship::ShipDataArray;
 use super::stability_diagram::StabilityDiagramDataArray;
-use super::strength_limit::StrengthLimitDataArray;
 use super::strength_result::StrengthResultDataArray;
 use super::tank::TankDataArray;
 use super::voyage::VoyageData;
@@ -357,35 +356,28 @@ impl ApiServer {
         .map_err(|e| Error::FromString(format!("api_server get_general_cargo error: {e}")))
     }
     //
-    pub fn get_strength_result(&mut self) -> Result<Vec<(f64, f64, f64)>, Error> {
-        let bounds = ComputedFrameDataArray::parse(
-        &self.fetch(&format!(
-                "SELECT index, start_x, end_x FROM computed_frame_space WHERE ship_id={} ORDER BY index;",
-                self.ship_id
-            ))
-            .map_err(|e| Error::FromString(format!("api_server get_strength_result bounds error: {e}")))?,
-    )
-    .map_err(|e| Error::FromString(format!("api_server get_strength_result bounds error: {e}")))?;
+    pub fn get_strength_result(&mut self) -> Result<StrengthResultDataArray, Error> {
         let strength_result = StrengthResultDataArray::parse(
             &self
                 .fetch(&format!(
                     "SELECT 
-                    value_shear_force as sf, \
-                    value_bending_moment as bm, \
-                    limit_low_shear_force as sf_limit_low, \
-                    limit_high_shear_force as sf_limit_high, \
-                    percent_shear_force as sf_percent, \
-                    status_shear_force as sf_status, \
-                    limit_low_bending_moment as bm_limit_low, \
-                    limit_high_bending_moment as bm_limit_high, \
-                    percent_bending_moment as bm_percent, \
-                    status_bending_moment as bm_status
-                FROM
-                    result_strength_force_and_moment
-                WHERE 
-                    ship_id={} AND
-                    project_id IS NOT DISTINCT FROM {}
-                ORDER BY index;",
+                        frame_x as x, \
+                        value_shear_force as sf, \
+                        value_bending_moment as bm, \
+                        limit_low_shear_force as sf_limit_low, \
+                        limit_high_shear_force as sf_limit_high, \
+                        percent_shear_force as sf_percent, \
+                        status_shear_force as sf_status, \
+                        limit_low_bending_moment as bm_limit_low, \
+                        limit_high_bending_moment as bm_limit_high, \
+                        percent_bending_moment as bm_percent, \
+                        status_bending_moment as bm_status
+                    FROM
+                        result_strength_force_and_moment
+                    WHERE 
+                        ship_id={} AND
+                        project_id IS NOT DISTINCT FROM {}
+                    ORDER BY index;",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {
@@ -399,12 +391,7 @@ impl ApiServer {
                 "api_server get_strength_result strength_result error: {e}"
             ))
         })?;
-        Ok(bounds
-            .data()
-            .iter()
-            .zip(strength_result.data().iter())
-            .map(|(x, (sf, bm))| (*x, *sf, *bm))
-            .collect())
+        Ok(strength_result)
     }
     //
     pub fn get_lever_diagram(&mut self) -> Result<(Vec<(f64, f64)>, Vec<(f64, f64)>), Error> {
@@ -500,8 +487,7 @@ impl ApiServer {
                     v.ship_id={} AND 
                     v.project_id IS NOT DISTINCT FROM {}
                 LIMIT 1;",
-                    self.ship_id, 
-                    self.project_id,
+                    self.ship_id, self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
         )
@@ -511,50 +497,50 @@ impl ApiServer {
             "api_server get_voyage error: no data!"
         )))
     }
-/*    pub fn get_voyage(&mut self) -> Result<VoyageData, Error> {
-        VoyageDataArray::parse(
-            &self
-                .fetch(&format!(
-                    "SELECT
-                    v.code as code, \
-                    v.density as density, \
-                    v.wetting_timber as wetting, \
-                    i.icing_type as icing, \
-                    a.name AS area, \
-                    v.description AS description, \
-                    c.{} as load_line 
-                FROM 
-                    voyage as v
-                JOIN 
-                    ship_icing AS i ON v.icing_type_id = i.id
-                JOIN 
-                    ship_water_area AS a ON v.water_area_id = a.id
-                JOIN ship_available_load_line_types AS sallt ON
-                    sallt.ship_id = v.ship_id AND
-                    sallt.project_id IS NOT DISTINCT FROM v.project_id
-                JOIN
-                    load_line_type_criterions AS lltc ON 
-                    sallt.load_line_type_id = lltc.load_line_type_id
-                JOIN criterion AS c ON
-                    lltc.criterion_id = c.id
-                WHERE 
-                    sallt.is_active IS TRUE AND
-                    v.ship_id={} AND 
-                    v.project_id IS NOT DISTINCT FROM {}
-                LIMIT 1;",
-                    self.language("title_rus", "title_eng"),
-                    self.ship_id, 
-                    self.project_id,
-                ))
-                .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
-        )
-        .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?
-        .data()
-        .ok_or(Error::FromString(format!(
-            "api_server get_voyage error: no data!"
-        )))
-    }
-*/
+    /*    pub fn get_voyage(&mut self) -> Result<VoyageData, Error> {
+            VoyageDataArray::parse(
+                &self
+                    .fetch(&format!(
+                        "SELECT
+                        v.code as code, \
+                        v.density as density, \
+                        v.wetting_timber as wetting, \
+                        i.icing_type as icing, \
+                        a.name AS area, \
+                        v.description AS description, \
+                        c.{} as load_line
+                    FROM
+                        voyage as v
+                    JOIN
+                        ship_icing AS i ON v.icing_type_id = i.id
+                    JOIN
+                        ship_water_area AS a ON v.water_area_id = a.id
+                    JOIN ship_available_load_line_types AS sallt ON
+                        sallt.ship_id = v.ship_id AND
+                        sallt.project_id IS NOT DISTINCT FROM v.project_id
+                    JOIN
+                        load_line_type_criterions AS lltc ON
+                        sallt.load_line_type_id = lltc.load_line_type_id
+                    JOIN criterion AS c ON
+                        lltc.criterion_id = c.id
+                    WHERE
+                        sallt.is_active IS TRUE AND
+                        v.ship_id={} AND
+                        v.project_id IS NOT DISTINCT FROM {}
+                    LIMIT 1;",
+                        self.language("title_rus", "title_eng"),
+                        self.ship_id,
+                        self.project_id,
+                    ))
+                    .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?,
+            )
+            .map_err(|e| Error::FromString(format!("api_server get_voyage error: {e}")))?
+            .data()
+            .ok_or(Error::FromString(format!(
+                "api_server get_voyage error: no data!"
+            )))
+        }
+    */
     //
     pub fn get_itinerary(&mut self) -> Result<ItineraryDataArray, Error> {
         ItineraryDataArray::parse(

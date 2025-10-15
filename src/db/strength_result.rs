@@ -6,6 +6,7 @@ use super::DataArray;
 /// Данные расчета прочности 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct StrengthResultData {
+    pub x: f64,
     /// Перерезывающие силы
     pub sf: f64,
     pub sf_limit_low: f64,

@@ -8,6 +8,7 @@ use crate::db::criterion::CriteriaData;
 use crate::db::itinerary::ItineraryData;
 use crate::db::parameters::ParameterData;
 use crate::db::ship::ShipData;
+use crate::db::strength_result::StrengthResultData;
 use crate::db::tank::TankData;
 use crate::db::voyage::VoyageData;
 use crate::error::Error;
@@ -29,7 +30,7 @@ pub struct Report {
     bulk_cargo: Vec<BulkCargoData>,
     container: Vec<ContainerData>,
     general_cargo: Vec<CargoData>,
-    strength_result: Vec<(f64, f64, f64)>,          //x, SF, BM
+    strength_result: Vec<StrengthResultData>,          //x, SF, BM
     dso: Vec<(f64, f64)>,  
     ddo: Vec<(f64, f64)>,  
     criteria: Vec<(i32, CriteriaData)>,
@@ -102,7 +103,7 @@ impl Report {
         self.general_cargo =
             self.api_server.get_general_cargo()?.data();
         self.strength_result =
-            self.api_server.get_strength_result()?;
+            self.api_server.get_strength_result()?.data;
         (self.dso, self.ddo) =
             self.api_server.get_lever_diagram()?;
         Ok(())
