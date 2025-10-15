@@ -30,7 +30,6 @@ pub struct Report {
     container: Vec<ContainerData>,
     general_cargo: Vec<CargoData>,
     strength_result: Vec<(f64, f64, f64)>,          //x, SF, BM
-    strength_limit: Vec<(f64, f64, f64, f64, f64)>, //fr, bm_min, bm_max, sf_min, sf_max
     dso: Vec<(f64, f64)>,  
     ddo: Vec<(f64, f64)>,  
     criteria: Vec<(i32, CriteriaData)>,
@@ -55,7 +54,6 @@ impl Report {
             container: Vec::new(),
             general_cargo: Vec::new(),
             strength_result: Vec::new(),
-            strength_limit: Vec::new(),
             dso: Vec::new(),
             ddo: Vec::new(),
             criteria: Vec::new(),
@@ -105,8 +103,6 @@ impl Report {
             self.api_server.get_general_cargo()?.data();
         self.strength_result =
             self.api_server.get_strength_result()?;
-        self.strength_limit =
-            self.api_server.get_strength_limit(area)?;
         (self.dso, self.ddo) =
             self.api_server.get_lever_diagram()?;
         Ok(())
@@ -172,7 +168,6 @@ impl Report {
             &crate::content::strength::Strength::from(
                 &self.language,
                 &self.strength_result, 
-                &self.strength_limit
             )
                 .to_string()?;
         content += "\n";

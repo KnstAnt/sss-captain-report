@@ -371,9 +371,17 @@ impl ApiServer {
                 .fetch(&format!(
                     "SELECT 
                     value_shear_force as sf, \
-                    value_bending_moment as bm
+                    value_bending_moment as bm, \
+                    limit_low_shear_force as sf_limit_low, \
+                    limit_high_shear_force as sf_limit_high, \
+                    percent_shear_force as sf_percent, \
+                    status_shear_force as sf_status, \
+                    limit_low_bending_moment as bm_limit_low, \
+                    limit_high_bending_moment as bm_limit_high, \
+                    percent_bending_moment as bm_percent, \
+                    status_bending_moment as bm_status
                 FROM
-                    result_strength
+                    result_strength_force_and_moment
                 WHERE 
                     ship_id={} AND
                     project_id IS NOT DISTINCT FROM {}
@@ -397,33 +405,6 @@ impl ApiServer {
             .zip(strength_result.data().iter())
             .map(|(x, (sf, bm))| (*x, *sf, *bm))
             .collect())
-    }
-    //
-    pub fn get_strength_limit(
-        &mut self,
-        area: &str,
-    ) -> Result<Vec<(f64, f64, f64, f64, f64)>, Error> {
-        Ok(StrengthLimitDataArray::parse(
-            &self
-                .fetch(&format!(
-                    "SELECT 
-                    frame_x, \
-                    value, \
-                    limit_type::TEXT, \
-                    limit_area::TEXT, \
-                    force_type::TEXT
-                FROM 
-                    strength_force_limit
-                WHERE 
-                    ship_id={} AND project_id IS NOT DISTINCT FROM {};",
-                    self.ship_id, self.project_id,
-                ))
-                .map_err(|e| {
-                    Error::FromString(format!("api_server get_strength_limit error: {e}"))
-                })?,
-        )
-        .map_err(|e| Error::FromString(format!("api_server get_strength_limit error: {e}")))?
-        .data(area))
     }
     //
     pub fn get_lever_diagram(&mut self) -> Result<(Vec<(f64, f64)>, Vec<(f64, f64)>), Error> {

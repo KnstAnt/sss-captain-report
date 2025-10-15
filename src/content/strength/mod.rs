@@ -40,8 +40,6 @@ impl Strength {
         language: &String, 
         // x, sf, bm
         result: &[(f64, f64, f64)],
-        // (frame_x, bm_min, bm_max, sf_min, sf_max)
-        limit: &[(f64, f64, f64, f64, f64)],
     ) -> Self {
         let (sf_result, bm_result): (Vec<_>, Vec<_>) = result
             .iter()
