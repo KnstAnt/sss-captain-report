@@ -547,8 +547,8 @@ impl ApiServer {
             &self
                 .fetch(&format!(
                     "SELECT
-                    w.{}, \
-                    w.port_code, \
+                    p.{}, \
+                    p.port_code, \
                     w.eta, \
                     w.etd, \
                     w.max_draught
