@@ -559,7 +559,7 @@ impl ApiServer {
                 WHERE 
                     w.ship_id={} AND w.project_id IS NOT DISTINCT FROM {}
                 ORDER BY eta ASC;",
-                    self.ship_id, self.project_id, self.language("port_name_ru", "port_name_en"),
+                    self.language("port_name_ru", "port_name_en"), self.ship_id, self.project_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_itinerary error: {e}")))?,
         )
