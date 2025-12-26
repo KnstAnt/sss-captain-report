@@ -547,16 +547,19 @@ impl ApiServer {
             &self
                 .fetch(&format!(
                     "SELECT
-                    port_name, \
-                    port_code, \
-                    eta, \
-                    etd, \
-                    max_draught
+                    w.{}, \
+                    w.port_code, \
+                    w.eta, \
+                    w.etd, \
+                    w.max_draught
                 FROM 
-                    waypoint
-                WHERE ship_id={} AND project_id IS NOT DISTINCT FROM {}
+                    waypoint AS w
+                JOIN 
+                    port AS p ON w.port_id = p.id
+                WHERE 
+                    w.ship_id={} AND w.project_id IS NOT DISTINCT FROM {}
                 ORDER BY eta ASC;",
-                    self.ship_id, self.project_id,
+                    self.ship_id, self.project_id, self.language("port_name_ru", "port_name_en"),
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_itinerary error: {e}")))?,
         )
