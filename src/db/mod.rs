@@ -2,14 +2,13 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_parser::IFromJson;
 
-pub mod api_server;
+pub mod api;
 pub mod ship;
 pub mod voyage;
 pub mod itinerary;
 pub mod criterion;
 pub mod parameters;
 mod serde_parser;
-mod computed_frame;
 pub mod strength_result;
 mod stability_diagram;
 pub mod tank;

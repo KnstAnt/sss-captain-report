@@ -399,14 +399,14 @@ impl ApiServer {
             &self
                 .fetch(&format!(
                     "SELECT 
-                    angle, \
-                    value_dso, \
-                    value_ddo
-                FROM 
-                    stability_diagram 
-                WHERE 
-                    ship_id={} AND project_id IS NOT DISTINCT FROM {} 
-                ORDER BY angle ASC;",
+                        angle, \
+                        value_dso, \
+                        value_ddo
+                    FROM 
+                        stability_diagram 
+                    WHERE 
+                        ship_id={} AND project_id IS NOT DISTINCT FROM {} 
+                    ORDER BY angle ASC;",
                     self.ship_id, self.project_id,
                 ))
                 .map_err(|e| {
@@ -422,32 +422,32 @@ impl ApiServer {
             &self
                 .fetch(&format!(
                     "SELECT
-                    s.name as name, \
-                    s.call_sign as call_sign, \
-                    s.IMO as imo, \
-                    s.MMSI as mmsi, \
-                    tr.title_eng AS ship_type, \
-                    s.year_of_built as year_of_build, \
-                    s.place_of_built as place_of_build, \
-                    s.yard_of_build, \
-                    n.area::TEXT AS navigation_area, \
-                    s.classification_society, \
-                    s.registration_number, \
-                    s.port_of_registry, \
-                    s.flag_state, \
-                    s.ship_owner, \
-                    s.ship_owner_code, \
-                    s.ship_builder_name, \
-                    s.ship_builder_hull_number
-                FROM 
-                    ship as s
-                JOIN 
-                    ship_type AS t ON s.ship_type_id = t.id
-                JOIN             
-                    ship_type_rmrs AS tr ON t.type_rmrs = tr.id
-                JOIN
-                    navigation_area AS n ON s.navigation_area_id = n.id
-                WHERE s.id={};",
+                        s.name as name, \
+                        s.call_sign as call_sign, \
+                        s.IMO as imo, \
+                        s.MMSI as mmsi, \
+                        tr.title_eng AS ship_type, \
+                        s.year_of_built as year_of_build, \
+                        s.place_of_built as place_of_build, \
+                        s.yard_of_build, \
+                        n.area::TEXT AS navigation_area, \
+                        s.classification_society, \
+                        s.registration_number, \
+                        s.port_of_registry, \
+                        s.flag_state, \
+                        s.ship_owner, \
+                        s.ship_owner_code, \
+                        s.ship_builder_name, \
+                        s.ship_builder_hull_number
+                    FROM 
+                        ship as s
+                    JOIN 
+                        ship_type AS t ON s.ship_type_id = t.id
+                    JOIN             
+                        ship_type_rmrs AS tr ON t.type_rmrs = tr.id
+                    JOIN
+                        navigation_area AS n ON s.navigation_area_id = n.id
+                    WHERE s.id={};",
                     self.ship_id,
                 ))
                 .map_err(|e| Error::FromString(format!("api_server get_ship error: {e}")))?,
