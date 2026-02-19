@@ -5,13 +5,15 @@ use crate::{
 use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Criterion {
+    dbg: Dbg,
     table: Table,
 }
 //
 impl Criterion {
     //
-    pub fn new(table: Table) -> Self {
-        Self { table }
+    pub fn new(parent: &Dbg, table: Table) -> Self {
+        let dbg = Dbg::new(parent, "Criterion");
+        Self {dbg, table}
     }
     //
     pub fn from(language: &String, data: &[(i32, CriteriaData)]) -> Result<Self, Error> {

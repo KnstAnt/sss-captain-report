@@ -3,6 +3,7 @@ use plotters::prelude::*;
 use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct Chart {
+    dbg: Dbg,
     header: (String, String, String),
     short_name: String,
     unit: String,
@@ -18,6 +19,7 @@ pub struct Chart {
 impl Chart {
     //
     pub fn new(
+        parent: &Dbg, 
         language: &String,
         short_name: &str,
         unit: &str,
@@ -29,12 +31,14 @@ impl Chart {
         target_min: &[(f64, f64)],
         target_max: &[(f64, f64)],
     ) -> Self {
+        let dbg = Dbg::new(parent, "Chart");
         let header = if language.contains("en") {
             ("min".to_owned(), "calc".to_owned(), "max".to_owned())
         } else {
             ("мин".to_owned(), "расчет".to_owned(), "макс".to_owned())
         };
         Self {
+            dbg,
             header,
             short_name: short_name.to_owned(),
             unit: unit.to_owned(),

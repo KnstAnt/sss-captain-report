@@ -13,6 +13,7 @@ pub mod chart_k;
 pub mod chart;
 
 pub struct Stability {
+    dbg: Dbg,
     language: String,
     criterion: Criterion,
     lever_diagram: LeverDiagram,
@@ -21,12 +22,15 @@ pub struct Stability {
 //
 impl Stability {
     pub fn new(    
+        parent: &Dbg, 
         language: &String,
         criterion: Criterion,
         lever_diagram: LeverDiagram,
         parameters: Parameters,
     ) -> Self {
+        let dbg = Dbg::new(parent, "Stability");
         Self {
+            dbg,
             language: language.clone(),
             criterion,
             lever_diagram,

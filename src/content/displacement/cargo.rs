@@ -4,13 +4,15 @@ use crate::{
 use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Cargo {
+    dbg: Dbg,
     table: Table,
 }
 //
 impl Cargo {
     //
-    pub fn new(table: Table) -> Self {
-        Self { table }
+    pub fn new(parent: &Dbg, table: Table) -> Self {
+        let dbg = Dbg::new(parent, "Cargo");
+        Self {dbg, table}
     }
     //
     pub fn from(language: &String, data: &[CargoData]) -> Result<Self, Error> {

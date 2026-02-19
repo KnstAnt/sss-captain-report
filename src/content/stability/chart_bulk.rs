@@ -4,6 +4,7 @@ use super::chart::*;
 use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct ChartBulk {
+    dbg: Dbg,
     language: String,
     dso: Vec<(f64, f64)>,
     a: f64,         // первая точка кривой, lever
@@ -16,6 +17,7 @@ pub struct ChartBulk {
 impl ChartBulk {
     //
     pub fn new(
+        parent: &Dbg, 
         language: String,
         dso: &[(f64, f64)],
         a: f64,
@@ -24,7 +26,9 @@ impl ChartBulk {
         p_40_dso: f64,
         area: f64,
     ) -> Self {
+        let dbg = Dbg::new(parent, "ChartBulk");
         Self {
+            dbg,
             language,
             dso: Vec::from(dso),
             a,

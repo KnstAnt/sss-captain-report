@@ -5,14 +5,16 @@ use crate::{
 use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Voyage {
+    dbg: Dbg,
     header: String,
     table: Table,
 }
 //
 impl Voyage {
     //
-    pub fn new(header: String, table: Table) -> Self {
-        Self { header, table }
+    pub fn new(parent: &Dbg, header: String, table: Table) -> Self {
+        let dbg: Dbg = Dbg::new(parent, "Voyage");
+        Self {dbg, header, table}
     }
     //
     pub fn from(language: &String, data: VoyageData) -> Result<Self, Error> {

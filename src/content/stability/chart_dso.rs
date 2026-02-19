@@ -4,6 +4,7 @@ use sal_core::{dbg::Dbg, error::Error};
 use super::chart::*;
 //
 pub struct ChartDSO {
+    dbg: Dbg,
     language: String,
     dso: Vec<(f64, f64)>,
     ddo: Vec<(f64, f64)>, 
@@ -13,12 +14,15 @@ pub struct ChartDSO {
 impl ChartDSO {
     //
     pub fn new(
+        parent: &Dbg, 
         language: String,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
         h: &[(f64, f64)],
     ) -> Self {
+        let dbg = Dbg::new(parent, "ChartDSO");
         Self {
+            dbg,
             language,
             dso: Vec::from(dso),
             ddo: Vec::from(ddo),

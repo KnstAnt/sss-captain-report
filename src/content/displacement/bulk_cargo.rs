@@ -4,16 +4,19 @@ use crate::{
 use sal_core::{dbg::Dbg, error::Error};
 
 pub struct BulkCargo {
+    dbg: Dbg,
     table: Table,
 }
 //
 impl BulkCargo {
     //
-    pub fn new(table: Table) -> Self {
-        Self { table }
+    pub fn new(parent: &Dbg, table: Table) -> Self {
+        let dbg = Dbg::new(parent, "BulkCargo");
+        Self {dbg, table}
     }
     //
     pub fn from(language: &String, data: &[BulkCargoData]) -> Result<Self, Error> {
+        let error = Error::new(&self.dbg, "from");
         let header = if language.contains("en") { 
             vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]", "Grain moment [tm]"]
         } else {

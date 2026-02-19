@@ -7,6 +7,7 @@ use crate::{
 };
 
 pub struct LeverDiagram {
+    dbg: Dbg,
     header: String,
     language: String,
     dso: Vec<(f64, f64)>,
@@ -17,17 +18,20 @@ pub struct LeverDiagram {
 impl LeverDiagram {
     //
     pub fn new(
+        parent: &Dbg, 
         language: &String,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
         parameters: HashMap<i32, ParameterData>,
     ) -> Self {
+        let dbg = Dbg::new(parent, "LeverDiagram");
         let header = if language.contains("en") {
             "| Heel | Lever |"
         } else {
             "| Крен | Плечо расчет |"
         };
         Self {
+            dbg,
             header: header.to_owned(),
             language: language.to_owned(),
             dso: Vec::from(dso),

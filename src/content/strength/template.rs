@@ -3,6 +3,7 @@ use crate::content::Content;
 use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct Template {
+    dbg: Dbg,
     language: String,
     short_name: String,
     unit: String,
@@ -13,13 +14,16 @@ pub struct Template {
 impl Template {
     //
     pub fn new(
+        parent: &Dbg, 
         language: &String,
         short_name: &str,
         unit: &str,
         result: &[(f64, f64)],
         limit: &[(f64, f64, f64)],
     ) -> Self {
+        let dbg = Dbg::new(parent, "Template");
         Self {
+            dbg,
             language: language.to_owned(),
             short_name: short_name.to_owned(),
             unit: unit.to_owned(),

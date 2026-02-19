@@ -9,6 +9,7 @@ pub mod voyage;
 pub mod itinerary;
 
 pub struct General {
+    dbg: Dbg,
     ship: Ship,
     voyage: Voyage,
     itinerary: Itinerary,
@@ -16,11 +17,14 @@ pub struct General {
 //
 impl General {
     pub fn new(
+        parent: &Dbg, 
         ship: Ship,
         voyage: Voyage,
         itinerary: Itinerary,
     ) -> Self {
+        let dbg = Dbg::new(parent, "General");
         Self {
+            dbg,
             ship,
             voyage,
             itinerary,

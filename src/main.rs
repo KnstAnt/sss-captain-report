@@ -31,7 +31,8 @@ fn main() {
 }
 #[allow(unused)]
 fn execute() -> Result<(), Error> {
-    let message = get_args()?;
+    let error = Error::new("Main", "execute");
+    let message = get_args().map_err(|err| error.pass(err))?;
     let dbg = Dbg::own("main");    
     let mut report = Report::new(
         &dbg,
@@ -46,10 +47,10 @@ fn execute() -> Result<(), Error> {
         )
     );
     if let Err(err) = report.get_from_db() {
-        return Err(error.pass_with(format!("Execute report.get_from_db"), err));
+        return Err(error.pass(err));
     }
     if let Err(err) = report.write(&message.params.path, &message.params.name) {
-        return Err(error.pass_with(format!("Execute report.write"), err));
+        return Err(error.pass(err));
     }
     Ok(())    
 }

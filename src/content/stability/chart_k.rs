@@ -4,6 +4,7 @@ use super::chart::*;
 use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct ChartWeather {
+    dbg: Dbg,
     language: String,
     dso: Vec<(f64, f64)>,
     theta_0: f64,        // Статический угол крена судна
@@ -18,6 +19,7 @@ pub struct ChartWeather {
 impl ChartWeather {
     //
     pub fn new(
+        parent: &Dbg, 
         language: String,
         dso: &[(f64, f64)],
         theta_0: f64,      
@@ -28,7 +30,9 @@ impl ChartWeather {
         area_a: f64,
         area_b: f64,
     ) -> Self {
+        let dbg = Dbg::new(parent, "ChartWeather");
         Self {
+            dbg,
             language,
             dso: Vec::from(dso),
             theta_0,

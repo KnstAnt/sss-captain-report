@@ -6,21 +6,25 @@ use super::Parameters;
 
 
 pub struct Draught {
+    dbg: Dbg,
     header: String,
     table: Parameters,
 }
 //
 impl Draught {
     pub fn from(
+        parent: &Dbg, 
         language: &String, 
         data: &HashMap<i32, ParameterData>,
     ) -> Result<Self, Error> {
+        let dbg = Dbg::new(parent, "Draught");
         let header = if language.contains("en") {
             "# Drafts\n\nAll drafts are moulded.\n\n"
         } else {
             "# Параметры посадки\n\nОсадки приведены по теоретической поверхности корпуса.\n\n"
         }.to_string();
         Ok(Self{
+            dbg,
             header,
             table: Parameters::from(
                 language, 

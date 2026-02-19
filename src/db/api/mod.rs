@@ -4,13 +4,15 @@ use super::bulkhead::BulkheadDataArray;
 use super::cargo::CargoDataArray;
 use super::container::ContainerDataArray;
 use super::criterion::CriteriaDataArray;
-use crate::db::serde_parser::IFromJson;
-use crate::db::ship::{ShipData, ShipDataArray};
-use sal_core::{dbg::Dbg, error::Error};
 use super::parameters::ParameterDataArray;
 use super::stability_diagram::StabilityDiagramDataArray;
 use super::strength_result::StrengthResultDataArray;
 use super::tank::TankDataArray;
+use crate::db::itinerary::ItineraryDataArray;
+use crate::db::serde_parser::IFromJson;
+use crate::db::ship::{ShipData, ShipDataArray};
+use crate::db::voyage::{VoyageData, VoyageDataArray};
+use sal_core::{dbg::Dbg, error::Error};
 
 mod client;
 pub(crate) use client::*;
@@ -50,7 +52,7 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     id AS id, \
                     title AS name, \
                     unit AS unit, \
@@ -373,4 +375,108 @@ impl Db {
         )
         .map_err(|e| error.pass(e))
     }
+    //
+    pub fn get_voyage(&mut self) -> Result<VoyageData, Error> {
+        let error = Error::new(&self.dbg, "get_voyage");
+        VoyageDataArray::parse(
+            &self
+                .api_client
+                .fetch(&format!(
+                    "SELECT
+                    v.code as code, \
+                    v.density as density, \
+                    v.wetting_timber as wetting, \
+                    i.icing_type as icing, \
+                    a.name AS area, \
+                    v.description AS description, \
+                    llt.name as load_line 
+                FROM 
+                    voyage as v
+                JOIN 
+                    ship_icing AS i ON v.icing_type_id = i.id
+                JOIN 
+                    ship_water_area AS a ON v.water_area_id = a.id
+                JOIN ship_available_load_line_types AS sallt ON
+                    sallt.ship_id = v.ship_id AND
+                    sallt.project_id IS NOT DISTINCT FROM v.project_id
+                JOIN load_line_type AS llt ON
+                    sallt.load_line_type_id = llt.id
+                WHERE 
+                    sallt.is_active IS TRUE AND
+                    v.ship_id={} AND 
+                    v.project_id IS NOT DISTINCT FROM {}
+                LIMIT 1;",
+                    self.ship_id, self.project_id,
+                ))
+                .map_err(|e| error.pass(e))?,
+        )
+        .map_err(|e| error.pass(e))?
+        .data()
+        .ok_or(error.err(format!("api_server get_voyage error: no data!")))
+    }
+    //
+    pub fn get_itinerary(&mut self) -> Result<ItineraryDataArray, Error> {
+        let error = Error::new(&self.dbg, "get_itinerary");
+        ItineraryDataArray::parse(
+            &self
+                .api_client
+                .fetch(&format!(
+                    "SELECT
+                    p.{} AS port_name, \
+                    p.port_code AS port_code, \
+                    w.eta AS eta, \
+                    w.etd AS etd, \
+                    w.max_draught AS max_draught
+                FROM 
+                    waypoint AS w
+                JOIN 
+                    port AS p ON w.port_id = p.id
+                WHERE 
+                    w.ship_id={} AND w.project_id IS NOT DISTINCT FROM {}
+                ORDER BY eta ASC;",
+                    self.language, self.ship_id, self.project_id,
+                ))
+                .map_err(|e| error.pass(e))?
+        )
+        .map_err(|e| error.pass(e))
+    }
+   /// Чтение данных из БД. Функция читает данные за несколько запросов,
+    /// парсит их и проверяет данные на корректность.
+    pub fn get_criterion_load_line(&mut self) -> Result<CriteriaDataArray, Error> {
+        let error = Error::new(&self.dbg, "get_criterion_load_line");
+        CriteriaDataArray::parse(
+            &self
+                .api_client
+                .fetch(&format!(
+                    "SELECT
+                    head.id AS id, \
+                    head.{} as name, \
+                    unit.{} as unit, \
+                    values.actual_value AS result, \
+                    values.limit_value AS target, \
+                    values.state as state
+                FROM
+                    criterion AS head
+                JOIN criterion_values AS values ON
+                    values.criterion_id = head.id
+                LEFT JOIN unit as unit on head.unit_id = unit.id
+                LEFT JOIN load_line_type_criterions AS lltc ON
+                    lltc.criterion_id = head.id
+                LEFT JOIN ship_available_load_line_types AS sallt ON
+                    sallt.load_line_type_id = lltc.load_line_type_id AND
+                    sallt.ship_id = values.ship_id AND
+                    sallt.project_id IS NOT DISTINCT FROM values.project_id
+                WHERE
+                    values.ship_id = {} AND
+                    values.project_id IS NOT DISTINCT FROM {} AND
+                    head.category_id = 2 AND
+                    sallt.is_active IS TRUE
+                ORDER BY 
+                    head.id;",
+                    self.language,
+                    self.ship_id,
+                    self.project_id,
+                )).map_err(|e| error.pass(e))?,
+        ).map_err(|e| error.pass(e))
+    }    
 }
