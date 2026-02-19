@@ -1,3 +1,5 @@
+use sal_core::error::Error;
+
 pub struct Table {
     header: Vec<String>,
     content: Vec<Vec<String>>,
@@ -15,7 +17,7 @@ impl Table {
         }
     }
     //
-    pub fn to_string(self) -> Result<String, crate::error::Error> {
+    pub fn to_string(self) -> Result<String, Error> {
         let mut string = self
             .header
             .iter()

@@ -1,6 +1,6 @@
 use crate::content::misc::{Curve, ICurve};
 use crate::content::Content;
-use crate::error::Error;
+use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct Template {
     language: String,

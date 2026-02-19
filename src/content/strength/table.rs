@@ -1,3 +1,5 @@
+use sal_core::{dbg::Dbg, error::Error};
+
 pub struct Table {
     header: Vec<String>,
     // x, min, calc, max, state

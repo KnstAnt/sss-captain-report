@@ -1,5 +1,9 @@
 //! Класс-коллекция таблиц. Проверяет данные и выполняет их запись
+use sal_core::dbg::Dbg;
+use sal_core::error::Error;
+
 use crate::converter::comrak_convert::ComrakConvert;
+use crate::db::api::{ApiClient, Db};
 use crate::db::bulk_cargo::BulkCargoData;
 use crate::db::bulkhead::BulkheadData;
 use crate::db::cargo::CargoData;
@@ -11,14 +15,13 @@ use crate::db::ship::ShipData;
 use crate::db::strength_result::StrengthResultData;
 use crate::db::tank::TankData;
 use crate::db::voyage::VoyageData;
-use crate::error::Error;
-use crate::ApiServer;
 use std::collections::HashMap;
 use std::path::PathBuf;
 //
 pub struct Report {
+    dbg: Dbg,
+    db: Db,
     language: String,
-    api_server: ApiServer,
     imo: Option<i32>,
     ship: Option<ShipData>,
     voyage: Option<VoyageData>,
@@ -39,10 +42,24 @@ pub struct Report {
 //
 impl Report {
     //
-    pub fn new(language: Option<String>, api_server: ApiServer) -> Self {
+    pub fn new(        
+        parent: &Dbg, 
+        ship_id: String,
+        project_id: String,
+        language: String,
+        api_client: ApiClient
+    ) -> Self {
+        let dbg = Dbg::new(parent, "Report");
         Self {
-            language: language.unwrap_or("ru".to_owned()),
-            api_server,
+            dbg: dbg.clone(),
+            db: Db::new(
+                &dbg,
+                ship_id,
+                project_id,
+                language.to_owned(),
+                api_client,
+            ),
+            language,
             imo: None,
             ship: None,
             voyage: None,
@@ -63,10 +80,10 @@ impl Report {
     }
     //
     pub fn get_from_db(&mut self) -> Result<(), Error> {
-        let ship = self.api_server.get_ship()?;
+        let ship = self.db.get_ship()?;
         self.imo = ship.imo.clone();
         self.ship = Some(ship);
-        let voyage = self.api_server.get_voyage()?;
+        let voyage = self.db.get_voyage()?;
         let area = if voyage
             .area
             .clone()
@@ -79,33 +96,33 @@ impl Report {
         };
         self.voyage = Some(voyage);
         self.itinerary =
-            self.api_server.get_itinerary()?.data();
+            self.db.get_itinerary()?.data();
         self.criteria =
-            self.api_server.get_criterion_data()?.data();
+            self.db.get_criterion_data()?.data();
         self.criteria.append(
-            &mut self.api_server.get_criterion_load_line()?
+            &mut self.db.get_criterion_load_line()?
             .data(),
         );
         self.criteria.sort_by(|a, b| a.0.cmp(&b.0) );
         self.parameters =
-            self.api_server.get_parameters_data()?.data();
+            self.db.get_parameters_data()?.data();
         self.ballast_tanks =
-            self.api_server.get_ballast_tanks()?.data();
+            self.db.get_ballast_tanks()?.data();
         self.stores_tanks =
-            self.api_server.get_stores_tanks()?.data();
-        self.stores = self.api_server.get_stores()?.data();
+            self.db.get_stores_tanks()?.data();
+        self.stores = self.db.get_stores()?.data();
         self.bulkheads =
-            self.api_server.get_bulkheads()?.data();
+            self.db.get_bulkheads()?.data();
         self.bulk_cargo =
-            self.api_server.get_bulk_cargo()?.data();
+            self.db.get_bulk_cargo()?.data();
         self.container =
-            self.api_server.get_container()?.data();
+            self.db.get_container()?.data();
         self.general_cargo =
-            self.api_server.get_general_cargo()?.data();
+            self.db.get_general_cargo()?.data();
         self.strength_result =
-            self.api_server.get_strength_result()?.data;
+            self.db.get_strength_result()?.data;
         (self.dso, self.ddo) =
-            self.api_server.get_lever_diagram()?;
+            self.db.get_lever_diagram()?;
         Ok(())
     }
     //

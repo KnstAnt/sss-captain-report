@@ -5,7 +5,6 @@ use cargo::Cargo;
 use container::Container;
 use tank::Tank;
 
-use crate::error::Error;
 use super::{Content, Parameters};
 
 pub mod tank;

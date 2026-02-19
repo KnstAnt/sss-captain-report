@@ -1,7 +1,6 @@
 use std::path::PathBuf;
-use crate::error::Error;
 use plotters::prelude::*;
-
+use sal_core::{dbg::Dbg, error::Error};
 use super::chart::*;
 //
 pub struct ChartDSO {

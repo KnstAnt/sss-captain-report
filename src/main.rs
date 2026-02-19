@@ -1,27 +1,23 @@
-use db::api_server::ApiServer;
-use error::Error;
+use debugging::session::debug_session::{DebugSession, LogLevel};
 use log::info;
 use parser::Report;
 use args::get_args;
+use sal_core::{dbg::Dbg, error::Error};
+
+use crate::db::api::ApiClient;
 
 mod args;
 mod content;
 mod db;
-mod error;
 mod formatter;
 mod parser;
 mod converter;
 
 fn main() {
-    //std::env::set_var("RUST_LOG", "info");
-    //env_logger::init();
-    let _log2 = log2::open("log.txt")
-    .level(env_logger::Logger::from_default_env().filter().as_str())
-    .size(5 * 1024 * 1024)
-    .rotate(10)
-    .tee(false)
-    .module(true)
-    .start();
+    DebugSession::new()
+        .filter(LogLevel::Trace)
+        .module("api_tools", LogLevel::Error)
+        .init();
     info!("starting up");
     let reply = if let Err(error) = execute() {
         let str1 = r#"{"status":"failed","message":""#;
@@ -36,22 +32,24 @@ fn main() {
 #[allow(unused)]
 fn execute() -> Result<(), Error> {
     let message = get_args()?;
+    let dbg = Dbg::own("main");    
     let mut report = Report::new(
-        message.params.language.clone(),    
-        ApiServer::new(
-            "sss-computing".to_owned(),
-            message.address.host.to_owned(),
-            message.address.port.to_string(),
-            message.params.ship_id, 
-            message.params.project_id,
-            message.params.language.clone(),      
+        &dbg,
+        message.params.ship_id.clone(),
+        message.params.project_id.clone(),
+        message.params.language.unwrap_or("ru".to_owned()).clone(),    
+        ApiClient::new(
+            &dbg,
+            message.address.database.clone(),
+            message.address.host.clone(),
+            message.address.port.to_string().clone(),
         )
     );
-    if let Err(error) = report.get_from_db() {
-        return Err(Error::FromString(format!("Execute report.get_from_db error: {}", error)));
+    if let Err(err) = report.get_from_db() {
+        return Err(error.pass_with(format!("Execute report.get_from_db"), err));
     }
-    if let Err(error) = report.write(&message.params.path, &message.params.name) {
-        return Err(Error::FromString(format!("Execute report.write error: {}", error)));
+    if let Err(err) = report.write(&message.params.path, &message.params.name) {
+        return Err(error.pass_with(format!("Execute report.write"), err));
     }
     Ok(())    
 }

@@ -1,8 +1,8 @@
-use crate::error::Error;
 use crate::content::Content;
 use crate::content::general::ship::Ship;
 use crate::content::general::voyage::Voyage;
 use crate::content::general::itinerary::Itinerary;
+use sal_core::{dbg::Dbg, error::Error};
 
 pub mod ship;
 pub mod voyage; 

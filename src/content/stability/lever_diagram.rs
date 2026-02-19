@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use sal_core::{dbg::Dbg, error::Error};
 
 use crate::{
     content::misc::{Curve, ICurve},

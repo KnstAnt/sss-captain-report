@@ -19,7 +19,7 @@ serde_yaml = "0.9"
 chrono = "0.4.38"
 splines = "4.3.1"
 plotters = "0.3.7"
-
+bincode = { version = "~2.0", features = ["std"] }
 #
 # Collections
 indexmap = "^2.7"

@@ -1,6 +1,6 @@
 use template::Template;
-
-use crate::{db::strength_result::StrengthResultData, error::Error};
+use sal_core::{dbg::Dbg, error::Error};
+use crate::{db::strength_result::StrengthResultData};
 use super::Content;
 
 pub mod table;

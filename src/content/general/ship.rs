@@ -1,8 +1,8 @@
 use crate::{
     content::{misc::Table, Content},
     db::ship::ShipData,
-    error::Error,
 };
+use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Ship {
     header: String,

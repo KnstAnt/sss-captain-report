@@ -1,6 +1,7 @@
 use crate::{
-    content::{misc::Table, Content}, db::cargo::CargoData, error::Error
+    content::{misc::Table, Content}, db::cargo::CargoData
 };
+use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Cargo {
     table: Table,

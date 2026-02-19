@@ -1,6 +1,7 @@
 use crate::{
-    content::{misc::Table, Content}, db::bulk_cargo::BulkCargoData, error::Error
+    content::{misc::Table, Content}, db::bulk_cargo::BulkCargoData
 };
+use sal_core::{dbg::Dbg, error::Error};
 
 pub struct BulkCargo {
     table: Table,
@@ -37,7 +38,7 @@ impl BulkCargo {
 //
 impl Content for BulkCargo {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
+    fn to_string(self) -> Result<String, Error> {
         self.table.to_string()
     }
 }

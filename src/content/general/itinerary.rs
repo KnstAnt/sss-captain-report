@@ -1,8 +1,8 @@
 use crate::{
     content::{misc::Table, Content},
     db::itinerary::ItineraryData,
-    error::Error,
 };
+use sal_core::{dbg::Dbg, error::Error};
 
 pub struct Itinerary {
     header: String,

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
-use crate::error::Error;
 use plotters::prelude::*;
 use super::chart::*;
+use sal_core::{dbg::Dbg, error::Error};
 //
 pub struct ChartBulk {
     language: String,

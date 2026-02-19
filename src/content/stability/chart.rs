@@ -1,5 +1,5 @@
 use plotters::{coord::types::RangedCoordf64, prelude::*};
-use crate::error::Error;
+use sal_core::{dbg::Dbg, error::Error};
 //
 pub enum ShowPoint {
     X,
