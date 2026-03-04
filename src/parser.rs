@@ -79,16 +79,6 @@ impl Report {
         self.imo = ship.imo.clone();
         self.ship = Some(ship);
         let voyage = self.db.get_voyage().map_err(|err| error.pass(err))?;
-        area = if voyage
-            .area
-            .clone()
-            .unwrap_or("-".to_owned())
-            .contains("harbor")
-        {
-            "harbor"
-        } else {
-            "sea"
-        };
         self.voyage = Some(voyage);
         self.itinerary = self
             .db
@@ -158,6 +148,7 @@ impl Report {
         log2::info!("Parser write_to_file begin");
         let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
         let mut content = crate::content::general::General::new(
+            &self.dbg,
             crate::content::general::ship::Ship::from(
                 &self.language,
                 self.ship
@@ -175,6 +166,7 @@ impl Report {
         )
         .to_string()?;
         content += &crate::content::displacement::Displacement::new(
+            &self.dbg,
             &self.language,
             crate::content::parameters::Parameters::from(
                 &self.language,
@@ -204,7 +196,7 @@ impl Report {
         )
         .to_string()
         .map_err(|err| error.pass(err))?;
-        content += &crate::content::draught::Draught::from(&self.language, &self.parameters)
+        content += &crate::content::draught::Draught::from(&self.dbg, &self.language, &self.parameters)
             .map_err(|err| error.pass(err))?
             .to_string()
             .map_err(|err| error.pass(err))?;

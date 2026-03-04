@@ -1,22 +1,19 @@
 use crate::{
     content::{misc::Table, Content}, db::bulk_cargo::BulkCargoData
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct BulkCargo {
-    dbg: Dbg,
     table: Table,
 }
 //
 impl BulkCargo {
     //
-    pub fn new(parent: &Dbg, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "BulkCargo");
-        Self {dbg, table}
+    pub fn new(table: Table) -> Self {
+        Self {table}
     }
     //
     pub fn from(language: &String, data: &[BulkCargoData]) -> Result<Self, Error> {
-        let error = Error::new(&self.dbg, "from");
         let header = if language.contains("en") { 
             vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]", "Grain moment [tm]"]
         } else {
@@ -42,6 +39,6 @@ impl BulkCargo {
 impl Content for BulkCargo {
     //
     fn to_string(self) -> Result<String, Error> {
-        self.table.to_string()
+        Ok(self.table.to_string())
     }
 }

@@ -445,37 +445,26 @@ impl Db {
     pub fn get_criterion_load_line(&mut self) -> Result<CriteriaDataArray, Error> {
         let error = Error::new(&self.dbg, "get_criterion_load_line");
         CriteriaDataArray::parse(
-            &self
+                        &self
                 .api_client
                 .fetch(&format!(
-                    "SELECT
-                    head.id AS id, \
-                    head.{} as name, \
-                    unit.{} as unit, \
-                    values.actual_value AS result, \
-                    values.limit_value AS target, \
-                    values.state as state
-                FROM
-                    criterion AS head
-                JOIN criterion_values AS values ON
-                    values.criterion_id = head.id
-                LEFT JOIN unit as unit on head.unit_id = unit.id
-                LEFT JOIN load_line_type_criterions AS lltc ON
-                    lltc.criterion_id = head.id
-                LEFT JOIN ship_available_load_line_types AS sallt ON
-                    sallt.load_line_type_id = lltc.load_line_type_id AND
-                    sallt.ship_id = values.ship_id AND
-                    sallt.project_id IS NOT DISTINCT FROM values.project_id
-                WHERE
-                    values.ship_id = {} AND
-                    values.project_id IS NOT DISTINCT FROM {} AND
-                    head.category_id = 2 AND
-                    sallt.is_active IS TRUE
-                ORDER BY 
-                    head.id;",
-                    self.language,
-                    self.ship_id,
-                    self.project_id,
+                "SELECT 
+                    id AS id, \
+                    title AS name, \
+                    unit AS unit, \
+                    result AS result, \
+                    target AS target, \
+                    state AS state
+                FROM 
+                    criterion_view
+                WHERE 
+                    language='{}' AND
+                    category_id = 1 AND
+                    ship_id={} AND 
+                    project_id IS NOT DISTINCT FROM {}
+                ORDER BY
+                    id;",
+                    self.language, self.ship_id, self.project_id,
                 )).map_err(|e| error.pass(e))?,
         ).map_err(|e| error.pass(e))
     }    

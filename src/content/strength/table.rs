@@ -1,7 +1,4 @@
-use sal_core::{dbg::Dbg, error::Error};
-
 pub struct Table {
-    dbg: Dbg,
     header: Vec<String>,
     // x, min, calc, max, state
     values: Vec<(f64, f64, f64, f64, bool)>,
@@ -10,12 +7,10 @@ pub struct Table {
 impl Table {
     // x, min,  calc, max, state
     pub fn new(
-        parent: &Dbg,
         language: &String,
         name: &str,
         values: &[(f64, f64, f64, f64, bool)],
     ) -> Self {
-        let dbg = Dbg::new(parent, "Table");
         let header = if language.contains("en") {
             vec![
                 "X".to_owned(),
@@ -33,7 +28,7 @@ impl Table {
                 "Статус".to_owned(),
             ]
         };
-        Self::new_header(dbg, header, values)
+        Self::new_header(header, values)
     }
     //
     pub fn new_header(header: Vec<String>, values: &[(f64, f64, f64, f64, bool)]) -> Self {
@@ -43,7 +38,7 @@ impl Table {
         }
     }
     //
-    pub fn to_string(self) -> Result<String, crate::error::Error> {
+    pub fn to_string(self) -> String {
         let mut string = self
             .header
             .iter()
@@ -60,6 +55,6 @@ impl Table {
             //   dbg!(result, target, delta, delta_result_percent);
             string += &format!("|{:.3}|{:.3}|{:.3}|{:.3}|{state}|\n", x, min, result, max,);
         }
-        Ok(string)
+        string
     }
 }

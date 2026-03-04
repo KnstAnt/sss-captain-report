@@ -107,12 +107,6 @@ impl Chart {
     }
 }
 
-impl From<DrawingAreaErrorKind<std::io::Error>> for Error {
-    fn from(value: DrawingAreaErrorKind<std::io::Error>) -> Self {
-        Self::FromString(format!("DrawingArea error: {}", value.to_string()))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

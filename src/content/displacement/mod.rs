@@ -3,7 +3,7 @@ use bulk_cargo::BulkCargo;
 use bulkhead::Bulkhead;
 use cargo::Cargo;
 use container::Container;
-use sal_core::dbg::Dbg;
+use sal_core::{dbg::Dbg, error::Error};
 use tank::Tank;
 
 use super::{Content, Parameters};

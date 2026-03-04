@@ -1,27 +1,26 @@
+use sal_core::error::Error;
+
 use crate::{
     content::{misc::Table, Content},
     db::parameters::ParameterData,
 };
-use sal_core::{dbg::Dbg, error::Error};
 use std::collections::HashMap;
 
 pub struct Parameters {
-    dbg: Dbg,
     table: Table,
 }
 //
 impl Parameters {
     //
-    pub fn new(parent: &Dbg, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "Parameters");
-        Self {dbg, table}
+    pub fn new(table: Table) -> Self {
+        Self {table}
     }
     //
     pub fn from(
         language: &String,
         numbers: &[i32],
         data: &HashMap<i32, ParameterData>,
-    ) -> Result<Self, Error> {
+    ) -> Self {
         let header = if language.contains("en") {
             vec!["№", "Name", "Dimension", "Value"]
         } else {
@@ -43,13 +42,13 @@ impl Parameters {
                 })
             })
             .collect::<Vec<Vec<String>>>();
-        Ok(Self::new(Table::new(&header, content)))
+        Self::new(Table::new(&header, content))
     }
 }
 //
 impl Content for Parameters {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        self.table.to_string()
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.table.to_string())
     }
 }

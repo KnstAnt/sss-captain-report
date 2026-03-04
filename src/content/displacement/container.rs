@@ -1,21 +1,19 @@
 use crate::{
-    content::{misc::Table, Content}, db::container::ContainerData, error::Error
+    content::{misc::Table, Content}, db::container::ContainerData
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct Container {
-    dbg: Dbg,
     table: Table,
 }
 //
 impl Container {
     //
-    pub fn new(parent: &Dbg, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "Container");
-        Self {dbg, table}
+    pub fn new(table: Table) -> Self {
+        Self {table}
     }
     //
-    pub fn from(language: &String, data: &[ContainerData]) -> Result<Self, Error> {
+    pub fn from(language: &String, data: &[ContainerData]) -> Self {
         let header = if language.contains("en") { 
             vec!["Name", "BBRRTT", "Weight", "x_g [m]", "y_g [m]", "z_g [m]",]
         } else {
@@ -34,14 +32,14 @@ impl Container {
                 )
             })
             .collect::<Vec<Vec<String>>>();
-        Ok(Self::new(Table::new(&header, content)))
+        Self::new(Table::new(&header, content))
     }
 }
 //
 impl Content for Container {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        self.table.to_string()
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.table.to_string())
     }
 }
 

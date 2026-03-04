@@ -1,18 +1,16 @@
 use crate::{
     content::{misc::Table, Content}, db::cargo::CargoData
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct Cargo {
-    dbg: Dbg,
     table: Table,
 }
 //
 impl Cargo {
     //
-    pub fn new(parent: &Dbg, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "Cargo");
-        Self {dbg, table}
+    pub fn new(table: Table) -> Self {
+        Self {table}
     }
     //
     pub fn from(language: &String, data: &[CargoData]) -> Result<Self, Error> {
@@ -39,8 +37,8 @@ impl Cargo {
 //
 impl Content for Cargo {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        self.table.to_string()
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.table.to_string())
     }
 }
 
