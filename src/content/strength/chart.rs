@@ -1,6 +1,6 @@
-use std::path::PathBuf;
 use plotters::prelude::*;
 use sal_core::{dbg::Dbg, error::Error};
+use std::path::PathBuf;
 //
 pub struct Chart {
     dbg: Dbg,
@@ -11,7 +11,7 @@ pub struct Chart {
     x_max: f64,
     y_min: f64,
     y_max: f64,
-    result: Vec<(f64, f64)>, //x, calc
+    result: Vec<(f64, f64)>,     //x, calc
     target_min: Vec<(f64, f64)>, //x, min
     target_max: Vec<(f64, f64)>, //x, max
 }
@@ -19,7 +19,7 @@ pub struct Chart {
 impl Chart {
     //
     pub fn new(
-        parent: &Dbg, 
+        parent: &Dbg,
         language: &String,
         short_name: &str,
         unit: &str,
@@ -53,44 +53,56 @@ impl Chart {
     }
     //
     pub fn to_string(self) -> Result<(), Error> {
-        let path = PathBuf::from(format!("bin/assets/{}_chart.svg", self.short_name.to_lowercase()));
-        let root  = SVGBackend::new(&path, (800, 600)).into_drawing_area();
-        root.fill(&WHITE)?;
+        let error = Error::new(&self.dbg, "to_string");
+        let path = PathBuf::from(format!(
+            "bin/assets/{}_chart.svg",
+            self.short_name.to_lowercase()
+        ));
+        let root = SVGBackend::new(&path, (800, 600)).into_drawing_area();
+        root.fill(&WHITE)
+            .map_err(|err| error.err(err.to_string()))?;
         let mut chart = ChartBuilder::on(&root)
             .margin(15)
             .x_label_area_size(10)
             .y_label_area_size(30)
-            .build_cartesian_2d(self.x_min..self.x_max, self.y_min..self.y_max)?;
+            .build_cartesian_2d(self.x_min..self.x_max, self.y_min..self.y_max)
+            .map_err(|err| error.err(err.to_string()))?;
         chart
             .configure_mesh()
             .x_labels(10)
             .x_label_formatter(&|x| format!("{:.1}", x))
-            .y_labels(10)                     
+            .y_labels(10)
             .y_label_formatter(&|x| format!("{:.1}", x))
-            .draw()?;  
+            .draw()
+            .map_err(|err| error.err(err.to_string()))?;
         // ось x
-        chart.draw_series(LineSeries::new(
-            [(self.x_min, 0.), (self.x_max, 0.)],
-            &RGBColor(0, 0, 0),
-        ))?;  
-        chart.draw_series(LineSeries::new(
-            self.result.clone(),
-            &RGBColor(150, 0, 0),
-        ))?
-        .label(&self.short_name)
-        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 0, 0)));   
-        chart.draw_series(LineSeries::new(
-            self.target_max.clone(),
-            &RGBColor(150, 150, 0),
-        ))?
-        .label(self.short_name.clone() + "_max")
-        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 150, 0))); 
-        chart.draw_series(LineSeries::new(
-            self.target_min.clone(),
-            &RGBColor(0, 150, 0),
-        ))?
-        .label(self.short_name.clone() + "_min")
-        .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(0, 150, 0))); 
+        chart
+            .draw_series(LineSeries::new(
+                [(self.x_min, 0.), (self.x_max, 0.)],
+                &RGBColor(0, 0, 0),
+            ))
+            .map_err(|err| error.err(err.to_string()))?;
+        chart
+            .draw_series(LineSeries::new(self.result.clone(), &RGBColor(150, 0, 0)))
+            .map_err(|err| error.err(err.to_string()))?
+            .label(&self.short_name)
+            .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 0, 0)));
+        chart
+            .draw_series(LineSeries::new(
+                self.target_max.clone(),
+                &RGBColor(150, 150, 0),
+            ))
+            .map_err(|err| error.err(err.to_string()))?
+            .label(self.short_name.clone() + "_max")
+            .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(150, 150, 0)));
+        chart
+            .draw_series(LineSeries::new(
+                self.target_min.clone(),
+                &RGBColor(0, 150, 0),
+            ))
+            .map_err(|err| error.err(err.to_string()))?
+            .label(self.short_name.clone() + "_min")
+            .legend(|(x, y)| Rectangle::new([(x - 15, y + 1), (x, y)], &RGBColor(0, 150, 0)));
         chart
             .configure_series_labels()
             .position(SeriesLabelPosition::UpperLeft)
@@ -99,10 +111,11 @@ impl Chart {
             .border_style(BLUE)
             .background_style(BLUE.mix(0.1))
             .label_font(("Calibri", 20))
-            .draw()?; 
+            .draw()
+            .map_err(|err| error.err(err.to_string()))?;
         match root.present() {
             Ok(_) => Ok(()),
-            Err(e) => Err(Error::FromString(format!("strength chart root.present() error: {e}"))),
+            Err(e) => Err(error.err(format!("strength chart root.present() error: {e}"))),
         }
     }
 }
@@ -114,17 +127,26 @@ mod tests {
     #[test]
     fn chart() {
         let result = Chart::new(
-            &String::new(), 
-            "name", 
-            "unit", 
+            &Dbg::new("Chart", "test"),
+            &String::new(),
+            "name",
+            "unit",
             -1.,
             9.,
             -10.,
             10.,
-            &[(-1.0, 0.), (1.0, -5.), (3.0, -10.), (5.0, -5.), (7.0, 3.), (9.0, 0.),],
-            &[(-1., -5.), (0., -10.), (8., -10.), (9., -5.),],
-            &[(-1., 5.), (0., 10.), (8., 10.), (9., 5.),],
-        ).to_string();
+            &[
+                (-1.0, 0.),
+                (1.0, -5.),
+                (3.0, -10.),
+                (5.0, -5.),
+                (7.0, 3.),
+                (9.0, 0.),
+            ],
+            &[(-1., -5.), (0., -10.), (8., -10.), (9., -5.)],
+            &[(-1., 5.), (0., 10.), (8., 10.), (9., 5.)],
+        )
+        .to_string();
         assert!(result.is_ok());
-    }        
+    }
 }

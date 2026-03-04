@@ -18,8 +18,7 @@ pub struct Strength {
 }
 //
 impl Strength {
-    pub fn new(parent: &Dbg, language: &String, shear_force: Template, bending_moment: Template,) -> Self {
-        let dbg = Dbg::new(parent, "Strength");
+    pub fn new(dbg: Dbg, language: &String, shear_force: Template, bending_moment: Template,) -> Self {
         let (header_main, header_sf, header_bm) = if language.contains("en") {
             ("# Strength\n\n".to_owned(),
             "## Max shear forces\n\n".to_owned(),
@@ -40,10 +39,12 @@ impl Strength {
     }
     //
     pub fn from(
+        parent: &Dbg,
         language: &String, 
         // x, sf, bm
         result: &[StrengthResultData],
     ) -> Self {
+        let dbg = Dbg::new(parent, "Strength");
         let (sf_result, bm_result): (Vec<_>, Vec<_>) = result
             .iter()
             .map(|v| ((v.x, v.sf * 0.001), (v.x, v.bm * 0.001)))
@@ -58,8 +59,10 @@ impl Strength {
             })
             .unzip();
         Self::new(
+            dbg.clone(),
             language,
             Template::new(
+                &dbg,
                 language, 
                 "SF",
                 "MN",
@@ -67,6 +70,7 @@ impl Strength {
                 &sf_limit,
             ),
             Template::new(
+                &dbg,
                 language,
                 "BM",
                 "MH*m",

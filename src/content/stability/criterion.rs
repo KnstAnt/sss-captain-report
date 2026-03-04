@@ -2,40 +2,31 @@ use crate::{
     content::{misc::Table, Content},
     db::criterion::CriteriaData,
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct Criterion {
-    dbg: Dbg,
     table: Table,
 }
 //
 impl Criterion {
     //
-    pub fn new(parent: &Dbg, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "Criterion");
-        Self {dbg, table}
+    pub fn new(table: Table) -> Self {
+        Self { table }
     }
     //
-    pub fn from(language: &String, data: &[(i32, CriteriaData)]) -> Result<Self, Error> {
+    pub fn from(language: &String, data: &[(i32, CriteriaData)]) -> Self {
         let header = if language.contains("en") {
-            vec![
-            "№",
-            "Name",
-            "Dimension",
-            "Value",
-            "Allow",
-            "Status",
-            ]
+            vec!["№", "Name", "Dimension", "Value", "Allow", "Status"]
         } else {
             vec![
-            "№",
-            "Наименование",
-            "Размерность",
-            "Значение",
-            "Допустимое значение",
-            "Статуc",
+                "№",
+                "Наименование",
+                "Размерность",
+                "Значение",
+                "Допустимое значение",
+                "Статуc",
             ]
-        };  
+        };
         let content = data
             .iter()
             .map(|(_, v)| {
@@ -65,13 +56,13 @@ impl Criterion {
             .into_iter()
             .map(|v| v.split(',').map(|v| v.to_owned()).collect())
             .collect();
-        Ok(Self::new(Table::new(&header, content)))
+        Self::new(Table::new(&header, content))
     }
 }
 //
 impl Content for Criterion {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        self.table.to_string()
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.table.to_string())
     }
 }

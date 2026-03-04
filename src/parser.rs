@@ -146,23 +146,20 @@ impl Report {
     pub fn write(self, path: &str, name: &str) -> Result<(), Error> {
         let error = Error::new(&self.dbg, "write");
         log2::info!("Parser write_to_file begin");
-        let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
+     //   let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
         let mut content = crate::content::general::General::new(
             &self.dbg,
             crate::content::general::ship::Ship::from(
                 &self.language,
                 self.ship
                     .ok_or(error.err("Formatter error: no ship data!"))?,
-            )
-            .map_err(|err| error.pass(err))?,
+            ),
             crate::content::general::voyage::Voyage::from(
                 &self.language,
                 self.voyage
                     .ok_or(error.err("Formatter error: no voyage data!"))?,
-            )
-            .map_err(|err| error.pass(err))?,
-            crate::content::general::itinerary::Itinerary::from(&self.language, self.itinerary)
-                .map_err(|err| error.pass(err))?,
+            ),
+            crate::content::general::itinerary::Itinerary::from(&self.language, self.itinerary),
         )
         .to_string()?;
         content += &crate::content::displacement::Displacement::new(
@@ -172,15 +169,11 @@ impl Report {
                 &self.language,
                 &[2, 32, 56, 12, 1, 52],
                 &self.parameters,
-            )?,
-            crate::content::displacement::tank::Tank::from(&self.language, &self.ballast_tanks)
-                .map_err(|err| error.pass(err))?,
-            crate::content::displacement::tank::Tank::from(&self.language, &self.stores_tanks)
-                .map_err(|err| error.pass(err))?,
-            crate::content::displacement::cargo::Cargo::from(&self.language, &self.stores)
-                .map_err(|err| error.pass(err))?,
-            crate::content::displacement::bulkhead::Bulkhead::from(&self.language, &self.bulkheads)
-                .map_err(|err| error.pass(err))?,
+            ),
+            crate::content::displacement::tank::Tank::from(&self.language, &self.ballast_tanks),
+            crate::content::displacement::tank::Tank::from(&self.language, &self.stores_tanks),
+            crate::content::displacement::cargo::Cargo::from(&self.language, &self.stores),
+            crate::content::displacement::bulkhead::Bulkhead::from(&self.language, &self.bulkheads),
             crate::content::displacement::bulk_cargo::BulkCargo::from(
                 &self.language,
                 &self.bulk_cargo,
@@ -189,22 +182,21 @@ impl Report {
             crate::content::displacement::container::Container::from(
                 &self.language,
                 &self.container,
-            )
-            .map_err(|err| error.pass(err))?,
-            crate::content::displacement::cargo::Cargo::from(&self.language, &self.general_cargo)
-                .map_err(|err| error.pass(err))?,
+            ),
+            crate::content::displacement::cargo::Cargo::from(&self.language, &self.general_cargo),
         )
         .to_string()
         .map_err(|err| error.pass(err))?;
-        content += &crate::content::draught::Draught::from(&self.dbg, &self.language, &self.parameters)
-            .map_err(|err| error.pass(err))?
-            .to_string()
-            .map_err(|err| error.pass(err))?;
-        content += &crate::content::strength::Strength::from(&self.language, &self.strength_result)
+        content +=
+            &crate::content::draught::Draught::from(&self.language, &self.parameters)
+                .to_string()
+                .map_err(|err| error.pass(err))?;
+        content += &crate::content::strength::Strength::from(&self.dbg, &self.language, &self.strength_result)
             .to_string()
             .map_err(|err| error.pass(err))?;
         content += "\n";
         content += &crate::content::stability::Stability::from(
+            &self.dbg,
             &self.language,
             &self.criteria,
             &self.parameters,
@@ -237,9 +229,10 @@ impl Report {
         log2::info!("Parser write html ok");
 
         if let Err(err) = std::fs::remove_file(src) {
-            return Err(error.pass_with(format!(
-                "Parser write error: std::fs::remove_file: {error}"
-            ), err.to_string()));
+            return Err(error.pass_with(
+                format!("Parser write error: std::fs::remove_file: {error}"),
+                err.to_string(),
+            ));
         }
 
         log2::info!("Parser write_to_file end");

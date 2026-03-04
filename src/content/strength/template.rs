@@ -36,6 +36,7 @@ impl Template {
 impl Content for Template {
     //
     fn to_string(self) -> Result<String, Error> {
+        let error = Error::new(&self.dbg, "to_string");
         let (limit_min, limit_max): (Vec<(f64, f64)>, Vec<(f64, f64)>) = self
             .limit
             .into_iter()
@@ -56,6 +57,7 @@ impl Content for Template {
         let y_max = (y_max/mult_y).ceil()*mult_y;
 
         match super::chart::Chart::new(
+            &self.dbg,
             &self.language,
             &self.short_name,
             &self.unit,
@@ -95,7 +97,7 @@ impl Content for Template {
             if limit != 0. {
                 Ok(result * 100. / limit)
             } else {
-                Err(Error::FromString(format!(
+                Err(error.err(format!(
                     "Strength template to_string compute_percent error: limit=0!"
                 )))
             }
@@ -112,7 +114,7 @@ impl Content for Template {
             };
             Ok((result, percent))
         };
-        let (first_x, _) = *self.result.first().ok_or(Error::FromString(format!(
+        let (first_x, _) = *self.result.first().ok_or(error.err(format!(
             "Strength template to_string error: no result.first!"
         )))?;
         let (mut max_abs_value, mut max_percent_value) = compute_value(first_x)?;
@@ -155,6 +157,6 @@ impl Content for Template {
             self.short_name.to_lowercase()
         ) + "\n\n"
             + &super::table::Table::new(&self.language, &self.short_name, &table_values)
-                .to_string()?)
+                .to_string())
     }
 }

@@ -2,22 +2,20 @@ use crate::{
     content::{misc::Table, Content},
     db::ship::ShipData,
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct Ship {
-    dbg: Dbg,
     header: String,
     table: Table,
 }
 //
 impl Ship {
     //
-    pub fn new(parent: &Dbg, header: String, table: Table) -> Self {
-        let dbg = Dbg::new(parent, "Ship");
-        Self {dbg, header, table}
+    pub fn new(header: String, table: Table) -> Self {
+        Self {header, table}
     }
     //
-    pub fn from(language: &String, data: ShipData) -> Result<Self, Error> {
+    pub fn from(language: &String, data: ShipData) -> Self {
         if language.contains("en") {
             Self::from_en(data)
         } else {
@@ -25,7 +23,7 @@ impl Ship {
         }
     }
     //
-    fn from_ru(data: ShipData) -> Result<Self, Error> {
+    fn from_ru(data: ShipData) -> Self {
         let header = "# Судно\n\n".to_owned();
         let table_header = vec!["Параметр", "Значение"];
         let mut content = Vec::new();
@@ -59,10 +57,10 @@ impl Ship {
             .into_iter()
             .map(|(v1, v2)| vec![v1.to_owned(), v2])
             .collect();
-        Ok(Self::new(header, Table::new(&table_header, content)))
+        Self::new(header, Table::new(&table_header, content))
     }
     //
-    fn from_en(data: ShipData) -> Result<Self, Error> {
+    fn from_en(data: ShipData) -> Self {
         let header = "# Ship\n\n".to_owned();
         let table_header = vec!["Parameter", "Value"];
         let mut content = Vec::new();
@@ -96,13 +94,13 @@ impl Ship {
             .into_iter()
             .map(|(v1, v2)| vec![v1.to_owned(), v2])
             .collect();
-        Ok(Self::new(header, Table::new(&table_header, content)))
+        Self::new(header, Table::new(&table_header, content))
     }
 }
 //
 impl Content for Ship {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        Ok(self.header + &self.table.to_string()?)
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.header + &self.table.to_string())
     }
 }

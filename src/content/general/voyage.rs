@@ -2,22 +2,20 @@ use crate::{
     content::{misc::Table, Content},
     db::voyage::VoyageData,
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 
 pub struct Voyage {
-    dbg: Dbg,
     header: String,
     table: Table,
 }
 //
 impl Voyage {
     //
-    pub fn new(parent: &Dbg, header: String, table: Table) -> Self {
-        let dbg: Dbg = Dbg::new(parent, "Voyage");
-        Self {dbg, header, table}
+    pub fn new(header: String, table: Table) -> Self {
+        Self {header, table}
     }
     //
-    pub fn from(language: &String, data: VoyageData) -> Result<Self, Error> {
+    pub fn from(language: &String, data: VoyageData) -> Self {
         if language.contains("en") {
             Self::from_en(data)
         } else {
@@ -25,7 +23,7 @@ impl Voyage {
         }
     }
     //
-    pub fn from_ru(data: VoyageData) -> Result<Self, Error> {
+    pub fn from_ru(data: VoyageData) -> Self {
         let header = "# Рейс\n\n".to_owned();
         let table_header = vec!["Наименование", "Значение"];
         let mut content = Vec::new();
@@ -55,10 +53,10 @@ impl Voyage {
             .into_iter()
             .map(|(v1, v2)| vec![v1.to_owned(), v2])
             .collect();
-        Ok(Self::new(header, Table::new(&table_header, content)))
+        Self::new(header, Table::new(&table_header, content))
     }
 //
-    pub fn from_en(data: VoyageData) -> Result<Self, Error> {
+    pub fn from_en(data: VoyageData) -> Self {
         let header = "# Voyage\n\n".to_owned();
         let table_header = vec!["Name", "Value"];
         let mut content = Vec::new();
@@ -88,13 +86,13 @@ impl Voyage {
             .into_iter()
             .map(|(v1, v2)| vec![v1.to_owned(), v2])
             .collect();
-        Ok(Self::new(header, Table::new(&table_header, content)))
+        Self::new(header, Table::new(&table_header, content))
     }
 }
 //
 impl Content for Voyage {
     //
-    fn to_string(self) -> Result<String, crate::error::Error> {
-        Ok(self.header + &self.table.to_string()?)
+    fn to_string(self) -> Result<String, Error> {
+        Ok(self.header + &self.table.to_string())
     }
 }

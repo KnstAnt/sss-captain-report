@@ -13,7 +13,7 @@ impl Cargo {
         Self {table}
     }
     //
-    pub fn from(language: &String, data: &[CargoData]) -> Result<Self, Error> {
+    pub fn from(language: &String, data: &[CargoData]) -> Self {
         let header = if language.contains("en") { 
             vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]",]
         } else {
@@ -31,7 +31,7 @@ impl Cargo {
                 )
             })
             .collect::<Vec<Vec<String>>>();
-        Ok(Self::new(Table::new(&header, content)))
+        Self::new(Table::new(&header, content))
     }
 }
 //

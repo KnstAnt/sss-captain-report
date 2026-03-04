@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use sal_core::{dbg::Dbg, error::Error};
+use std::collections::HashMap;
 
 use crate::{
     content::misc::{Curve, ICurve},
@@ -18,7 +18,7 @@ pub struct LeverDiagram {
 impl LeverDiagram {
     //
     pub fn new(
-        parent: &Dbg, 
+        parent: &Dbg,
         language: &String,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
@@ -40,7 +40,7 @@ impl LeverDiagram {
         }
     }
     //
-    pub fn to_string(self) -> Result<String, crate::error::Error> {
+    pub fn to_string(self) -> Result<String, Error> {
         let mut string = self.header.clone() + "\n|---|---|\n";
         let dso_curve = Curve::new_linear(&self.dso).map_err(|e| {
             format!(
@@ -76,7 +76,15 @@ impl LeverDiagram {
             h.push((theta0, 0.));
             h.push((theta0 + 57.3, result));
         }
-        match super::chart_dso::ChartDSO::new(self.language.clone(), &self.dso, &self.ddo, &h).to_string() {
+        match super::chart_dso::ChartDSO::new(
+            &self.dbg,
+            self.language.clone(),
+            &self.dso,
+            &self.ddo,
+            &h,
+        )
+        .to_string()
+        {
             Ok(_) => (),
             Err(error) => log2::error!("LeverDiagram to_string ChartDSO error: {error}"),
         };
@@ -86,11 +94,11 @@ impl LeverDiagram {
         let p_40_dso = self.parameters.get(&100);
         let bulk_area = self.parameters.get(&108);
         if let (
-            Some(a), 
+            Some(a),
             (Some(p1_dso_0), Some(p1_dso_1)),
             (Some(b_0), Some(b_1)),
             Some(p_40_dso),
-            Some(bulk_area)
+            Some(bulk_area),
         ) = (a, p1_dso, b, p_40_dso, bulk_area)
         {
             if let (
@@ -111,6 +119,7 @@ impl LeverDiagram {
                 bulk_area.result,
             ) {
                 match super::chart_bulk::ChartBulk::new(
+                    &self.dbg,
                     self.language.clone(),
                     &self.dso,
                     a,
@@ -132,7 +141,7 @@ impl LeverDiagram {
         let point_a = (self.parameters.get(&107), self.parameters.get(&106));
         let point_b = (self.parameters.get(&104), self.parameters.get(&105));
         let area_a = self.parameters.get(&43);
-        let area_b = self.parameters.get(&44);   
+        let area_b = self.parameters.get(&44);
         if let (
             Some(theta_0),
             (Some(theta_w1_0), Some(theta_w1_1)),
@@ -141,8 +150,9 @@ impl LeverDiagram {
             (Some(point_b_0), Some(point_b_1)),
             Some(area_a),
             Some(area_b),
-        ) = (theta_0, theta_w1, theta_w2, point_a, point_b, area_a, area_b)
-        {
+        ) = (
+            theta_0, theta_w1, theta_w2, point_a, point_b, area_a, area_b,
+        ) {
             if let (
                 Some(theta_0),
                 Some(theta_w1_0),
@@ -169,6 +179,7 @@ impl LeverDiagram {
                 area_b.result,
             ) {
                 match super::chart_k::ChartWeather::new(
+                    &self.dbg,
                     self.language.clone(),
                     &self.dso,
                     theta_0.abs(),
