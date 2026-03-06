@@ -33,7 +33,7 @@ impl Db {
         language: String,
         api_client: ApiClient,
     ) -> Self {
-        let dbg = Dbg::new(parent, "ModelCached");
+        let dbg = Dbg::new(parent, "Db");
         Self {
             dbg,
             ship_id,
