@@ -108,34 +108,28 @@ impl Db {
                 .api_client
                 .fetch(&format!(
                     "SELECT
-                        s.name as name, \
-                        s.call_sign as call_sign, \
-                        s.IMO as imo, \
-                        s.MMSI as mmsi, \
-                        tr.title_eng AS ship_type, \
-                        s.year_of_built as year_of_build, \
-                        s.place_of_built as place_of_build, \
-                        s.yard_of_build, \
-                        n.area::TEXT AS navigation_area, \
-                        s.classification_society, \
-                        s.registration_number, \
-                        s.port_of_registry, \
-                        s.flag_state, \
-                        s.ship_owner, \
-                        s.ship_owner_code, \
-                        s.ship_builder_name, \
-                        s.ship_builder_hull_number
-                    FROM 
-                        ship as s
-                    JOIN 
-                        ship_type AS t ON s.ship_type_id = t.id
-                    JOIN             
-                        ship_type_rmrs AS tr ON t.type_rmrs = tr.id
-                    JOIN
-                        navigation_area AS n ON s.navigation_area_id = n.id
-                    WHERE s.id={} AND 
-                    project_id IS NOT DISTINCT FROM {};",
-                    self.ship_id, self.project_id,
+                        name, \
+                        call_sign, \
+                        IMO as imo, \
+                        MMSI as mmsi, \
+                        ship_type, \
+                        year_of_build, \
+                        place_of_build, \
+                        yard_of_build, \
+                        navigation_area, \
+                        classification_society, \
+                        registration_number, \
+                        port_of_registry, \
+                        flag_state, \
+                        ship_owner, \
+                        ship_owner_code, \
+                        ship_builder_name, \
+                        ship_builder_hull_number
+                    FROM             
+                        ship_view
+                    WHERE  
+                        id = {} AND language='{}';",
+                    self.ship_id, self.language,
                 ))
                 .map_err(|e| error.pass(e))?,
         )
