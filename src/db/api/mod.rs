@@ -405,8 +405,8 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                    "SELECT
-                    p.{} AS port_name, \
+                "SELECT
+                    p.port_name AS port_name, \
                     p.port_code AS port_code, \
                     w.eta AS eta, \
                     w.etd AS etd, \
@@ -418,7 +418,7 @@ impl Db {
                 WHERE 
                     w.ship_id={} AND w.project_id IS NOT DISTINCT FROM {}
                 ORDER BY eta ASC;",
-                    self.language, self.ship_id, self.project_id,
+                    self.ship_id, self.project_id,
                 ))
                 .map_err(|e| error.pass(e))?
         )
