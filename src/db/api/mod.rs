@@ -376,29 +376,19 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                    "SELECT
-                    v.code as code, \
-                    v.density as density, \
-                    v.wetting_timber as wetting, \
-                    i.icing_type as icing, \
-                    a.name AS area, \
-                    v.description AS description, \
-                    llt.name as load_line 
+                "SELECT
+                    code, \
+                    density, \
+                    wetting_timber as wetting, \
+                    icing_type as icing, \
+                    water_area AS area, \
+                    description AS description, \
+                    load_line 
                 FROM 
-                    voyage as v
-                JOIN 
-                    ship_icing AS i ON v.icing_type_id = i.id
-                JOIN 
-                    ship_water_area AS a ON v.water_area_id = a.id
-                JOIN ship_available_load_line_types AS sallt ON
-                    sallt.ship_id = v.ship_id AND
-                    sallt.project_id IS NOT DISTINCT FROM v.project_id
-                JOIN load_line_type AS llt ON
-                    sallt.load_line_type_id = llt.id
+                    voyage_view
                 WHERE 
-                    sallt.is_active IS TRUE AND
-                    v.ship_id={} AND 
-                    v.project_id IS NOT DISTINCT FROM {}
+                    ship_id={} AND 
+                    project_id IS NOT DISTINCT FROM {}
                 LIMIT 1;",
                     self.ship_id, self.project_id,
                 ))
