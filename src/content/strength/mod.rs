@@ -41,23 +41,17 @@ impl Strength {
     pub fn from(
         parent: &Dbg,
         language: &str, 
-        // x, sf, bm
         result: &[StrengthResultData],
     ) -> Self {
         let dbg = Dbg::new(parent, "Strength");
-        let (sf_result, bm_result): (Vec<_>, Vec<_>) = result
+        let (sf_data, bm_data): (Vec<_>, Vec<_>) = result
             .iter()
-            .map(|v| ((v.x, v.sf * 0.001), (v.x, v.bm * 0.001)))
-            .unzip();
-        let (sf_limit, bm_limit): (Vec<_>, Vec<_>) = result
-            .iter()
-            .map(|v| {
+            .map(|v| 
                 (
-                    (v.x, v.sf_limit_low * 0.001, v.sf_limit_high * 0.001),
-                    (v.x, v.bm_limit_low * 0.001, v.bm_limit_high * 0.001),
+                    (v.x, v.sf_limit_low*0.001, v.sf_limit_high*0.001, v.sf*0.001, v.sf_percent, v.sf_status), 
+                    (v.x, v.bm_limit_low*0.001, v.bm_limit_high*0.001, v.bm*0.001, v.bm_percent, v.bm_status)
                 )
-            })
-            .unzip();
+            ).unzip();
         Self::new(
             dbg.clone(),
             language,
@@ -66,16 +60,14 @@ impl Strength {
                 language, 
                 "SF",
                 "MN",
-                &sf_result,
-                &sf_limit,
+                &sf_data,
             ),
             Template::new(
                 &dbg,
                 language,
                 "BM",
                 "MH*m",
-                &bm_result,
-                &bm_limit,
+                &bm_data,
             ),
         )
     }

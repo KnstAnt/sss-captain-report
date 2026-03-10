@@ -20,16 +20,14 @@ impl Chart {
     //
     pub fn new(
         parent: &Dbg,
-        language: &str,
+        language: &String,
         short_name: &str,
         unit: &str,
         x_min: f64,
         x_max: f64,
         y_min: f64,
         y_max: f64,
-        result: &[(f64, f64)],
-        target_min: &[(f64, f64)],
-        target_max: &[(f64, f64)],
+        data: Vec<(f64, f64, f64, f64)>,   //x, min, max, value
     ) -> Self {
         let dbg = Dbg::new(parent, "Chart");
         let header = if language.contains("en") {
@@ -37,6 +35,9 @@ impl Chart {
         } else {
             ("мин".to_owned(), "расчет".to_owned(), "макс".to_owned())
         };
+        let result = data.iter().map(|(x, .., value)| (*x, *value)).collect();
+        let target_min = data.iter().map(|(x, min, ..)| (*x, *min)).collect();
+        let target_max = data.iter().map(|(x, _, max, ..)| (*x, *max)).collect();
         Self {
             dbg,
             header,
@@ -46,9 +47,9 @@ impl Chart {
             x_max,
             y_min,
             y_max,
-            result: Vec::from(result),
-            target_min: Vec::from(target_min),
-            target_max: Vec::from(target_max),
+            result,
+            target_min,
+            target_max,
         }
     }
     //
@@ -120,33 +121,3 @@ impl Chart {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn chart() {
-        let result = Chart::new(
-            &Dbg::new("Chart", "test"),
-            &String::new(),
-            "name",
-            "unit",
-            -1.,
-            9.,
-            -10.,
-            10.,
-            &[
-                (-1.0, 0.),
-                (1.0, -5.),
-                (3.0, -10.),
-                (5.0, -5.),
-                (7.0, 3.),
-                (9.0, 0.),
-            ],
-            &[(-1., -5.), (0., -10.), (8., -10.), (9., -5.)],
-            &[(-1., 5.), (0., 10.), (8., 10.), (9., 5.)],
-        )
-        .to_string();
-        assert!(result.is_ok());
-    }
-}

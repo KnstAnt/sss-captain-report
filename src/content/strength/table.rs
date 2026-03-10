@@ -1,7 +1,7 @@
 pub struct Table {
     header: Vec<String>,
-    // x, min, calc, max, state
-    values: Vec<(f64, f64, f64, f64, bool)>,
+    // x, min, max, calc, percent, state
+    values: Vec<(f64, f64, f64, f64, f64, bool)>,
 }
 //
 impl Table {
@@ -9,13 +9,14 @@ impl Table {
     pub fn new(
         language: &str,
         name: &str,
-        values: &[(f64, f64, f64, f64, bool)],
+        values: &[(f64, f64, f64, f64, f64, bool)],
     ) -> Self {
         let header = if language.contains("en") {
             vec![
                 "X".to_owned(),
                 format!("{name}_min"),
                 format!("{name}"),
+                format!("{name}, %"),
                 format!("{name}_max"),
                 "Status".to_owned(),
             ]
@@ -24,6 +25,7 @@ impl Table {
                 "X".to_owned(),
                 format!("{name}_мин"),
                 format!("{name}"),
+                format!("{name}, %"),
                 format!("{name}_макс"),
                 "Статус".to_owned(),
             ]
@@ -31,7 +33,7 @@ impl Table {
         Self::new_header(header, values)
     }
     //
-    pub fn new_header(header: Vec<String>, values: &[(f64, f64, f64, f64, bool)]) -> Self {
+    pub fn new_header(header: Vec<String>, values: &[(f64, f64, f64, f64, f64, bool)]) -> Self {
         Self {
             header,
             values: Vec::from(values),
@@ -47,13 +49,13 @@ impl Table {
             + "|\n"
             + &(0..self.header.len()).map(|_| "|---").collect::<String>()
             + "|\n";
-        for (x, min, result, max, state) in self.values {
+        for (x, min, max, abs, percent, state) in self.values {
             let state = match state {
-                false => "-",
-                true => "+",
+                true => "+",                
+                _ => "-",
             };
             //   dbg!(result, target, delta, delta_result_percent);
-            string += &format!("|{:.3}|{:.3}|{:.3}|{:.3}|{state}|\n", x, min, result, max,);
+            string += &format!("|{:.3}|{:.3}|{:.3}|{:.1}|{:.3}|{state}|\n", x, min, abs, percent, max,);
         }
         string
     }
