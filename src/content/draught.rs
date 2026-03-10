@@ -12,7 +12,7 @@ pub struct Draught {
 //
 impl Draught {
     pub fn from(
-        language: &String, 
+        language: &str, 
         data: &HashMap<i32, ParameterData>,
     ) -> Self {
         let header = if language.contains("en") {

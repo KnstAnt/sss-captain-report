@@ -15,7 +15,7 @@ impl Template {
     //
     pub fn new(
         parent: &Dbg, 
-        language: &String,
+        language: &str,
         short_name: &str,
         unit: &str,
         result: &[(f64, f64)],

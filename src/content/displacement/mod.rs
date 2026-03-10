@@ -30,7 +30,7 @@ pub struct Displacement {
 impl Displacement {
     pub fn new(    
         parent: &Dbg, 
-        language: &String,
+        language: &str,
         summary: Parameters,
         ballast_tank: Tank,
         stores_tank: Tank,

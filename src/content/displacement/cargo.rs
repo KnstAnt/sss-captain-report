@@ -13,7 +13,7 @@ impl Cargo {
         Self {table}
     }
     //
-    pub fn from(language: &String, data: &[CargoData]) -> Self {
+    pub fn from(language: &str, data: &[CargoData]) -> Self {
         let header = if language.contains("en") { 
             vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]",]
         } else {

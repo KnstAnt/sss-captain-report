@@ -15,7 +15,7 @@ impl Voyage {
         Self {header, table}
     }
     //
-    pub fn from(language: &String, data: VoyageData) -> Self {
+    pub fn from(language: &str, data: VoyageData) -> Self {
         if language.contains("en") {
             Self::from_en(data)
         } else {

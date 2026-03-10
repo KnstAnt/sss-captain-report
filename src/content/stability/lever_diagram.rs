@@ -19,16 +19,16 @@ impl LeverDiagram {
     //
     pub fn new(
         parent: &Dbg,
-        language: &String,
+        language: &str,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
         parameters: HashMap<i32, ParameterData>,
     ) -> Self {
         let dbg = Dbg::new(parent, "LeverDiagram");
         let header = if language.contains("en") {
-            "| Heel | Lever |"
+            "| Heel [deg] | Lever [m]|"
         } else {
-            "| Крен | Плечо расчет |"
+            "| Крен [град] | Плечо [м] |"
         };
         Self {
             dbg,
@@ -205,6 +205,7 @@ impl LeverDiagram {
             + "\n\n"
             + "![wheather](./assets/k_chart.svg)"
             + "\n\n"
-            + &string)
+            + &string 
+            + "\n")
     }
 }

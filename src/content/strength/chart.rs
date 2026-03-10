@@ -20,7 +20,7 @@ impl Chart {
     //
     pub fn new(
         parent: &Dbg,
-        language: &String,
+        language: &str,
         short_name: &str,
         unit: &str,
         x_min: f64,

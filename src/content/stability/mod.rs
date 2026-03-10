@@ -16,6 +16,7 @@ pub struct Stability {
     dbg: Dbg,
     language: String,
     criterion: Criterion,
+    load_line: Criterion,
     lever_diagram: LeverDiagram,
     parameters: Parameters,
 }
@@ -23,15 +24,17 @@ pub struct Stability {
 impl Stability {
     pub fn new(
         dbg: Dbg,
-        language: &String,
+        language: &str,
         criterion: Criterion,
+        load_line: Criterion,
         lever_diagram: LeverDiagram,
         parameters: Parameters,
     ) -> Self {
         Self {
             dbg,
-            language: language.clone(),
+            language: language.to_owned(),
             criterion,
+            load_line,
             lever_diagram,
             parameters,
         }
@@ -39,8 +42,9 @@ impl Stability {
     //
     pub fn from(
         parent: &Dbg,
-        language: &String,
+        language: &str,
         criteria: &[(i32, CriteriaData)],
+        load_line: &[(i32, CriteriaData)],
         parameters: &HashMap<i32, ParameterData>,
         dso: &[(f64, f64)],
         ddo: &[(f64, f64)],
@@ -50,6 +54,7 @@ impl Stability {
             dbg.clone(),
             language,
             Criterion::from(language, criteria),
+            Criterion::from(language, load_line),    
             LeverDiagram::new(&dbg, language, dso, ddo, parameters.clone()),
             Parameters::from(
                 language,
@@ -65,22 +70,16 @@ impl Stability {
     pub fn to_string(self) -> Result<String, Error> {
         if self.language.contains("en") {
             Ok("# Stability\n\n".to_string()
-                + "## Criterions\n\n"
-                + &self.criterion.to_string()?
-                + "## Stability curve\n\n"
-                + &self.lever_diagram.to_string()?
-                + "\n"
-                + "## Stability\n\n"
-                + &self.parameters.to_string()?)
+                + "## Criterions\n\n" + &self.criterion.to_string()?
+                + "## Load line\n\n" + &self.load_line.to_string()?
+                + "## Stability curve\n\n" + &self.lever_diagram.to_string()?
+                + "## Stability\n\n" + &self.parameters.to_string()?)
         } else {
             Ok("# Остойчивость\n\n".to_string()
-                + "## Критерии\n\n"
-                + &self.criterion.to_string()?
-                + "## Диаграмма статической остойчивости\n\n"
-                + &self.lever_diagram.to_string()?
-                + "\n"
-                + "## Параметры остойчивости\n\n"
-                + &self.parameters.to_string()?)
+                + "## Критерии\n\n" + &self.criterion.to_string()?
+                + "## Посадка судна\n\n" + &self.load_line.to_string()?
+                + "## Диаграмма статической остойчивости\n\n" + &self.lever_diagram.to_string()?
+                + "## Параметры остойчивости\n\n" + &self.parameters.to_string()?)
         }
     }
 }

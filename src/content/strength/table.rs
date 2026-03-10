@@ -7,7 +7,7 @@ pub struct Table {
 impl Table {
     // x, min,  calc, max, state
     pub fn new(
-        language: &String,
+        language: &str,
         name: &str,
         values: &[(f64, f64, f64, f64, bool)],
     ) -> Self {

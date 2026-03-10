@@ -37,6 +37,7 @@ pub struct Report {
     dso: Vec<(f64, f64)>,
     ddo: Vec<(f64, f64)>,
     criteria: Vec<(i32, CriteriaData)>,
+    load_line: Vec<(i32, CriteriaData)>,
     parameters: HashMap<i32, ParameterData>,
 }
 //
@@ -69,6 +70,7 @@ impl Report {
             dso: Vec::new(),
             ddo: Vec::new(),
             criteria: Vec::new(),
+            load_line: Vec::new(),
             parameters: HashMap::new(),
         }
     }
@@ -89,15 +91,12 @@ impl Report {
             .db
             .get_criterion_data()
             .map_err(|err| error.pass(err))?
-            .data();
-        self.criteria.append(
-            &mut self
-                .db
-                .get_criterion_load_line()
-                .map_err(|err| error.pass(err))?
-                .data(),
-        );
-        self.criteria.sort_by(|a, b| a.0.cmp(&b.0));
+            .data();     
+        self.load_line = self
+            .db
+            .get_criterion_load_line()
+            .map_err(|err| error.pass(err))?
+            .data();   
         self.parameters = self
             .db
             .get_parameters_data()
@@ -146,7 +145,7 @@ impl Report {
     pub fn write(self, path: &str, name: &str) -> Result<(), Error> {
         let error = Error::new(&self.dbg, "write");
         log2::info!("Parser write_to_file begin");
-     //   let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
+        //   let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
         let mut content = crate::content::general::General::new(
             &self.dbg,
             crate::content::general::ship::Ship::from(
@@ -154,8 +153,8 @@ impl Report {
                 self.ship
                     .ok_or(error.err("Formatter error: no ship data!"))?,
             ),
-            crate::content::general::voyage::Voyage::from(
-                &self.language,
+            crate::content::general::voyage::Voyage::from(            
+                "en", //всегда на английском    &self.language,
                 self.voyage
                     .ok_or(error.err("Formatter error: no voyage data!"))?,
             ),
@@ -187,18 +186,22 @@ impl Report {
         )
         .to_string()
         .map_err(|err| error.pass(err))?;
-        content +=
-            &crate::content::draught::Draught::from(&self.language, &self.parameters)
-                .to_string()
-                .map_err(|err| error.pass(err))?;
-        content += &crate::content::strength::Strength::from(&self.dbg, &self.language, &self.strength_result)
+        content += &crate::content::draught::Draught::from(&self.language, &self.parameters)
             .to_string()
             .map_err(|err| error.pass(err))?;
+        content += &crate::content::strength::Strength::from(
+            &self.dbg,
+            &self.language,
+            &self.strength_result,
+        )
+        .to_string()
+        .map_err(|err| error.pass(err))?;
         content += "\n";
         content += &crate::content::stability::Stability::from(
             &self.dbg,
             &self.language,
             &self.criteria,
+            &self.load_line,
             &self.parameters,
             &self.dso,
             &self.ddo,

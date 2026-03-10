@@ -18,7 +18,7 @@ pub struct Strength {
 }
 //
 impl Strength {
-    pub fn new(dbg: Dbg, language: &String, shear_force: Template, bending_moment: Template,) -> Self {
+    pub fn new(dbg: Dbg, language: &str, shear_force: Template, bending_moment: Template,) -> Self {
         let (header_main, header_sf, header_bm) = if language.contains("en") {
             ("# Strength\n\n".to_owned(),
             "## Max shear forces\n\n".to_owned(),
@@ -40,7 +40,7 @@ impl Strength {
     //
     pub fn from(
         parent: &Dbg,
-        language: &String, 
+        language: &str, 
         // x, sf, bm
         result: &[StrengthResultData],
     ) -> Self {

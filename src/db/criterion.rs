@@ -8,6 +8,7 @@ pub struct CriteriaData {
     pub name: String,
     pub unit: Option<String>,
     pub result: Option<f64>,
+    pub relation: Option<String>,
     pub target: Option<f64>,
     pub state: Option<bool>,
 }

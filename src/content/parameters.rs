@@ -17,7 +17,7 @@ impl Parameters {
     }
     //
     pub fn from(
-        language: &String,
+        language: &str,
         numbers: &[i32],
         data: &HashMap<i32, ParameterData>,
     ) -> Self {

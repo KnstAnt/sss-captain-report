@@ -13,7 +13,7 @@ impl Bulkhead {
         Self {table}
     }
     //
-    pub fn from(language: &String, data: &[BulkheadData]) -> Self {
+    pub fn from(language: &str, data: &[BulkheadData]) -> Self {
         let header = if language.contains("en") { 
             vec!["Name", "Position", "Weight", "x_g [m]", "y_g [m]", "z_g [m]",]
         } else {
