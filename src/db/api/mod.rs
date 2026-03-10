@@ -52,7 +52,7 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                    "SELECT 
+                "SELECT 
                     id AS id, \
                     title AS name, \
                     unit AS unit, \
@@ -178,8 +178,8 @@ impl Db {
                 .fetch(&format!(
                     "SELECT 
                         angle, \
-                        value_dso, \
-                        value_ddo
+                        transformed_value_dso AS value_dso, \
+                        transformed_value_ddo AS value_ddo
                     FROM 
                         stability_diagram 
                     WHERE 
@@ -412,11 +412,11 @@ impl Db {
                     etd AS etd, \
                     max_draught AS max_draught
                 FROM 
-                    waypoint_view AS
+                    waypoint_view
                 WHERE 
                     language='{}' AND 
-                    w.ship_id={} AND 
-                    w.project_id IS NOT DISTINCT FROM {}
+                    ship_id={} AND 
+                    project_id IS NOT DISTINCT FROM {}
                 ORDER BY eta ASC;",
                     self.language, self.ship_id, self.project_id,
                 ))
@@ -443,7 +443,7 @@ impl Db {
                     criterion_view
                 WHERE 
                     language='{}' AND
-                    category_id = 1 AND
+                    category_id = 2 AND
                     ship_id={} AND 
                     project_id IS NOT DISTINCT FROM {}
                 ORDER BY
