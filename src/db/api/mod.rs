@@ -57,6 +57,7 @@ impl Db {
                     title AS name, \
                     unit AS unit, \
                     result AS result, \
+                    relation AS relation, \
                     target AS target, \
                     state AS state
                 FROM 
