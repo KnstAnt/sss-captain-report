@@ -387,10 +387,10 @@ impl Db {
                 FROM 
                     voyage_view
                 WHERE 
+                    language='{}' AND 
                     ship_id={} AND 
-                    project_id IS NOT DISTINCT FROM {}
-                LIMIT 1;",
-                    self.ship_id, self.project_id,
+                    project_id IS NOT DISTINCT FROM {};",
+                    self.language, self.ship_id, self.project_id,
                 ))
                 .map_err(|e| error.pass(e))?,
         )
@@ -406,19 +406,19 @@ impl Db {
                 .api_client
                 .fetch(&format!(
                 "SELECT
-                    p.port_name AS port_name, \
-                    p.port_code AS port_code, \
-                    w.eta AS eta, \
-                    w.etd AS etd, \
-                    w.max_draught AS max_draught
+                    port_name AS port_name, \
+                    port_code AS port_code, \
+                    eta AS eta, \
+                    etd AS etd, \
+                    max_draught AS max_draught
                 FROM 
-                    waypoint AS w
-                JOIN 
-                    port AS p ON w.port_id = p.id
+                    waypoint_view AS
                 WHERE 
-                    w.ship_id={} AND w.project_id IS NOT DISTINCT FROM {}
+                    language='{}' AND 
+                    w.ship_id={} AND 
+                    w.project_id IS NOT DISTINCT FROM {}
                 ORDER BY eta ASC;",
-                    self.ship_id, self.project_id,
+                    self.language, self.ship_id, self.project_id,
                 ))
                 .map_err(|e| error.pass(e))?
         )
