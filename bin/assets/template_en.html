@@ -1302,12 +1302,21 @@
         <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> <br> 
         <b> <div align="left"> Approve_____________captain_______________________ </div> </b> </font> 
         <br> <br>
-        <p> <center> St. Petersburg <br> 2025 </center></p>
+        <p> 
+            <center> 
+                St. Petersburg <br> 
+                <span id="year"></span>
+            </center>
+        </p>
     </section>
     <div class="pagebreak"> </div>
     <section>
         ======================content======================
     </section>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
 </body>
 
 </html>
