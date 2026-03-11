@@ -80,12 +80,12 @@ impl Content for Template {
         let max_abs =
             self.data.iter().fold(
                 (0., 0., 0., 0., 0., false),
-                |acc, v| if acc.3 < v.3 { *v } else { acc },
+                |acc, v| if (v.3 as f64).abs() < v.3.abs() { *v } else { acc },
             );
         let max_percent =
             self.data.iter().fold(
                 (0., 0., 0., 0., 0., false),
-                |acc, v| if acc.4 < v.4 { *v } else { acc },
+                |acc, v| if (acc.4 as f64).abs() < v.4.abs()  { *v } else { acc },
             );
         Ok(format!(
             "![chart](./assets/{}_chart.svg)",

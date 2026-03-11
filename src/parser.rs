@@ -2,6 +2,8 @@
 use sal_core::dbg::Dbg;
 use sal_core::error::Error;
 
+use crate::content::load_line::LoadLine;
+use crate::content::Content;
 use crate::converter::comrak_convert::ComrakConvert;
 use crate::db::api::{ApiClient, Db};
 use crate::db::bulk_cargo::BulkCargoData;
@@ -91,12 +93,12 @@ impl Report {
             .db
             .get_criterion_data()
             .map_err(|err| error.pass(err))?
-            .data();     
+            .data();
         self.load_line = self
             .db
             .get_criterion_load_line()
             .map_err(|err| error.pass(err))?
-            .data();   
+            .data();
         self.parameters = self
             .db
             .get_parameters_data()
@@ -153,7 +155,7 @@ impl Report {
                 self.ship
                     .ok_or(error.err("Formatter error: no ship data!"))?,
             ),
-            crate::content::general::voyage::Voyage::from(            
+            crate::content::general::voyage::Voyage::from(
                 "en", //всегда на английском    &self.language,
                 self.voyage
                     .ok_or(error.err("Formatter error: no voyage data!"))?,
@@ -186,7 +188,7 @@ impl Report {
         )
         .to_string()
         .map_err(|err| error.pass(err))?;
-        content += &crate::content::draught::Draught::from(&self.language, &self.parameters)
+        content += &LoadLine::from(&self.dbg, &self.language, &self.parameters, &self.load_line)
             .to_string()
             .map_err(|err| error.pass(err))?;
         content += &crate::content::strength::Strength::from(
@@ -201,7 +203,6 @@ impl Report {
             &self.dbg,
             &self.language,
             &self.criteria,
-            &self.load_line,
             &self.parameters,
             &self.dso,
             &self.ddo,
