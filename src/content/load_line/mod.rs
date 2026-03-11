@@ -46,7 +46,7 @@ impl LoadLine {
     //
     pub fn to_string(self) -> Result<String, Error> {
         if self.language.contains("en") {
-            Ok("# Load Line".to_string()
+            Ok("# Load Line\n\n".to_string()
                 + "## Drafts\n\nAll drafts are moulded.\n\n"
                 + &self.draught.to_string()?
                 + "## Load line criterion\n\n"

@@ -11,20 +11,20 @@ impl Table {
             vec![
                 "Criterion".to_owned(),
                 "X".to_owned(),
-                format!("${name}_{}$", r"{min}"),
-                format!("${name}$"),
-                format!("${name}, %$"),
-                format!("${name}_{}$", r"{max}"),
+                format!("{name}_min"),
+                format!("{name}"),
+                format!("{name}, %"),
+                format!("{name}_max"),
                 "Status".to_owned(),
             ]
         } else {
             vec![
                 "Критерий".to_owned(),
                 "X".to_owned(),
-                format!("${name}_{}$", r"{мин}"),
-                format!("${name}$"),
-                format!("${name}, %$"),
-                format!("${name}_{}$", r"{макс}"),
+                format!("{name}_мин"),
+                format!("{name}"),
+                format!("{name}, %"),
+                format!("{name}_макс"),
                 "Статус".to_owned(),
             ]
         };
