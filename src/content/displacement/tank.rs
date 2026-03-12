@@ -14,7 +14,7 @@ impl Tank {
         Self {table}
     }
     //
-    pub fn from(language: &String, data: &[TankData]) -> Self {
+    pub fn from(language: &str, data: &[TankData]) -> Self {
         let header = if language.contains("en") { 
             vec!["Name", "Weight", "x_g [m]", "y_g [m]", "z_g [m]", "M_f.sx [tm]"]
         } else {

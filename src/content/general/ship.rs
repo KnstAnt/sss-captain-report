@@ -15,7 +15,7 @@ impl Ship {
         Self {header, table}
     }
     //
-    pub fn from(language: &String, data: ShipData) -> Self {
+    pub fn from(language: &str, data: ShipData) -> Self {
         if language.contains("en") {
             Self::from_en(data)
         } else {

@@ -57,6 +57,7 @@ impl Db {
                     title AS name, \
                     unit AS unit, \
                     result AS result, \
+                    relation AS relation, \
                     target AS target, \
                     state AS state
                 FROM 
@@ -436,6 +437,7 @@ impl Db {
                     id AS id, \
                     title AS name, \
                     unit AS unit, \
+                    relation AS relation, \
                     result AS result, \
                     target AS target, \
                     state AS state

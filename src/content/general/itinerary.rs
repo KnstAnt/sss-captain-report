@@ -15,7 +15,7 @@ impl Itinerary {
         Self {header, table}
     }
     //
-    pub fn from(language: &String, data: Vec<ItineraryData>) -> Self {
+    pub fn from(language: &str, data: Vec<ItineraryData>) -> Self {
         if language.contains("en") {
             Self::from_en(data)
         } else {

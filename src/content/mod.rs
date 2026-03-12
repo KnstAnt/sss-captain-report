@@ -5,7 +5,7 @@ pub mod stability;
 pub mod general;
 pub mod displacement;
 pub mod parameters;
-pub mod draught;
+pub mod load_line;
 
 //
 pub trait Content {

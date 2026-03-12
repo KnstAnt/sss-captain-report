@@ -14,15 +14,16 @@ impl Criterion {
         Self { table }
     }
     //
-    pub fn from(language: &String, data: &[(i32, CriteriaData)]) -> Self {
+    pub fn from(language: &str, data: &[(i32, CriteriaData)]) -> Self {
         let header = if language.contains("en") {
-            vec!["№", "Name", "Dimension", "Value", "Allow", "Status"]
+            vec!["№", "Name", "Dimension", "Value", "Relation", "Allow", "Status"]
         } else {
             vec![
                 "№",
                 "Наименование",
                 "Размерность",
                 "Значение",
+                "Cравнениe",
                 "Допустимое значение",
                 "Статуc",
             ]
@@ -31,13 +32,16 @@ impl Criterion {
             .iter()
             .map(|(_, v)| {
                 format!(
-                    "{},{},{},{},{},{}",
+                    "{},{},{},{},{},{},{}",
                     v.id,
                     v.name,
                     v.unit.clone().unwrap_or("-".to_owned()),
                     v.result
                         .clone()
                         .map(|v| format!("{:.3}", v))
+                        .unwrap_or("-".to_owned()),
+                    v.relation
+                        .clone()
                         .unwrap_or("-".to_owned()),
                     v.target
                         .clone()
