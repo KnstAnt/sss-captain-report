@@ -9,7 +9,6 @@ pub mod template;
 
 //
 pub struct Strength {
-    dbg: Dbg,
     header_main: String,
     header_sf: String,
     header_bm: String,
@@ -18,7 +17,7 @@ pub struct Strength {
 }
 //
 impl Strength {
-    pub fn new(dbg: Dbg, language: &str, shear_force: Template, bending_moment: Template,) -> Self {
+    pub fn new(language: &str, shear_force: Template, bending_moment: Template,) -> Self {
         let (header_main, header_sf, header_bm) = if language.contains("en") {
             ("# Strength\n\n".to_owned(),
             "## Max shear forces\n\n".to_owned(),
@@ -29,7 +28,6 @@ impl Strength {
             "## Максимальные изгибающие моменты\n\n".to_owned(),)
         };
         Self {
-            dbg,
             header_main,
             header_sf,
             header_bm,
@@ -53,7 +51,6 @@ impl Strength {
                 )
             ).unzip();
         Self::new(
-            dbg.clone(),
             language,
             Template::new(
                 &dbg,

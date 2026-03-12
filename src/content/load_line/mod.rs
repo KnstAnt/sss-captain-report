@@ -3,12 +3,11 @@ use crate::{
     content::{load_line::draught::Draught, stability::criterion::Criterion},
     db::{criterion::CriteriaData, parameters::ParameterData},
 };
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 use std::collections::HashMap;
 pub mod draught;
 
 pub struct LoadLine {
-    dbg: Dbg,
     language: String,
     draught: Draught,
     load_line: Criterion,
@@ -16,13 +15,11 @@ pub struct LoadLine {
 //
 impl LoadLine {
     pub fn new(
-        dbg: Dbg,
         language: &str,
         draught: Draught,
         load_line: Criterion,
     ) -> Self {
         Self {
-            dbg,
             language: language.to_owned(),
             draught,
             load_line,
@@ -30,14 +27,11 @@ impl LoadLine {
     }
     //
     pub fn from(
-        parent: &Dbg,
         language: &str,
         parameters: &HashMap<i32, ParameterData>,
         criteria: &[(i32, CriteriaData)],
     ) -> Self {
-        let dbg = Dbg::new(parent, "Stability");
         Self::new(
-            dbg.clone(),
             language,
             Draught::from(language, parameters),
             Criterion::from(language, criteria),

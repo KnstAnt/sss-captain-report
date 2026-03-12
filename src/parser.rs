@@ -1,9 +1,5 @@
 //! Класс-коллекция таблиц. Проверяет данные и выполняет их запись
-use sal_core::dbg::Dbg;
-use sal_core::error::Error;
-
 use crate::content::load_line::LoadLine;
-use crate::content::Content;
 use crate::converter::comrak_convert::ComrakConvert;
 use crate::db::api::{ApiClient, Db};
 use crate::db::bulk_cargo::BulkCargoData;
@@ -17,6 +13,8 @@ use crate::db::ship::ShipData;
 use crate::db::strength_result::StrengthResultData;
 use crate::db::tank::TankData;
 use crate::db::voyage::VoyageData;
+use sal_core::dbg::Dbg;
+use sal_core::error::Error;
 use std::collections::HashMap;
 use std::path::PathBuf;
 //
@@ -149,7 +147,6 @@ impl Report {
         log2::info!("Parser write_to_file begin");
         //   let imo = self.imo.ok_or(error.err("Formatter error: no imo!"))?;
         let mut content = crate::content::general::General::new(
-            &self.dbg,
             crate::content::general::ship::Ship::from(
                 &self.language,
                 self.ship
@@ -164,7 +161,6 @@ impl Report {
         )
         .to_string()?;
         content += &crate::content::displacement::Displacement::new(
-            &self.dbg,
             &self.language,
             crate::content::parameters::Parameters::from(
                 &self.language,
@@ -188,7 +184,7 @@ impl Report {
         )
         .to_string()
         .map_err(|err| error.pass(err))?;
-        content += &LoadLine::from(&self.dbg, &self.language, &self.parameters, &self.load_line)
+        content += &LoadLine::from(&self.language, &self.parameters, &self.load_line)
             .to_string()
             .map_err(|err| error.pass(err))?;
         content += &crate::content::strength::Strength::from(

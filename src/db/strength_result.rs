@@ -31,14 +31,4 @@ impl std::fmt::Display for StrengthResultData {
     }
 }
 pub type StrengthResultDataArray = DataArray<StrengthResultData>;
-//
-impl StrengthResultDataArray {
-    /// Преобразование и возвращает данные в виде вектора (индекс, начало, конец) шпации
-    pub fn data(mut self) -> Vec<(f64, f64)> {
-        self
-            .data
-            .iter_mut()
-            .map(|v| (v.sf, v.bm))
-            .collect()
-    }
-}
+

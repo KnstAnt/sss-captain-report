@@ -1,4 +1,4 @@
-use std::{fs, io::{BufRead, BufReader, Read, Write}, path::{Path, PathBuf}, sync::Arc};
+use std::{fs, io::{BufReader, Read, Write}, path::{Path, PathBuf}, sync::Arc};
 
 use base64::{engine::general_purpose, Engine};
 use image::{DynamicImage, ImageFormat};
@@ -117,6 +117,8 @@ impl ComrakConvert {
         result
         // html.to_owned()
     }
+    //
+    #[allow(unused)]
     fn image_to_base64(img: &DynamicImage) -> String {
         let mut image_data: Vec<u8> = Vec::new();
         img.write_to(&mut std::io::Cursor::new(&mut image_data), ImageFormat::Png)

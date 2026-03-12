@@ -20,18 +20,6 @@ impl DocDir {
             is_dir: path.is_dir(),
         }
     }
-    // ///
-    // /// Appends a `path` to the back of a collection.
-    // pub fn push(&mut self, path: DocDir) {
-    //     self.children.push(path);
-    //     self.children.sort_by(|dir_a, dir_b| dir_a.path.cmp(&dir_b.path));
-    // }
-    pub fn is_files_only(&self) -> bool {
-        self.children.iter().all(|path| path.children.is_empty())
-    }
-    pub fn has_children(&self) -> bool {
-        self.children.is_empty()
-    }
     ///
     /// Returns string created from self.path as:  
     /// `part01_xyz` => `Part 01`

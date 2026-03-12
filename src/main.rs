@@ -1,17 +1,16 @@
+use args::get_args;
 use debugging::session::debug_session::{DebugSession, LogLevel};
 use log::info;
 use parser::Report;
-use args::get_args;
 use sal_core::{dbg::Dbg, error::Error};
 
 use crate::db::api::ApiClient;
 
 mod args;
 mod content;
-mod db;
-mod formatter;
-mod parser;
 mod converter;
+mod db;
+mod parser;
 
 fn main() {
     DebugSession::new()
@@ -33,18 +32,18 @@ fn main() {
 fn execute() -> Result<(), Error> {
     let error = Error::new("Main", "execute");
     let message = get_args().map_err(|err| error.pass(err))?;
-    let dbg = Dbg::own("main");    
+    let dbg = Dbg::own("main");
     let mut report = Report::new(
         &dbg,
         message.params.ship_id.clone(),
         message.params.project_id.clone(),
-        message.params.language.unwrap_or("ru".to_owned()).clone(),    
+        message.params.language.unwrap_or("ru".to_owned()).clone(),
         ApiClient::new(
             &dbg,
             message.address.database.clone(),
             message.address.host.clone(),
             message.address.port.to_string().clone(),
-        )
+        ),
     );
     if let Err(err) = report.get_from_db() {
         return Err(error.pass(err));
@@ -52,5 +51,5 @@ fn execute() -> Result<(), Error> {
     if let Err(err) = report.write(&message.params.path, &message.params.name) {
         return Err(error.pass(err));
     }
-    Ok(())    
+    Ok(())
 }

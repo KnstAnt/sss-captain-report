@@ -3,7 +3,7 @@ use bulk_cargo::BulkCargo;
 use bulkhead::Bulkhead;
 use cargo::Cargo;
 use container::Container;
-use sal_core::{dbg::Dbg, error::Error};
+use sal_core::error::Error;
 use tank::Tank;
 
 use super::{Content, Parameters};
@@ -15,7 +15,6 @@ pub mod bulk_cargo;
 pub mod container;
 
 pub struct Displacement {
-    dbg: Dbg,
     language: String, 
     summary: Parameters,
     ballast_tank: Tank,
@@ -29,7 +28,6 @@ pub struct Displacement {
 //
 impl Displacement {
     pub fn new(    
-        parent: &Dbg, 
         language: &str,
         summary: Parameters,
         ballast_tank: Tank,
@@ -40,9 +38,7 @@ impl Displacement {
         container: Container,
         general_cargo: Cargo,
     ) -> Self {
-        let dbg = Dbg::new(parent, "Displacement");
         Self {
-            dbg,
             language: language.to_owned(),
             summary,
             ballast_tank,
