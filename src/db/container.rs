@@ -7,7 +7,7 @@ use super::DataArray;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ContainerData {
     pub owner_code: String,
-    pub serial_code: i32,
+    pub serial_number: i32,
     pub check_digit: i32,
     pub bay_number: i32,
     pub row_number: i32,
@@ -21,7 +21,7 @@ pub struct ContainerData {
 impl ContainerData {
     //
     pub fn name(&self) -> String {
-        format!("{} U {:6} {}", self.owner_code, self.serial_code, self.check_digit)
+        format!("{} U {:6} {}", self.owner_code, self.serial_number, self.check_digit)
     }
     //
     pub fn bbrrtt(&self) -> String {
