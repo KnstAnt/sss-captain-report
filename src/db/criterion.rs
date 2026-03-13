@@ -31,3 +31,10 @@ impl CriteriaDataArray {
         self.data.into_iter().map(|v| (v.id, v)).collect()
     }
 }
+//
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct LoadLineData {
+    pub criterion_id: i32
+}
+//
+pub type LoadLineDataArray = DataArray<LoadLineData>;

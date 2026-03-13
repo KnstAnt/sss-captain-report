@@ -8,6 +8,7 @@ use super::parameters::ParameterDataArray;
 use super::stability_diagram::StabilityDiagramDataArray;
 use super::strength_result::StrengthResultDataArray;
 use super::tank::TankDataArray;
+use crate::db::criterion::{CriteriaData, LoadLineDataArray};
 use crate::db::itinerary::ItineraryDataArray;
 use crate::db::serde_parser::IFromJson;
 use crate::db::ship::{ShipData, ShipDataArray};
@@ -52,7 +53,7 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT 
                     id AS id, \
                     title AS name, \
                     unit AS unit, \
@@ -377,7 +378,7 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     code, \
                     density, \
                     wetting_timber as wetting, \
@@ -406,7 +407,7 @@ impl Db {
             &self
                 .api_client
                 .fetch(&format!(
-                "SELECT
+                    "SELECT
                     port_name AS port_name, \
                     port_code AS port_code, \
                     eta AS eta, \
@@ -421,19 +422,51 @@ impl Db {
                 ORDER BY eta ASC;",
                     self.language, self.ship_id, self.project_id,
                 ))
-                .map_err(|e| error.pass(e))?
+                .map_err(|e| error.pass(e))?,
         )
         .map_err(|e| error.pass(e))
     }
-   /// Чтение данных из БД. Функция читает данные за несколько запросов,
+    /// Чтение данных из БД. Функция читает данные за несколько запросов,
     /// парсит их и проверяет данные на корректность.
-    pub fn get_criterion_load_line(&mut self) -> Result<CriteriaDataArray, Error> {
+    pub fn get_criterion_load_line(&mut self) -> Result<Vec<(i32, CriteriaData)>, Error> {
         let error = Error::new(&self.dbg, "get_criterion_load_line");
-        CriteriaDataArray::parse(
-                        &self
+        let all_load_line_type_criterions_id: Vec<_> = LoadLineDataArray::parse(
+            &self
                 .api_client
                 .fetch(&format!(
-                "SELECT 
+                    "SELECT criterion_id FROM load_line_type_criterions;",
+                ))
+                .map_err(|e| error.pass(e))?,
+        )
+        .map_err(|e| error.pass(e))?
+        .data
+        .iter()
+        .map(|v| v.criterion_id)
+        .collect();
+        let current_load_line_id: Vec<_> = LoadLineDataArray::parse(
+            &self
+                .api_client
+                .fetch(&format!(
+                    "SELECT criterion_id 
+                    FROM load_line_type_criterions 
+                    WHERE load_line_type_id = (
+                        SELECT load_line_id 
+                        FROM voyage 
+                        WHERE ship_id={} AND project_id IS NOT DISTINCT FROM {} LIMIT 1);",
+                    self.ship_id, self.project_id,
+                ))
+                .map_err(|e| error.pass(e))?,
+        )
+        .map_err(|e| error.pass(e))?
+        .data
+        .iter()
+        .map(|v| v.criterion_id)
+        .collect();
+        Ok(CriteriaDataArray::parse(
+            &self
+                .api_client
+                .fetch(&format!(
+                    "SELECT 
                     id AS id, \
                     title AS name, \
                     unit AS unit, \
@@ -451,7 +484,19 @@ impl Db {
                 ORDER BY
                     id;",
                     self.language, self.ship_id, self.project_id,
-                )).map_err(|e| error.pass(e))?,
-        ).map_err(|e| error.pass(e))
-    }    
+                ))
+                .map_err(|e| error.pass(e))?,
+        )
+        .map_err(|e| error.pass(e))?
+        .data()
+        .into_iter()
+        .filter(|(id, _)| {
+            if all_load_line_type_criterions_id.contains(id) {
+                current_load_line_id.contains(id)
+            } else {
+                true
+            }
+        })
+        .collect())
+    }
 }
