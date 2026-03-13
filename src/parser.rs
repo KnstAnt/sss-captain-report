@@ -95,8 +95,7 @@ impl Report {
         self.load_line = self
             .db
             .get_criterion_load_line()
-            .map_err(|err| error.pass(err))?
-            .data();
+            .map_err(|err| error.pass(err))?;
         self.parameters = self
             .db
             .get_parameters_data()
