@@ -7,7 +7,6 @@ use api_tools::client::api_request::*;
 use super::bulk_cargo::BulkCargoDataArray;
 use super::bulkhead::BulkheadDataArray;
 use super::cargo::CargoDataArray;
-use super::computed_frame::ComputedFrameDataArray;
 use super::container::ContainerDataArray;
 use super::criterion::CriteriaDataArray;
 use super::itinerary::ItineraryDataArray;

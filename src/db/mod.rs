@@ -9,7 +9,6 @@ pub mod itinerary;
 pub mod criterion;
 pub mod parameters;
 mod serde_parser;
-mod computed_frame;
 pub mod strength_result;
 mod stability_diagram;
 pub mod tank;
