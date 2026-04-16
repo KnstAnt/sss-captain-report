@@ -39,7 +39,7 @@ fn execute() -> Result<(), Error> {
     let mut report = Report::new(
         message.params.language.clone(),    
         ApiServer::new(
-            "sss-computing".to_owned(),
+            message.params.database.clone(),
             message.address.host.to_owned(),
             message.address.port.to_string(),
             message.params.ship_id, 

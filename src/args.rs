@@ -31,6 +31,7 @@ pub struct Params {
     pub ship_id: i32,
     #[serde(alias = "project-id")]
     pub project_id: Option<i32>,
+    pub database: String,
 }
 //
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -68,6 +69,7 @@ pub fn get_args() -> Result<Message, Error> {
             language: Some("en".to_owned()),
             ship_id: 2,
             project_id: None,
+            database: "sss-computing".to_owned(),
         },
     };
     log::info!("set default message:{:?}", message);
